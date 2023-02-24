@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>se.sundsvall.dept44</groupId>
+        <artifactId>dept44-service-parent</artifactId>
+        <version>1.26</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+
+    <groupId>se.sundsvall</groupId>
+    <artifactId>invoice-cache</artifactId>
+    <version>1.0</version>
+    <name>Invoice Cache</name>
+
+
+    <properties>
+        <docker.image.name>ms-invoicecache</docker.image.name>
+        <exposed.app.port>8080</exposed.app.port>
+        <published.container.port.sandbox>8750</published.container.port.sandbox>
+        <published.container.port.test>8750</published.container.port.test>
+        <published.container.port.production>8750</published.container.port.production>
+        <mariab-java-client.version>3.0.5</mariab-java-client.version>
+        <testcontainers.version>1.17.3</testcontainers.version>
+
+        <app.jvm.xms.mb>512</app.jvm.xms.mb>
+        <app.jvm.xmx.mb>512</app.jvm.xmx.mb>
+
+        <party-generated-sources-folder>${project.build.directory}/party-sources
+        </party-generated-sources-folder>
+
+        <sandbox.wiremock>false</sandbox.wiremock>
+    </properties>
+
+    <dependencies>
+
+        <!-- DEPT44 Framework-->
+
+        <dependency>
+            <groupId>se.sundsvall.dept44</groupId>
+            <artifactId>dept44-starter-test</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>se.sundsvall.dept44</groupId>
+            <artifactId>dept44-starter-feign</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>se.sundsvall.dept44</groupId>
+            <artifactId>dept44-common-validators</artifactId>
+        </dependency>
+
+        <!-- Springboot Framework-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-batch</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-jdbc</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.codelibs</groupId>
+            <artifactId>jcifs</artifactId>
+            <version>2.1.31</version>
+        </dependency>
+
+        <!-- Database-->
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-jpamodelgen</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.microsoft.sqlserver</groupId>
+            <artifactId>mssql-jdbc</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-mysql</artifactId>
+        </dependency>
+        <!-- Other-->
+        <dependency>
+            <groupId>commons-validator</groupId>
+            <artifactId>commons-validator</artifactId>
+            <version>1.7</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Needed for mina ombud -->
+        <dependency>
+            <groupId>org.openapitools</groupId>
+            <artifactId>jackson-databind-nullable</artifactId>
+            <version>0.2.3</version>
+        </dependency>
+
+
+        <!-- Test-->
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mariadb</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.batch</groupId>
+            <artifactId>spring-batch-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <!--<scope>test</scope>-->
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/se/sundsvall/invoicecache/InvoiceCache*</exclude>
+                        <exclude>**/se/sundsvall/invoicecache/api/batchactuator/**</exclude>
+                        <exclude>**/se/sundsvall/invoicecache/integration/db/specifications/InvoiceSpecifications*</exclude>
+                        <exclude>**/se/sundsvall/invoicecache/integration/db/entity/PdfEntity_**</exclude>
+                        <exclude>**/se/sundsvall/invoicecache/integration/db/entity/InvoiceEntity_**</exclude>
+                        <exclude>**/se/sundsvall/invoicecache/integration/db/entity/BackupInvoiceEntity_**</exclude>
+                        <exclude>**/generated/se/sundsvall/party/**</exclude>   <!-- Generated classes -->
+                        <exclude>**/org/openapitools/api/**</exclude>   <!-- Generated classes -->
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- Add the generated entity classes as sources. -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>add-generated-source</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-sources</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${party-generated-sources-folder}</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>5.4.0</version>
+                <executions>
+                    <execution>
+                        <id>party-api</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/main/resources/contracts/party/party.yaml</inputSpec>
+                            <output>${party-generated-sources-folder}</output>
+                            <generatorName>spring</generatorName>
+                            <generateApis>false</generateApis>
+                            <configOptions>
+                                <dateLibrary>java8</dateLibrary>
+                                <generatePom>false</generatePom>
+                                <generateSupportingFiles>false</generateSupportingFiles>
+                                <interfaceOnly>true</interfaceOnly>
+                                <modelPackage>generated.se.sundsvall.party</modelPackage>
+                                <useBeanValidation>true</useBeanValidation>
+                                <useSwaggerAnnotations>true</useSwaggerAnnotations>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

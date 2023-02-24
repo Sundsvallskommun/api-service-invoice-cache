@@ -1,0 +1,10 @@
+{
+  "invoices": [],
+  "_meta": {
+    "page": 1,
+    "limit": 100,
+    "count": 0,
+    "totalRecords": 0,
+    "totalPages": 0
+  }
+}
