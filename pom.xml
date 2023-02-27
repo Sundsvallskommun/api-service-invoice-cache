@@ -22,7 +22,7 @@
         <published.container.port.test>8750</published.container.port.test>
         <published.container.port.production>8750</published.container.port.production>
         <mariab-java-client.version>3.0.5</mariab-java-client.version>
-        <testcontainers.version>1.17.3</testcontainers.version>
+        <testcontainers.version>1.17.6</testcontainers.version>
 
         <app.jvm.xms.mb>512</app.jvm.xms.mb>
         <app.jvm.xmx.mb>512</app.jvm.xmx.mb>
