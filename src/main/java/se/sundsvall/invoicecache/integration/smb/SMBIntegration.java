@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.slf4j.Logger;
@@ -55,7 +54,7 @@ public class SMBIntegration {
         }
     }
     
-    @Scheduled(initialDelay = 10L, fixedRate = 5000L, timeUnit = TimeUnit.SECONDS)
+    @Scheduled(cron = "${integration.smb.cron}")
     void cacheInvoicePdfs() {
 
         long start = System.currentTimeMillis();
