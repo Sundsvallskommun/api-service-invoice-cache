@@ -6,8 +6,8 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
-import java.util.Properties;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.slf4j.Logger;
@@ -20,8 +20,7 @@ import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
 import jcifs.CIFSException;
-import jcifs.config.PropertyConfiguration;
-import jcifs.context.BaseContext;
+import jcifs.context.SingletonContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
@@ -39,7 +38,7 @@ public class SMBIntegration {
         this.pdfRepository = pdfRepository;
         this.properties = properties;
         sourceUrl = "smb://" + properties.getDomain() +
-                properties.getShareAndDir() + properties.getRemoteDir();
+                         properties.getShareAndDir() + properties.getRemoteDir();
     }
 
     static boolean isAfterYesterday(long lastModified) {
@@ -56,7 +55,7 @@ public class SMBIntegration {
         }
     }
     
-    @Scheduled(cron = "${integration.smb.cron}")
+    @Scheduled(initialDelay = 10L, fixedRate = 5000L, timeUnit = TimeUnit.SECONDS)
     void cacheInvoicePdfs() {
 
         long start = System.currentTimeMillis();
@@ -74,8 +73,8 @@ public class SMBIntegration {
     }
 
     private SmbFile createSmbFile(String sourceUrl) throws CIFSException, MalformedURLException {
-        var cifsContext = new BaseContext(new PropertyConfiguration(new Properties()))
-                .withCredentials(new NtlmPasswordAuthenticator(properties.getDomain(), properties.getUser(), properties.getPassword()));
+        var base = SingletonContext.getInstance();
+        var cifsContext = base.withCredentials(new NtlmPasswordAuthenticator(properties.getDomain(), properties.getUser(), properties.getPassword()));
         try (var directory = new SmbFile(sourceUrl, cifsContext)) {
             return directory;
         }
