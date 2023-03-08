@@ -74,7 +74,8 @@ public class SMBIntegration {
 
     private SmbFile createSmbFile(String sourceUrl) throws CIFSException, MalformedURLException {
         var base = SingletonContext.getInstance();
-        var cifsContext = base.withCredentials(new NtlmPasswordAuthenticator(properties.getDomain(), properties.getUser(), properties.getPassword()));
+        var cifsContext = base.withCredentials(new NtlmPasswordAuthenticator(properties.getUserDomain(),
+            properties.getUser(), properties.getPassword()));
         try (var directory = new SmbFile(sourceUrl, cifsContext)) {
             return directory;
         }
