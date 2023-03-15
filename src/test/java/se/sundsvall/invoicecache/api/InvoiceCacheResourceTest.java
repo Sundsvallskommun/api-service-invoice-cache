@@ -22,6 +22,7 @@ import org.zalando.problem.ThrowableProblem;
 
 import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
+import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.service.InvoiceCacheService;
@@ -32,7 +33,7 @@ class InvoiceCacheResourceTest {
     
     @Mock
     private InvoiceCacheService mockService;
-
+    
     @Mock
     private InvoicePdfService mockPdfService;
     
@@ -47,10 +48,10 @@ class InvoiceCacheResourceTest {
         when(mockService.getInvoices(any(InvoiceFilterRequest.class))).thenReturn(invoicesResponse);
     
         var response = resource.getInvoices(generateInvoiceFilterRequest());
-
+    
         verify(mockService, times(1)).getInvoices(any(InvoiceFilterRequest.class));
         verifyNoInteractions(mockPdfService);
-
+    
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isNotNull();
@@ -61,39 +62,62 @@ class InvoiceCacheResourceTest {
         assertThatExceptionOfType(ThrowableProblem.class)
             .isThrownBy(() -> resource.getInvoices(new InvoiceFilterRequest()))
             .withMessage("One of legalIds, invoiceNumbers or ocrNumber needs to be set.");
-
+    
         verify(mockService, times(0)).getInvoices(any(InvoiceFilterRequest.class));
     }
-
+    
     @Test
     void testGetPdfSuccessfulRequest_shouldReturnResponse() {
         when(mockPdfService.getInvoicePdf(any(String.class))).thenReturn(generateInvoicePdf());
-
+        
         var invoicePdfResponse = resource.getInvoicePdf("fileName");
-
+        
         verify(mockPdfService, times(1)).getInvoicePdf(any(String.class));
         verifyNoInteractions(mockService);
         verifyNoMoreInteractions(mockPdfService);
-
+        
         assertThat(invoicePdfResponse).isNotNull();
         assertThat(invoicePdfResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(invoicePdfResponse.getBody()).isNotNull();
-
+        
         var invoicePdf = invoicePdfResponse.getBody();
         assertThat(invoicePdf.name()).isEqualTo("someName");
         assertThat(invoicePdf.content()).isEqualTo("someContent");
     }
-
+    
     @Test
     void testImportInvoice() {
         when(mockPdfService.createOrUpdateInvoice(any(InvoicePdfRequest.class))).thenReturn("someFilename");
-
+        
         var response = resource.importInvoice(InvoicePdfRequest.builder().build());
-
+        
         assertThat(response).isNotNull();
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getHeaders()).containsKey(HttpHeaders.LOCATION);
-
+        
         verify(mockPdfService, times(1)).createOrUpdateInvoice(any(InvoicePdfRequest.class));
+    }
+    
+    @Test
+    void testGetPdfWithSpecificationSuccessfulRequest_shouldReturnResponse() {
+        when(mockPdfService.getInvoicePdfByInvoiceNumber(any(String.class),
+            any(String.class), any(InvoicePdfFilterRequest.class))).thenReturn(generateInvoicePdf());
+        
+        var invoicePdfResponse = resource
+            .getInvoicePdf("issuerlegalid", "invoicenumber", new InvoicePdfFilterRequest());
+        
+        verify(mockPdfService, times(1))
+            .getInvoicePdfByInvoiceNumber(any(String.class), any(String.class), any(InvoicePdfFilterRequest.class));
+        verifyNoInteractions(mockService);
+        verifyNoMoreInteractions(mockPdfService);
+        
+        assertThat(invoicePdfResponse).isNotNull();
+        assertThat(invoicePdfResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(invoicePdfResponse.getBody()).isNotNull();
+        
+        var invoicePdf = invoicePdfResponse.getBody();
+        assertThat(invoicePdf.name()).isEqualTo("someName");
+        assertThat(invoicePdf.content()).isEqualTo("someContent");
+        
     }
 }

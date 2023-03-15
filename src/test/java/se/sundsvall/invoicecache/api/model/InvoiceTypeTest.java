@@ -8,7 +8,7 @@ class InvoiceTypeTest {
 
     @Test
     void testValuesHaveNotChanged() {
-        assertEquals(6, InvoiceType.values().length);
+        assertEquals(7, InvoiceType.values().length);
 
         assertEquals("Faktura", InvoiceType.INVOICE.getType());
         assertEquals("Kreditfaktura", InvoiceType.CREDIT_INVOICE.getType());
@@ -16,5 +16,6 @@ class InvoiceTypeTest {
         assertEquals("Självfaktura", InvoiceType.SELF_INVOICE.getType());
         assertEquals("Påminnelse", InvoiceType.REMINDER.getType());
         assertEquals("Samlingsfaktura", InvoiceType.CONSOLIDATED_INVOICE.getType());
+        assertEquals("Slutfaktura", InvoiceType.FINAL_INVOICE.getType());
     }
 }
