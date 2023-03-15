@@ -5,6 +5,7 @@ import static se.sundsvall.invoicecache.api.InvoiceCacheResource.PATH;
 import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
+import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +21,7 @@ import org.zalando.problem.Status;
 
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
+import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfResponse;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
@@ -71,7 +73,7 @@ public class InvoiceCacheResource {
     }
 
     @Operation(
-        summary = "Fetch an invoice PDF",
+        summary = "Fetch an invoice PDF via filename",
         responses = {
             @ApiResponse(
                 responseCode = "200",
@@ -86,14 +88,25 @@ public class InvoiceCacheResource {
     @GetMapping("/{filename}/pdf")
     public ResponseEntity<InvoicePdf> getInvoicePdf(@PathVariable @NotBlank String filename) {
         var invoicePdf = invoicePdfService.getInvoicePdf(filename);
-
+    
         if (invoicePdf == null) {
             throw Problem.valueOf(Status.NOT_FOUND);
         }
-
         return ResponseEntity.ok(invoicePdf);
     }
-
+    
+    @GetMapping("/{issuerlegalid}/{invoicenumber}/pdf")
+    public ResponseEntity<InvoicePdf> getInvoicePdf(@PathVariable String issuerlegalid,
+        @PathVariable String invoicenumber,
+        @ParameterObject @Valid InvoicePdfFilterRequest request) {
+        var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
+            invoicenumber, request);
+        if (invoicePdf == null) {
+            throw Problem.valueOf(Status.NOT_FOUND);
+        }
+        return ResponseEntity.ok(invoicePdf);
+    }
+    
     @Operation(
         summary = "Create/import an invoice",
         responses = {

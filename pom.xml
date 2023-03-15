@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.31</version>
+        <version>1.32</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -162,11 +162,22 @@
                     <excludes>
                         <exclude>**/se/sundsvall/invoicecache/InvoiceCache*</exclude>
                         <exclude>**/se/sundsvall/invoicecache/api/batchactuator/**</exclude>
-                        <exclude>**/se/sundsvall/invoicecache/integration/db/specifications/InvoiceSpecifications*</exclude>
-                        <exclude>**/se/sundsvall/invoicecache/integration/db/entity/PdfEntity_**</exclude>
-                        <exclude>**/se/sundsvall/invoicecache/integration/db/entity/InvoiceEntity_**</exclude>
-                        <exclude>**/se/sundsvall/invoicecache/integration/db/entity/BackupInvoiceEntity_**</exclude>
-                        <exclude>**/generated/se/sundsvall/party/**</exclude>   <!-- Generated classes -->
+                        <exclude>
+                            **/se/sundsvall/invoicecache/integration/db/specifications/InvoicePdfSpecifications*
+                        </exclude>
+                        <exclude>
+                            **/se/sundsvall/invoicecache/integration/db/specifications/InvoiceSpecifications*
+                        </exclude>
+                        <exclude>**/se/sundsvall/invoicecache/integration/db/entity/PdfEntity_**
+                        </exclude>
+                        <exclude>
+                            **/se/sundsvall/invoicecache/integration/db/entity/InvoiceEntity_**
+                        </exclude>
+                        <exclude>
+                            **/se/sundsvall/invoicecache/integration/db/entity/BackupInvoiceEntity_**
+                        </exclude>
+                        <exclude>**/generated/se/sundsvall/party/**
+                        </exclude>   <!-- Generated classes -->
                         <exclude>**/org/openapitools/api/**</exclude>   <!-- Generated classes -->
                     </excludes>
                 </configuration>
