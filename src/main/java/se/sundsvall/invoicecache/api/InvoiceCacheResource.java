@@ -1,5 +1,8 @@
 package se.sundsvall.invoicecache.api;
 
+import static org.springframework.http.MediaType.ALL_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static se.sundsvall.invoicecache.api.InvoiceCacheResource.PATH;
 
 import javax.validation.Valid;
@@ -7,7 +10,6 @@ import javax.validation.constraints.NotBlank;
 
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,7 +67,7 @@ public class InvoiceCacheResource {
                 content = @Content(schema = @Schema(implementation = InvoicesResponse.class)))
         }
     )
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<InvoicesResponse> getInvoices(@Valid InvoiceFilterRequest request) {
         RequestValidator.validateRequest(request);
 
@@ -113,11 +115,12 @@ public class InvoiceCacheResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string")),
+                content = @Content(mediaType = ALL_VALUE)
             )
         }
     )
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = { ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
     public ResponseEntity<Void> importInvoice(@Valid @RequestBody final InvoicePdfRequest request) {
         var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request);
 
@@ -126,6 +129,9 @@ public class InvoiceCacheResource {
             .buildAndExpand(invoiceFilename)
             .toUri();
 
-        return ResponseEntity.created(uri).build();
+        return ResponseEntity.created(uri)
+                //Work around that the API-manager sets the content-type to "application/octet-stream" when no content-type is set.
+                .header(HttpHeaders.CONTENT_TYPE, ALL_VALUE)
+                .build();
     }
 }
