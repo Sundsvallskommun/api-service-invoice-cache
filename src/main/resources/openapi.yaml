@@ -60,6 +60,8 @@ paths:
               style: simple
               schema:
                 type: string
+          content:
+            '*/*': {}
         "400":
           description: Bad Request
           content:
@@ -251,9 +253,9 @@ components:
           type: object
           additionalProperties:
             type: object
-        title:
-          type: string
         detail:
+          type: string
+        title:
           type: string
         status:
           $ref: '#/components/schemas/StatusType'

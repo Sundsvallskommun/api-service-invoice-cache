@@ -10,7 +10,6 @@ import javax.validation.constraints.NotBlank;
 
 import org.springdoc.api.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -116,7 +115,8 @@ public class InvoiceCacheResource {
             @ApiResponse(
                 responseCode = "201",
                 description = "Successful Operation",
-                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string"))
+                headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string")),
+                content = @Content(mediaType = ALL_VALUE)
             )
         }
     )
@@ -129,6 +129,9 @@ public class InvoiceCacheResource {
             .buildAndExpand(invoiceFilename)
             .toUri();
 
-        return ResponseEntity.created(uri).build();
+        return ResponseEntity.created(uri)
+                //Work around that the API-manager sets the content-type to "application/octet-stream" when no content-type is set.
+                .header(HttpHeaders.CONTENT_TYPE, ALL_VALUE)
+                .build();
     }
 }
