@@ -1,5 +1,8 @@
 package se.sundsvall.invoicecache.api;
 
+import static org.springframework.http.MediaType.ALL_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static se.sundsvall.invoicecache.api.InvoiceCacheResource.PATH;
 
 import javax.validation.Valid;
@@ -65,7 +68,7 @@ public class InvoiceCacheResource {
                 content = @Content(schema = @Schema(implementation = InvoicesResponse.class)))
         }
     )
-    @GetMapping(produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
     public ResponseEntity<InvoicesResponse> getInvoices(@Valid InvoiceFilterRequest request) {
         RequestValidator.validateRequest(request);
 
@@ -117,7 +120,7 @@ public class InvoiceCacheResource {
             )
         }
     )
-    @PostMapping
+    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = { ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
     public ResponseEntity<Void> importInvoice(@Valid @RequestBody final InvoicePdfRequest request) {
         var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request);
 
