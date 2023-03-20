@@ -36,3 +36,4 @@ build/
 .env
 /log
 logback-spring.xml
+application-develop.properties
