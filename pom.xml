@@ -11,7 +11,7 @@
 
     <groupId>se.sundsvall</groupId>
     <artifactId>invoice-cache</artifactId>
-    <version>1.3</version>
+    <version>1.4</version>
     <name>Invoice Cache</name>
 
 
