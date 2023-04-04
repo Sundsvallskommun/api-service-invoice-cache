@@ -27,7 +27,7 @@ public class InvoiceMapper {
                 .withInvoiceDate(entity.getInvoiceDate())
                 .withInvoiceDescription(entity.getInvoiceReference())
                 .withInvoiceDueDate(entity.getInvoiceDueDate())
-                .withInvoiceName(entity.getFileName())
+                .withInvoiceFileName(entity.getFileName())
                 .withInvoiceNumber(entity.getInvoiceNumber())
                 .withInvoiceReminderDate(entity.getInvoiceReminderDate())
                 .withInvoiceStatus(InvoiceStatus.fromValue(entity.getInvoiceStatus()))

@@ -23,10 +23,7 @@ public record InvoicePdfRequest(
     @Schema(description = "Invoice id")
     String invoiceId,
 
-    @Schema(description = "Invoice name")
-    String invoiceName,
-
-    @Schema(description = "Invoice type")
+    @Schema(description = "Invoice type", implementation = InvoiceType.class)
     InvoiceType invoiceType,
 
     @Valid

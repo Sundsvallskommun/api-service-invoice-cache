@@ -121,7 +121,6 @@ class InvoicePdfServiceTest {
             .withIssuerLegalId("someIssuerLegalId")
             .withDebtorLegalId("someDebtorLegalId")
             .withInvoiceNumber("someInvoiceNumber")
-            .withInvoiceName("someInvoiceName")
             .withInvoiceType(InvoiceType.SELF_INVOICE)
             .withAttachment(InvoicePdf.builder()
                 .withName("someName")
@@ -134,7 +133,6 @@ class InvoicePdfServiceTest {
         assertThat(entity.getInvoiceIssuerLegalId()).isEqualTo(request.issuerLegalId());
         assertThat(entity.getInvoiceDebtorLegalId()).isEqualTo(request.debtorLegalId());
         assertThat(entity.getInvoiceNumber()).isEqualTo(request.invoiceNumber());
-        assertThat(entity.getInvoiceName()).isEqualTo(request.invoiceName());
         assertThat(entity.getInvoiceType()).isEqualTo(request.invoiceType());
         assertThat(entity.getFilename()).isEqualTo(request.attachment().name());
         assertThat(entity.getDocument()).isNotNull();
@@ -147,10 +145,9 @@ class InvoicePdfServiceTest {
             .withIssuerLegalId("someIssuerLegalId")
             .withDebtorLegalId("someDebtorLegalId")
             .withInvoiceNumber("someInvoiceNumber")
-            .withInvoiceName("someInvoiceName")
             .withInvoiceType(InvoiceType.SELF_INVOICE)
             .withAttachment(InvoicePdf.builder()
-                .withName("someName")
+                .withName("someName.pdf")
                 .withContent("someContent")
                 .build())
             .build();
@@ -160,7 +157,6 @@ class InvoicePdfServiceTest {
         assertThat(pdfEntity.getInvoiceIssuerLegalId()).isEqualTo(request.issuerLegalId());
         assertThat(pdfEntity.getInvoiceDebtorLegalId()).isEqualTo(request.debtorLegalId());
         assertThat(pdfEntity.getInvoiceNumber()).isEqualTo(request.invoiceNumber());
-        assertThat(pdfEntity.getInvoiceName()).isEqualTo(request.invoiceName());
         assertThat(pdfEntity.getInvoiceType()).isEqualTo(request.invoiceType());
         assertThat(pdfEntity.getFilename()).isEqualTo(request.attachment().name());
         assertThat(pdfEntity.getDocument()).isNotNull();

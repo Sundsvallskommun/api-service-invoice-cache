@@ -205,7 +205,6 @@ CREATE TABLE `invoice_pdf`
     `invoice_debtor_legal_id` VARCHAR(255) DEFAULT NULL,
     `invoice_number` VARCHAR(255) DEFAULT NULL,
     `invoice_id` VARCHAR(255) DEFAULT NULL,
-    `invoice_name` VARCHAR(255) DEFAULT NULL,
     `invoice_type` VARCHAR(24) DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `UK_efwb3ex96plme92eseluwks26` (`filename`)

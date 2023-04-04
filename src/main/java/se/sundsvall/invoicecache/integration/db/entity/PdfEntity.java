@@ -56,7 +56,4 @@ public class PdfEntity {
 
     @Column(name = "invoice_id")
     private String invoiceId;
-
-    @Column(name = "invoice_name")
-    private String invoiceName;
 }
