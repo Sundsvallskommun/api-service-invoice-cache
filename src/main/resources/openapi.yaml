@@ -5,7 +5,7 @@ info:
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
-  version: "1.4"
+  version: "2.0"
 servers:
   - url: http://localhost:8080
     description: Generated server url
@@ -29,14 +29,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/InvoicesResponse'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/json:
               schema:
@@ -62,8 +62,8 @@ paths:
                 type: string
           content:
             '*/*': {}
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             application/problem+json:
               schema:
@@ -71,8 +71,8 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             application/problem+json:
               schema:
@@ -110,34 +110,41 @@ paths:
           schema:
             type: string
             description: Invoice id
-        - name: invoiceName
+        - name: invoiceFileName
           in: query
-          description: Invoice name
+          description: Invoice file name
           required: false
           schema:
             type: string
-            description: Invoice name
+            description: Invoice file name
         - name: invoiceType
           in: query
           description: Invoice type
           required: false
           schema:
             type: string
-            description: Invoice type
+            enum:
+              - INVOICE
+              - CREDIT_INVOICE
+              - DIRECT_DEBIT
+              - SELF_INVOICE
+              - REMINDER
+              - FINAL_INVOICE
+              - CONSOLIDATED_INVOICE
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: '#/components/schemas/Problem'
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-  /invoices/{filename}/pdf:
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: '#/components/schemas/Problem'
+  /invoices/{filename}:
     get:
       tags:
         - Invoice Cache
@@ -162,14 +169,14 @@ paths:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "400":
-          description: Bad Request
+        "500":
+          description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: '#/components/schemas/Problem'
-        "500":
-          description: Internal Server Error
+        "400":
+          description: Bad Request
           content:
             '*/*':
               schema:
@@ -224,9 +231,6 @@ components:
         invoiceId:
           type: string
           description: Invoice id
-        invoiceName:
-          type: string
-          description: Invoice name
         invoiceType:
           type: string
           description: Invoice type
@@ -253,9 +257,9 @@ components:
           type: object
           additionalProperties:
             type: object
-        detail:
-          type: string
         title:
+          type: string
+        detail:
           type: string
         status:
           $ref: '#/components/schemas/StatusType'
@@ -351,7 +355,7 @@ components:
           type: number
           description: Amount to pay including VAT (SEK)
           example: 4995.0
-        invoiceName:
+        invoiceFileName:
           type: string
           description: "Filename of the invoice, if it is present"
           example: Faktura_5555555_to_9988776655.pdf
@@ -502,9 +506,6 @@ components:
         invoiceNumber:
           type: string
           description: Invoice number
-        invoiceName:
-          type: string
-          description: Invoice name
         invoiceType:
           type: string
           description: Invoice type

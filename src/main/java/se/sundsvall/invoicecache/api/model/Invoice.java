@@ -58,7 +58,7 @@ public class Invoice {
     private BigDecimal totalAmount;
     
     @Schema(description = "Filename of the invoice, if it is present", example = "Faktura_5555555_to_9988776655.pdf")
-    private String invoiceName;
+    private String invoiceFileName;
     
     @Schema(description = "Vat amount in SEK", example = "999.00")
     private BigDecimal vat;
@@ -66,7 +66,7 @@ public class Invoice {
     @Schema(description = "Amount without vat", example = "3996.00")
     private BigDecimal amountVatExcluded;
     
-    @Schema(description = "Invoice type", example = "NORMAL or CREDIT")
+    @Schema(description = "Invoice type", example = "NORMAL or CREDIT", implementation = InvoiceType.class)
     private InvoiceType invoiceType;
     
     @Schema(implementation = Address.class)

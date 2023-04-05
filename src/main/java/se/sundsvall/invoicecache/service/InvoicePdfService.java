@@ -68,7 +68,6 @@ public class InvoicePdfService {
                 .withInvoiceDebtorLegalId(request.debtorLegalId())
                 .withInvoiceNumber(request.invoiceNumber())
                 .withInvoiceId(request.invoiceId())
-                .withInvoiceName(request.invoiceName())
                 .withInvoiceType(request.invoiceType())
                 .withFilename(request.attachment().name())
                 .withDocument(document)
@@ -84,7 +83,6 @@ public class InvoicePdfService {
             pdfEntity.setInvoiceDebtorLegalId(request.debtorLegalId());
             pdfEntity.setInvoiceNumber(request.invoiceNumber());
             pdfEntity.setInvoiceId(request.invoiceId());
-            pdfEntity.setInvoiceName(request.invoiceName());
             pdfEntity.setInvoiceType(request.invoiceType());
             pdfEntity.setFilename(request.attachment().name());
             pdfEntity.setDocument(new SerialBlob(Base64.getDecoder().decode(request.attachment().content())));

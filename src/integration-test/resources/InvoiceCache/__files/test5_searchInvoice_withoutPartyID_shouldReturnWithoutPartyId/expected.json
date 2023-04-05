@@ -11,7 +11,7 @@
       "invoiceDate": "2022-08-06",
       "paidAmount": 0.0,
       "totalAmount": 1500.0,
-      "invoiceName": "Faktura_53626800_to_9512245031.pdf",
+      "invoiceFileName": "Faktura_53626800_to_9512245031.pdf",
       "vat": 300.0,
       "amountVatExcluded": 1200.0,
       "invoiceType": "INVOICE",

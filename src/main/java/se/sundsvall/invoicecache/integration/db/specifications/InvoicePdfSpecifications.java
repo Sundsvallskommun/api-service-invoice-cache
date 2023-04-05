@@ -37,8 +37,8 @@ public class InvoicePdfSpecifications {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(PdfEntity_.INVOICE_ID), request.getInvoiceId()));
             }
             
-            if (StringUtils.isNotBlank(request.getInvoiceName())) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(PdfEntity_.INVOICE_NAME), request.getInvoiceName()));
+            if (StringUtils.isNotBlank(request.getInvoiceFileName())) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(PdfEntity_.FILENAME), request.getInvoiceFileName()));
             }
             if (request.getInvoiceType() != null) {
                 predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(PdfEntity_.INVOICE_TYPE), request.getInvoiceType()));

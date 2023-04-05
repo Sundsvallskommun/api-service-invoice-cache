@@ -16,10 +16,10 @@ public class InvoicePdfFilterRequest {
     @Schema(description = "Invoice id")
     String invoiceId;
     
-    @Schema(description = "Invoice name")
-    String invoiceName;
+    @Schema(description = "Invoice file name")
+    String invoiceFileName;
     
-    @Schema(description = "Invoice type")
+    @Schema(description = "Invoice type", implementation = InvoiceType.class)
     InvoiceType invoiceType;
     
 }

@@ -19,10 +19,7 @@ public record InvoicePdfResponse(
     @Schema(description = "Invoice number")
     String invoiceNumber,
 
-    @Schema(description = "Invoice name")
-    String invoiceName,
-
-    @Schema(description = "Invoice type")
+    @Schema(description = "Invoice type", implementation = InvoiceType.class)
     InvoiceType invoiceType,
 
     @Schema(description = "Attachment", requiredMode = REQUIRED)

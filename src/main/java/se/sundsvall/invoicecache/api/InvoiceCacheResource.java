@@ -21,6 +21,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
+import se.sundsvall.invoicecache.InvoiceCache;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
@@ -48,6 +49,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public class InvoiceCacheResource {
 
     static final String PATH = "/invoices";
+    static final String FILENAME_PATH = "/{filename}";
 
     private final InvoiceCacheService invoiceCacheService;
     private final InvoicePdfService invoicePdfService;
@@ -87,7 +89,7 @@ public class InvoiceCacheResource {
                 content = @Content(schema = @Schema(implementation = Problem.class)))
         }
     )
-    @GetMapping("/{filename}/pdf")
+    @GetMapping(FILENAME_PATH)
     public ResponseEntity<InvoicePdf> getInvoicePdf(@PathVariable @NotBlank String filename) {
         var invoicePdf = invoicePdfService.getInvoicePdf(filename);
     
@@ -125,7 +127,7 @@ public class InvoiceCacheResource {
         var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request);
 
         var uri = UriComponentsBuilder.newInstance()
-            .path(InvoiceCacheResource.PATH + "/{filename}/pdf")
+            .path(PATH + FILENAME_PATH)
             .buildAndExpand(invoiceFilename)
             .toUri();
 
