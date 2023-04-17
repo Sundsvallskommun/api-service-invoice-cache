@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 
-import javax.sql.DataSource;
+import jakarta.activation.DataSource;
+
 
 /**
  * Explicitly configure JPA to only pickup our "local" database and not anything related to raindance.

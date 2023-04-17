@@ -1,10 +1,11 @@
 package se.sundsvall.invoicecache.service.batch.invoice;
 
+
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.job.builder.JobBuilder;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.builder.StepBuilder;
 import org.springframework.batch.item.data.RepositoryItemWriter;
 import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.batch.item.database.JdbcCursorItemReader;
@@ -14,13 +15,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+
 import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceRowMapper;
 
-import javax.sql.DataSource;
+import jakarta.activation.DataSource;
 
 @Configuration
 public class BatchConfig {
@@ -32,19 +35,13 @@ public class BatchConfig {
     private final String sqlString;
 
     private final RaindanceEntityProcessor raindanceEntityProcessor;
-    private final JobBuilderFactory jobBuilderFactory;
-    private final StepBuilderFactory stepBuilderFactory;
     private final InvoiceEntityRepository invoiceRepository;
     private final InvoiceListener invoiceListener;
     
     public BatchConfig(@Value("classpath:${raindance.sql.filename}") Resource sqlResource,
-            final JobBuilderFactory jobBuilderFactory,
-            final StepBuilderFactory stepBuilderFactory,
             final RaindanceEntityProcessor raindanceEntityProcessor,
             final InvoiceEntityRepository invoiceRepository,
             final InvoiceListener invoiceListener) {
-        this.jobBuilderFactory = jobBuilderFactory;
-        this.stepBuilderFactory = stepBuilderFactory;
         this.raindanceEntityProcessor = raindanceEntityProcessor;
         this.invoiceRepository = invoiceRepository;
         this.sqlString = ResourceUtils.asString(sqlResource);
@@ -76,9 +73,9 @@ public class BatchConfig {
      * @param dataSource
      * @return
      */
-    public Step step1(DataSource dataSource) {
-        return stepBuilderFactory.get("invoiceStep")
-                .<RaindanceQueryResultDto, InvoiceEntity> chunk(CHUNK_SIZE)
+    public Step step1(DataSource dataSource, JobRepository jobRepository) {
+        return new StepBuilder("invoiceStep", jobRepository)//get("invoiceStep")
+                .<RaindanceQueryResultDto, InvoiceEntity> chunk(CHUNK_SIZE, new DataSourceTransactionManager(dataSource))
                 .faultTolerant()
                 .reader(raindanceReader(dataSource))
                 .processor(raindanceEntityProcessor)
@@ -102,12 +99,12 @@ public class BatchConfig {
     /**
      * Defines the job and which step to start in the job.
      * @param dataSource
-     * @return
+     * @return the job
      */
     @Bean(name = RAINDANCE_JOB_NAME)
-    public Job startJob(@Qualifier("raindanceDataSource") DataSource dataSource) {
-        return jobBuilderFactory.get(RAINDANCE_JOB_NAME)
-                .start(step1(dataSource))
+    public Job startJob(@Qualifier("raindanceDataSource") DataSource dataSource, JobRepository jobRepository) {
+        return new JobBuilder(RAINDANCE_JOB_NAME, jobRepository)
+                .start(step1(dataSource, jobRepository))
                 .build();
     }
 }

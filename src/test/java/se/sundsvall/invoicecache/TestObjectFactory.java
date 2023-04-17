@@ -202,8 +202,7 @@ public class TestObjectFactory {
     public static JobExecution createJobExecution(final ExitStatus exitStatus) {
         JobExecution jobExecution = new JobExecution(1L);
         jobExecution.setExitStatus(exitStatus);
-        Calendar cal = Calendar.getInstance();
-        jobExecution.setEndTime(cal.getTime());
+        jobExecution.setEndTime(LocalDateTime.now());
 
         return jobExecution;
     }

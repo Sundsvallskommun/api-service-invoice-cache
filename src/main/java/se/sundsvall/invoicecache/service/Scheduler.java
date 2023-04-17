@@ -6,7 +6,7 @@ import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDA
 
 import java.util.Date;
 
-import javax.transaction.Transactional;
+import jakarta.transaction.Transactional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

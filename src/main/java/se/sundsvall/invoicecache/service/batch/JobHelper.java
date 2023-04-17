@@ -77,7 +77,7 @@ public class JobHelper {
         Optional<JobExecution> possibleJob = Optional.empty();
         
         try {
-            final int jobInstanceCount = jobExplorer.getJobInstanceCount(jobName);
+            final int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(jobName);
             
             //See of there are any successful jobs done within the last 24 hours.
             possibleJob = jobExplorer.getJobInstances(jobName, 0, jobInstanceCount)
@@ -86,7 +86,7 @@ public class JobHelper {
                     .flatMap(List<JobExecution>::stream)
                     .filter(jobExecution -> jobExecution.getExitStatus().equals(ExitStatus.COMPLETED))
                     .filter(jobExecution -> Objects.nonNull(jobExecution.getEndTime())
-                            && convertDateToLocalDateTime(jobExecution.getEndTime()).isAfter(LocalDateTime.now().minusMinutes(successfulWithin.toMinutes())))
+                            && jobExecution.getEndTime().isAfter(LocalDateTime.now().minusMinutes(successfulWithin.toMinutes())))
                     .findFirst();
             
         } catch (NoSuchJobException e) {
@@ -105,7 +105,7 @@ public class JobHelper {
         List<JobStatus> listOfJobs = new ArrayList<>();
         int jobsToFetch = 50;
         try {
-            int jobInstanceCount = jobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME);
+            int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME);
             int mostRecentInstances = jobInstanceCount;
             //Only get the latest 50
             if(jobInstanceCount > jobsToFetch) {
@@ -130,9 +130,9 @@ public class JobHelper {
     
     private JobStatus mapJobExecutionToJobStatus(JobExecution jobExecution) {
         final JobStatus jobStatus = JobStatus.builder()
-                .withStatus(jobExecution.getStatus().getBatchStatus().toString())
-                .withStartTime(convertDateToLocalDateTime(jobExecution.getStartTime()))
-                .withEndTime(convertDateToLocalDateTime(jobExecution.getEndTime()))
+                .withStatus(jobExecution.getStatus().toString())
+                .withStartTime(jobExecution.getStartTime())
+                .withEndTime(jobExecution.getEndTime())
                 .build();
         
         //We also want to know how many rows we read and wrote.

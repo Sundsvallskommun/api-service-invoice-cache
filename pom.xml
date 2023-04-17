@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>1.32</version>
+        <version>2.0-SNAPSHOT</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -87,7 +87,7 @@
         </dependency>
 
         <dependency>
-            <groupId>org.hibernate</groupId>
+            <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
         </dependency>
 
@@ -121,7 +121,7 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.3</version>
+            <version>0.2.6</version>
         </dependency>
 
 
@@ -216,7 +216,7 @@
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>5.4.0</version>
+                <version>6.5.0</version>
                 <executions>
                     <execution>
                         <id>party-api</id>
@@ -229,6 +229,7 @@
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
                             <configOptions>
+                                <useJakartaEe>true</useJakartaEe>
                                 <dateLibrary>java8</dateLibrary>
                                 <generatePom>false</generatePom>
                                 <generateSupportingFiles>false</generateSupportingFiles>
