@@ -15,6 +15,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
+import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
 import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
@@ -27,24 +28,28 @@ import jcifs.smb.SmbFileInputStream;
 @Component
 @EnableScheduling
 public class SMBIntegration {
-
+    
+    private final static String INVOICE_ISSUER_LEGAL_ID = "2120002411";
+    
     private static final Logger logger = LoggerFactory.getLogger(SMBIntegration.class);
     private final PdfEntityRepository pdfRepository;
+    private final InvoiceEntityRepository invoiceRepository;
     private final SMBProperties properties;
     private final String sourceUrl;
-
-    SMBIntegration(PdfEntityRepository pdfRepository, SMBProperties properties) {
+    
+    SMBIntegration(PdfEntityRepository pdfRepository, InvoiceEntityRepository invoiceRepository, SMBProperties properties) {
         this.pdfRepository = pdfRepository;
+        this.invoiceRepository = invoiceRepository;
         this.properties = properties;
         sourceUrl = "smb://" + properties.getDomain() +
-                         properties.getShareAndDir() + properties.getRemoteDir();
+                    properties.getShareAndDir() + properties.getRemoteDir();
     }
-
+    
     static boolean isAfterYesterday(long lastModified) {
         return LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), TimeZone.getDefault().toZoneId()).isAfter(LocalDateTime.now().minusDays(1));
-
+        
     }
-
+    
     public PdfEntity findPdf(String filename) {
         try (var file = createSmbFile(sourceUrl + "/" + filename)) {
             return saveFile(file);
@@ -56,21 +61,21 @@ public class SMBIntegration {
     
     @Scheduled(cron = "${integration.smb.cron}")
     void cacheInvoicePdfs() {
-
+        
         long start = System.currentTimeMillis();
         logger.info("Starting caching of invoice pdfs");
-
+        
         try (var directory = createSmbFile(sourceUrl)) {
             Arrays.stream(Objects.requireNonNull(directory)
-                    .listFiles(file -> isAfterYesterday(file.lastModified()))).forEach(this::saveFile);
-
+                .listFiles(file -> isAfterYesterday(file.lastModified()))).forEach(this::saveFile);
+            
         } catch (CIFSException | MalformedURLException e) {
             logger.warn("Something went wrong when trying to cache pdf", e);
         }
         long end = System.currentTimeMillis();
         logger.info("Caching of invoice pdfs completed in {} seconds", (end - start) / 1000);
     }
-
+    
     private SmbFile createSmbFile(String sourceUrl) throws CIFSException, MalformedURLException {
         var base = SingletonContext.getInstance();
         var cifsContext = base.withCredentials(new NtlmPasswordAuthenticator(properties.getUserDomain(),
@@ -79,17 +84,25 @@ public class SMBIntegration {
             return directory;
         }
     }
-
+    
     private PdfEntity saveFile(SmbFile file) {
         try (var inputStream = new SmbFileInputStream(file)) {
-            return pdfRepository.save(PdfEntity.builder()
-                    .withFilename(file.getName().replace(properties.getRemoteDir(), ""))
+            var filename = file.getName().replace(properties.getRemoteDir(), "");
+            var entity = invoiceRepository.findByFileName(filename).orElse(null);
+            
+            if (entity != null) {
+                return pdfRepository.save(PdfEntity.builder()
+                    .withFilename(filename)
                     .withDocument(BlobProxy.generateProxy(inputStream.readAllBytes()))
+                    .withInvoiceIssuerLegalId(INVOICE_ISSUER_LEGAL_ID)
+                    .withInvoiceDebtorLegalId(entity.getOrganizationNumber())
+                    .withInvoiceNumber(entity.getInvoiceNumber())
                     .build());
+            }
         } catch (IOException e) {
             logger.warn("Something went wrong when trying to save file", e);
-            return null;
         }
+        return null;
     }
-
+    
 }

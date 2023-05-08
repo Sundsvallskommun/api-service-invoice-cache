@@ -10,4 +10,6 @@ import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 public interface InvoiceEntityRepository extends JpaRepository<InvoiceEntity, Long>, JpaSpecificationExecutor<InvoiceEntity> {
 
     Optional<InvoiceEntity> findByInvoiceNumber(String invoiceNumber);
+    
+    Optional<InvoiceEntity> findByFileName(String fileName);
 }
