@@ -4,6 +4,7 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.boot.SpringApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableAsync;
 
 import se.sundsvall.dept44.ServiceApplication;
 
@@ -11,6 +12,7 @@ import se.sundsvall.dept44.ServiceApplication;
 @ServiceApplication
 @EnableCaching
 @EnableBatchProcessing
+@EnableAsync
 public class InvoiceCache {
     public static void main(String[] args) {
         SpringApplication.run(InvoiceCache.class, args);

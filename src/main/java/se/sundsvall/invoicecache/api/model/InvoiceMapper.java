@@ -3,7 +3,6 @@ package se.sundsvall.invoicecache.api.model;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;

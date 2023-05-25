@@ -10,24 +10,22 @@ import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.invoicecache.service.InvoiceCacheService;
-
 @Component
 @Endpoint(id = "restorebackup")
-public class RestoreBackupEndpoint {
+class RestoreBackupEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(RestoreBackupEndpoint.class);
 
-    private final InvoiceCacheService service;
+    private final ActuatorService actuatorService;
 
-    public RestoreBackupEndpoint(InvoiceCacheService service) {
-        this.service = service;
+    RestoreBackupEndpoint(ActuatorService actuatorService) {
+        this.actuatorService = actuatorService;
     }
 
     @ReadOperation
-    public void restoreBackup() {
+    void restoreBackup() {
         try {
-            service.forceRestoreBackup();
+            actuatorService.forceRestoreBackup();
         } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {
             LOG.warn("Couldn't restore backup", e);
         }

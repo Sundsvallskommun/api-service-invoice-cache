@@ -1,5 +1,20 @@
 package se.sundsvall.invoicecache.service.batch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,27 +28,9 @@ import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.NoSuchJobException;
+
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 @ExtendWith(MockitoExtension.class)
 class JobHelperTest {
@@ -53,20 +50,20 @@ class JobHelperTest {
     
     @Test
     void areInvoicesOutdated_shouldReturnFalse_whenFoundCompletedJob() throws NoSuchJobException {
-        setupGetSuccessfulJobMethod(new Date(), ExitStatus.COMPLETED);
+        setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.COMPLETED);
         when(mockInvoiceRepository.count()).thenReturn(100L);
         assertFalse(jobHelper.areInvoicesOutdated());
     }
     
     @Test
     void areInvoicesOutdated_shouldReturnTrue_whenNoCompletedJob() throws NoSuchJobException {
-        setupGetSuccessfulJobMethod(createDate(LocalDateTime.now().minusDays(7L)), ExitStatus.COMPLETED);
+        setupGetSuccessfulJobMethod(LocalDateTime.now().minusDays(7L), ExitStatus.COMPLETED);
         assertTrue(jobHelper.areInvoicesOutdated());
     }
     
     @Test
     void testGetSuccessfulJobWithinTimePeriod_shouldReturnPopulatedExecution_whenWithinGivenTime() throws NoSuchJobException {
-        String jobName = setupGetSuccessfulJobMethod(new Date(), ExitStatus.COMPLETED);
+        String jobName = setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.COMPLETED);
     
         final Optional<JobExecution> successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
         assertTrue(successfulJobWithinTimePeriod.isPresent());
@@ -74,7 +71,7 @@ class JobHelperTest {
     
     @Test
     void testGetSuccessfulJobWithinTimePeriod_shouldReturnEmptyExecution_whenOutsideGivenTime() throws NoSuchJobException {
-        String jobName = setupGetSuccessfulJobMethod(createDate(LocalDateTime.now().minusDays(7L)), ExitStatus.COMPLETED);
+        String jobName = setupGetSuccessfulJobMethod(LocalDateTime.now().minusDays(7L), ExitStatus.COMPLETED);
         
         final Optional<JobExecution> successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
         assertFalse(successfulJobWithinTimePeriod.isPresent());
@@ -82,7 +79,7 @@ class JobHelperTest {
     
     @Test
     void testGetSuccessfulJobWithinTimePeriod_shouldReturnEmptyExecution_whenNoCompletedExitStatus() throws NoSuchJobException {
-        String jobName = setupGetSuccessfulJobMethod(new Date(), ExitStatus.FAILED);
+        String jobName = setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.FAILED);
         
         final Optional<JobExecution> successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
         assertFalse(successfulJobWithinTimePeriod.isPresent());
@@ -90,7 +87,7 @@ class JobHelperTest {
     
     @Test
     void testGetSuccessfulJobWithinTimePeriod_shouldThrowException_whenNoJobExists() throws NoSuchJobException {
-        final String jobName = setupGetSuccessfulJobMethod(new Date(), ExitStatus.FAILED);//Ignore job name, we want to get a job that doesn't exist.
+        final String jobName = setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.FAILED);//Ignore job name, we want to get a job that doesn't exist.
         when(mockJobExplorer.getJobInstanceCount(jobName)).thenThrow(new NoSuchJobException("missing job"));
         final Optional<JobExecution> successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
         assertFalse(successfulJobWithinTimePeriod.isPresent());
@@ -98,15 +95,15 @@ class JobHelperTest {
     
     @Test
     void testGetJobsShouldReturnListOfLatestJobStatuses() throws NoSuchJobException {
-        when(mockJobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME)).thenReturn(100);
+        when(mockJobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME)).thenReturn(100L);
     
         final JobInstance jobInstance = new JobInstance(1L, RAINDANCE_JOB_NAME);
         List<JobInstance> jobList = List.of(jobInstance);
     
         final JobExecution jobExecution = new JobExecution(jobInstance, null);
         jobExecution.setStatus(BatchStatus.COMPLETED);
-        jobExecution.setStartTime(createDate(LocalDateTime.of(2022, 8, 10, 1, 10 ,0)));
-        jobExecution.setEndTime(createDate(LocalDateTime.of(2022, 8, 10, 1, 10 ,10)));
+        jobExecution.setStartTime(LocalDateTime.of(2022, 8, 10, 1, 10 ,0));
+        jobExecution.setEndTime(LocalDateTime.of(2022, 8, 10, 1, 10 ,10));
         jobExecution.setJobInstance(jobInstance);
     
         StepExecution step = new StepExecution("stepName", jobExecution);
@@ -126,16 +123,6 @@ class JobHelperTest {
         assertEquals("stepName", jobs.get(0).getStepStatusMap().get("stepName").getStepName());
         assertEquals(15L, jobs.get(0).getStepStatusMap().get("stepName").getStepReadCount());
         assertEquals(20L, jobs.get(0).getStepStatusMap().get("stepName").getStepWriteCount());
-    }
-    
-    @Test
-    void testConvertDateToLocalDateTime() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(2022, Calendar.AUGUST, 11, 12, 1, 1);
-        Date date = cal.getTime();
-        final LocalDateTime localDateTime = jobHelper.convertDateToLocalDateTime(date);
-        
-        assertEquals(LocalDateTime.of(2022, Month.AUGUST, 11, 12, 1, 1).truncatedTo(ChronoUnit.SECONDS), localDateTime.truncatedTo(ChronoUnit.SECONDS));
     }
     
     @Test
@@ -160,7 +147,7 @@ class JobHelperTest {
      * @return
      * @throws NoSuchJobException
      */
-    private String setupGetSuccessfulJobMethod(final Date endTime, ExitStatus exitStatus) throws NoSuchJobException {
+    private String setupGetSuccessfulJobMethod(final LocalDateTime endTime, ExitStatus exitStatus) throws NoSuchJobException {
         //We want to see if there are any successful jobs within the last minute
         final JobInstance jobInstance = new JobInstance(1L, RAINDANCE_JOB_NAME);
         List<JobInstance> jobList = List.of(jobInstance);
@@ -172,7 +159,7 @@ class JobHelperTest {
         List<JobExecution> executionList = List.of(jobExecution);
         
         //Lenient since we want to reuse this method.
-        Mockito.lenient().when(mockJobExplorer.getJobInstanceCount(eq(RAINDANCE_JOB_NAME))).thenReturn(1);
+        Mockito.lenient().when(mockJobExplorer.getJobInstanceCount(eq(RAINDANCE_JOB_NAME))).thenReturn(1L);
         Mockito.lenient().when(mockJobExplorer.getJobInstances(eq(RAINDANCE_JOB_NAME), eq(0), eq(1))).thenReturn(jobList);
         Mockito.lenient().when(mockJobExplorer.getJobExecutions(jobInstance)).thenReturn(executionList);
         return RAINDANCE_JOB_NAME;

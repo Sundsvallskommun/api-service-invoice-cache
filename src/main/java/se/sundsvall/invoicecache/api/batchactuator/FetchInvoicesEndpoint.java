@@ -10,24 +10,23 @@ import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.invoicecache.service.InvoiceCacheService;
-
 @Component
 @Endpoint(id = "fetchinvoices")
-public class FetchInvoicesEndpoint {
+class FetchInvoicesEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(FetchInvoicesEndpoint.class);
 
-    private final InvoiceCacheService service;
+    private final ActuatorService actuatorService;
 
-    public FetchInvoicesEndpoint(InvoiceCacheService service) {
-        this.service = service;
+    FetchInvoicesEndpoint(ActuatorService actuatorService) {
+        this.actuatorService = actuatorService;
     }
 
     @ReadOperation
-    public void fetchInvoices() {
+    void fetchInvoices() {
+        LOG.info("Manually fetching invoices");
         try {
-            service.forceFetchInvoices();
+            actuatorService.forceFetchInvoices();
         } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {
             LOG.warn("Couldn't start job for fetching invoices", e);
         }

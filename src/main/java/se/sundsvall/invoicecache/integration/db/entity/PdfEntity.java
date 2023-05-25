@@ -3,18 +3,17 @@ package se.sundsvall.invoicecache.integration.db.entity;
 
 import java.sql.Blob;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Lob;
-import javax.persistence.Table;
-
 import se.sundsvall.invoicecache.api.model.InvoiceType;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,7 +37,7 @@ public class PdfEntity {
     private String filename;
 
     @Lob
-    @Column(name = "document")
+    @Column(name = "document", columnDefinition = "LONGBLOB")
     private Blob document;
 
     @Enumerated(EnumType.STRING)

@@ -16,7 +16,7 @@ import generated.se.sundsvall.party.PartyType;
         name = "party",
         url = "${integration.party.url}",
         configuration = PartyConfiguration.class,
-        decode404 = true
+        dismiss404 = true
 )
 public interface PartyIntegration {
 

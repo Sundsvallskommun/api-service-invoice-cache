@@ -29,7 +29,7 @@ import jcifs.smb.SmbFileInputStream;
 @EnableScheduling
 public class SMBIntegration {
     
-    private final static String INVOICE_ISSUER_LEGAL_ID = "2120002411";
+    private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
     
     private static final Logger logger = LoggerFactory.getLogger(SMBIntegration.class);
     private final PdfEntityRepository pdfRepository;

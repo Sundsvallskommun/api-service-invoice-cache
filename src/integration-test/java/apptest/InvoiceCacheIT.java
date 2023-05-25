@@ -23,16 +23,18 @@ import se.sundsvall.invoicecache.InvoiceCache;
         classes = InvoiceCache.class)
 @Testcontainers
 public class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
+
+    private static final String MARIADB_VERSION = "mariadb:10.6.12";
     
     @Container
-    public static MariaDBContainer<?> raindanceDb = new MariaDBContainer<>(DockerImageName.parse("mariadb:10.9.2"))
+    public static MariaDBContainer<?> raindanceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
             .withDatabaseName("raindance")
             .withUsername("root")
             .withPassword("")
             .withInitScript("InvoiceCache/sql/init-raindance.sql");
     
     @Container
-    public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse("mariadb:10.9.2"))
+    public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
             .withDatabaseName("ms-invoicecache")
             .withUsername("root")
             .withPassword("")

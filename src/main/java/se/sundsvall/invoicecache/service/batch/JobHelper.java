@@ -1,5 +1,14 @@
 package se.sundsvall.invoicecache.service.batch;
 
+import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
+
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -8,19 +17,9 @@ import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 /**
  * Helper class for everything related to fetching statuses for batches and determining whether to run or not.
@@ -77,23 +76,22 @@ public class JobHelper {
         Optional<JobExecution> possibleJob = Optional.empty();
         
         try {
-            final int jobInstanceCount = jobExplorer.getJobInstanceCount(jobName);
-            
+            final int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(jobName);
+
             //See of there are any successful jobs done within the last 24 hours.
-            possibleJob = jobExplorer.getJobInstances(jobName, 0, jobInstanceCount)
-                    .stream()
+            possibleJob = jobExplorer.getJobInstances(jobName, 0, jobInstanceCount).stream()
                     .map(jobExplorer::getJobExecutions)
                     .flatMap(List<JobExecution>::stream)
                     .filter(jobExecution -> jobExecution.getExitStatus().equals(ExitStatus.COMPLETED))
-                    .filter(jobExecution -> Objects.nonNull(jobExecution.getEndTime())
-                            && convertDateToLocalDateTime(jobExecution.getEndTime()).isAfter(LocalDateTime.now().minusMinutes(successfulWithin.toMinutes())))
+                    .filter(jobExecution -> Objects.requireNonNull(jobExecution.getEndTime())
+                            .isAfter(LocalDateTime.now().minusMinutes(successfulWithin.toMinutes())))
                     .findFirst();
-            
+
         } catch (NoSuchJobException e) {
             //If we can't find any job, we don't care, run a new one.
             LOG.info("Couldn't find any job with name: {}", jobName);
         }
-        
+
         return possibleJob;
     }
     
@@ -105,7 +103,7 @@ public class JobHelper {
         List<JobStatus> listOfJobs = new ArrayList<>();
         int jobsToFetch = 50;
         try {
-            int jobInstanceCount = jobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME);
+            int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME);
             int mostRecentInstances = jobInstanceCount;
             //Only get the latest 50
             if(jobInstanceCount > jobsToFetch) {
@@ -130,9 +128,9 @@ public class JobHelper {
     
     private JobStatus mapJobExecutionToJobStatus(JobExecution jobExecution) {
         final JobStatus jobStatus = JobStatus.builder()
-                .withStatus(jobExecution.getStatus().getBatchStatus().toString())
-                .withStartTime(convertDateToLocalDateTime(jobExecution.getStartTime()))
-                .withEndTime(convertDateToLocalDateTime(jobExecution.getEndTime()))
+                .withStatus(jobExecution.getStatus().toString())
+                .withStartTime(jobExecution.getStartTime())
+                .withEndTime(jobExecution.getEndTime())
                 .build();
         
         //We also want to know how many rows we read and wrote.
@@ -142,16 +140,5 @@ public class JobHelper {
                 .forEach(jobStatus::addStepStatus);
         
         return jobStatus;
-    }
-    
-    public LocalDateTime convertDateToLocalDateTime(Date dateToConvert) {
-        if(dateToConvert != null) {
-            return dateToConvert
-                    .toInstant()
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-        } else {
-            return LocalDateTime.now();
-        }
     }
 }

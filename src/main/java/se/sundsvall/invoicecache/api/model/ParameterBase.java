@@ -1,7 +1,7 @@
 package se.sundsvall.invoicecache.api.model;
 
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
