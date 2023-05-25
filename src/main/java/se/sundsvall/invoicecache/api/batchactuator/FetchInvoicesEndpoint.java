@@ -26,6 +26,7 @@ public class FetchInvoicesEndpoint {
 
     @ReadOperation
     public void fetchInvoices() {
+        LOG.info("Manually fetching invoices");
         try {
             service.forceFetchInvoices();
         } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {

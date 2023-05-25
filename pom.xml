@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>2.0-SNAPSHOT</version>
+        <version>2.1.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -21,8 +21,11 @@
         <published.container.port.sandbox>8750</published.container.port.sandbox>
         <published.container.port.test>8750</published.container.port.test>
         <published.container.port.production>8750</published.container.port.production>
+
+        <commons-validator.version>1.7</commons-validator.version>
+        <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
+        <jcifs-ng.version>2.1.9</jcifs-ng.version>
         <mariab-java-client.version>3.0.5</mariab-java-client.version>
-        <testcontainers.version>1.17.3</testcontainers.version>
 
         <app.jvm.xms.mb>512</app.jvm.xms.mb>
         <app.jvm.xmx.mb>512</app.jvm.xmx.mb>
@@ -77,7 +80,7 @@
         <dependency>
             <groupId>eu.agno3.jcifs</groupId>
             <artifactId>jcifs-ng</artifactId>
-            <version>2.1.9</version>
+            <version>${jcifs-ng.version}</version>
         </dependency>
 
         <!-- Database-->
@@ -108,7 +111,7 @@
         <dependency>
             <groupId>commons-validator</groupId>
             <artifactId>commons-validator</artifactId>
-            <version>1.7</version>
+            <version>${commons-validator.version}</version>
         </dependency>
 
         <dependency>
@@ -121,7 +124,7 @@
         <dependency>
             <groupId>org.openapitools</groupId>
             <artifactId>jackson-databind-nullable</artifactId>
-            <version>0.2.6</version>
+            <version>${jackson-databind-nullable.version}</version>
         </dependency>
 
 
@@ -129,14 +132,12 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mariadb</artifactId>
-            <version>${testcontainers.version}</version>
             <scope>test</scope>
         </dependency>
 
@@ -149,7 +150,7 @@
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
-            <!--<scope>test</scope>-->
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
@@ -229,7 +230,7 @@
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
                             <configOptions>
-                                <useJakartaEe>true</useJakartaEe>
+                                <useSpringBoot3>true</useSpringBoot3>
                                 <dateLibrary>java8</dateLibrary>
                                 <generatePom>false</generatePom>
                                 <generateSupportingFiles>false</generateSupportingFiles>

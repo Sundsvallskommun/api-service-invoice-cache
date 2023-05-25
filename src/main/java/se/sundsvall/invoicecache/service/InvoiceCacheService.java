@@ -13,6 +13,7 @@ import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -115,16 +116,20 @@ public class InvoiceCacheService {
     }
 
     //The following methods are only to be used when there's a need to manipulate invoices via actuators in se.sundsvall.invoicecache.api.batchactuator
+
+    @Async
     public void forceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         scheduler.fetchInvoices();
     }
 
     //Only to be used by actuators
+    @Async
     public void forceCreateBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         scheduler.runBackup();
     }
 
     //Only to be used by actuators
+    @Async
     public void forceRestoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
         scheduler.restoreBackup();
     }

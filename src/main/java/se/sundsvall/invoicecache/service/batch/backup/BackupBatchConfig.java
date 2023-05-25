@@ -5,6 +5,7 @@ import java.util.Map;
 
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -15,19 +16,18 @@ import org.springframework.batch.item.data.builder.RepositoryItemWriterBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 
-import jakarta.activation.DataSource;
-
 /**
  * All configuration for backup and restore of backups.
  */
 @Configuration
+@EnableBatchProcessing(dataSourceRef = "batchDataSource", transactionManagerRef = "transactionManager")
 public class BackupBatchConfig {
     
     private static final int CHUNK_SIZE = 2000;
@@ -36,23 +36,19 @@ public class BackupBatchConfig {
     
     private final InvoiceEntityRepository invoiceRepository;
     private final BackupInvoiceRepository backupRepository;
-    private final StepBuilder stepBuilder;
     private final BackupProcessor backupProcessor;
-    private final JobBuilder jobBuilder;
-    
+
     private final RestoreBackupProcessor restoreBackupProcessor;
     private final BackupListener backupListener;
     private final RestoreBackupListener restoreBackupListener;
     
-    public BackupBatchConfig(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository, final StepBuilder stepBuilder,
-            final BackupProcessor backupProcessor, final RestoreBackupProcessor restoreBackupProcessor, final JobBuilder jobBuilder, final BackupListener backupListener,
+    public BackupBatchConfig(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
+            final BackupProcessor backupProcessor, final RestoreBackupProcessor restoreBackupProcessor, final BackupListener backupListener,
             final RestoreBackupListener restoreBackupListener) {
         this.invoiceRepository = invoiceRepository;
         this.backupRepository = backupRepository;
-        this.stepBuilder = stepBuilder;
         this.backupProcessor = backupProcessor;
         this.restoreBackupProcessor = restoreBackupProcessor;
-        this.jobBuilder = jobBuilder;
         this.backupListener = backupListener;
         this.restoreBackupListener = restoreBackupListener;
     }
@@ -74,9 +70,9 @@ public class BackupBatchConfig {
                 .build();
     }
     
-    public Step backupStep() {
-        return stepBuilder.get("backupStep")
-                .<InvoiceEntity, BackupInvoiceEntity> chunk(CHUNK_SIZE)
+    public Step backupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new StepBuilder("backupStep", jobRepository)
+                .<InvoiceEntity, BackupInvoiceEntity> chunk(CHUNK_SIZE, transactionManager)
                 .reader(invoiceReader())
                 .processor(backupProcessor)
                 .writer(invoiceBackupWriter())
@@ -85,9 +81,10 @@ public class BackupBatchConfig {
     }
     
     @Bean(name = BACKUP_JOB_NAME)
-    public Job backupJob(JobRepository jobRepository) {
+    public Job backupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new JobBuilder(BACKUP_JOB_NAME, jobRepository)
-                .start(backupStep())
+                .repository(jobRepository)
+                .start(backupStep(jobRepository, transactionManager))
                 .build();
     }
     
@@ -110,10 +107,10 @@ public class BackupBatchConfig {
                 .repository(invoiceRepository)
                 .build();
     }
-    
-    public Step restoreBackupStep(DataSource dataSource, JobRepository jobRepository) {
+
+    public Step restoreBackupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new StepBuilder("restoreBackupStep", jobRepository)
-                .<BackupInvoiceEntity, InvoiceEntity> chunk(CHUNK_SIZE, new DataSourceTransactionManager(dataSource))
+                .<BackupInvoiceEntity, InvoiceEntity> chunk(CHUNK_SIZE, transactionManager)
                 .reader(invoiceBackupReader())
                 .processor(restoreBackupProcessor)
                 .writer(backupToInvoiceEntityWriter())
@@ -122,9 +119,9 @@ public class BackupBatchConfig {
     }
     
     @Bean(name = RESTORE_BACKUP_JOB_NAME)
-    public Job restoreBackupJob() {
-        return jobBuilder.get(RESTORE_BACKUP_JOB_NAME)
-                .start(restoreBackupStep())
+    public Job restoreBackupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new JobBuilder(RESTORE_BACKUP_JOB_NAME, jobRepository)
+                .start(restoreBackupStep(jobRepository, transactionManager))
                 .build();
     }
     

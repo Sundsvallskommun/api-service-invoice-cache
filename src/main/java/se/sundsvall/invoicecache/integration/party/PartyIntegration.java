@@ -15,7 +15,8 @@ import generated.se.sundsvall.party.PartyType;
 @FeignClient(
         name = "party",
         url = "${integration.party.url}",
-        configuration = PartyConfiguration.class
+        configuration = PartyConfiguration.class,
+        dismiss404 = true
 )
 public interface PartyIntegration {
 

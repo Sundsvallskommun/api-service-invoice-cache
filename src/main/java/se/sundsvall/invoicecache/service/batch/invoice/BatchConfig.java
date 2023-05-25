@@ -1,8 +1,13 @@
 package se.sundsvall.invoicecache.service.batch.invoice;
 
 
+import javax.sql.DataSource;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.job.builder.JobBuilder;
 import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.batch.core.step.builder.StepBuilder;
@@ -15,7 +20,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 
 import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
@@ -23,10 +28,11 @@ import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceRowMapper;
 
-import jakarta.activation.DataSource;
-
 @Configuration
+@EnableBatchProcessing(dataSourceRef = "raindanceDataSource", transactionManagerRef = "transactionManager")
 public class BatchConfig {
+
+    private static final Logger LOG = LoggerFactory.getLogger(BatchConfig.class);
     
     private static final int CHUNK_SIZE = 2000;
     
@@ -73,9 +79,11 @@ public class BatchConfig {
      * @param dataSource
      * @return
      */
-    public Step step1(DataSource dataSource, JobRepository jobRepository) {
-        return new StepBuilder("invoiceStep", jobRepository)//get("invoiceStep")
-                .<RaindanceQueryResultDto, InvoiceEntity> chunk(CHUNK_SIZE, new DataSourceTransactionManager(dataSource))
+    public Step step1(DataSource dataSource, JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        LOG.info("Creating step1 for reading, processing and writing invoices.");
+        return new StepBuilder("invoiceStep", jobRepository)
+                .repository(jobRepository)
+                .<RaindanceQueryResultDto, InvoiceEntity> chunk(CHUNK_SIZE, transactionManager)
                 .faultTolerant()
                 .reader(raindanceReader(dataSource))
                 .processor(raindanceEntityProcessor)
@@ -95,16 +103,16 @@ public class BatchConfig {
                 .repository(invoiceRepository)
                 .build();
     }
-    
+
     /**
      * Defines the job and which step to start in the job.
-     * @param dataSource
+     * @param dataSource the datasource to use
      * @return the job
      */
     @Bean(name = RAINDANCE_JOB_NAME)
-    public Job startJob(@Qualifier("raindanceDataSource") DataSource dataSource, JobRepository jobRepository) {
+    public Job startJob(@Qualifier("raindanceDataSource") DataSource dataSource, JobRepository jobRepository, PlatformTransactionManager transactionManager) {
         return new JobBuilder(RAINDANCE_JOB_NAME, jobRepository)
-                .start(step1(dataSource, jobRepository))
+                .start(step1(dataSource, jobRepository, transactionManager))
                 .build();
     }
 }

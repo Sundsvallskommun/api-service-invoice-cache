@@ -1,5 +1,20 @@
 package se.sundsvall.invoicecache.service.batch;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -13,27 +28,9 @@ import org.springframework.batch.core.JobInstance;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.NoSuchJobException;
+
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.Month;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 @ExtendWith(MockitoExtension.class)
 class JobHelperTest {
@@ -126,16 +123,6 @@ class JobHelperTest {
         assertEquals("stepName", jobs.get(0).getStepStatusMap().get("stepName").getStepName());
         assertEquals(15L, jobs.get(0).getStepStatusMap().get("stepName").getStepReadCount());
         assertEquals(20L, jobs.get(0).getStepStatusMap().get("stepName").getStepWriteCount());
-    }
-    
-    @Test
-    void testConvertDateToLocalDateTime() {
-        Calendar cal = Calendar.getInstance();
-        cal.set(2022, Calendar.AUGUST, 11, 12, 1, 1);
-        Date date = cal.getTime();
-        final LocalDateTime localDateTime = jobHelper.convertDateToLocalDateTime(date);
-        
-        assertEquals(LocalDateTime.of(2022, Month.AUGUST, 11, 12, 1, 1).truncatedTo(ChronoUnit.SECONDS), localDateTime.truncatedTo(ChronoUnit.SECONDS));
     }
     
     @Test
