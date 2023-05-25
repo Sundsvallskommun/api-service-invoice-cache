@@ -10,24 +10,22 @@ import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.stereotype.Component;
 
-import se.sundsvall.invoicecache.service.InvoiceCacheService;
-
 @Component
 @Endpoint(id = "backup")
-public class BackupEndpoint {
+class BackupEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(BackupEndpoint.class);
 
-    private final InvoiceCacheService service;
+    private final ActuatorService actuatorService;
 
-    public BackupEndpoint(InvoiceCacheService service) {
-        this.service = service;
+    BackupEndpoint(ActuatorService actuatorService) {
+        this.actuatorService = actuatorService;
     }
 
     @ReadOperation
-    public void backup() {
+    void backup() {
         try {
-            service.forceCreateBackup();
+            actuatorService.forceCreateBackup();
         } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {
             LOG.warn("Couldn't create backup", e);
         }

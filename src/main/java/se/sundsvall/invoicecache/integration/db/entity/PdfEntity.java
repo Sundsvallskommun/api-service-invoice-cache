@@ -3,7 +3,7 @@ package se.sundsvall.invoicecache.integration.db.entity;
 
 import java.sql.Blob;
 
-import org.hibernate.type.descriptor.jdbc.LobTypeMappings;
+import se.sundsvall.invoicecache.api.model.InvoiceType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,9 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
-
-import se.sundsvall.invoicecache.api.model.InvoiceType;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

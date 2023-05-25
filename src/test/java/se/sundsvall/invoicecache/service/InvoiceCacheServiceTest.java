@@ -87,25 +87,4 @@ class InvoiceCacheServiceTest {
         assertEquals(2, metadata.getCount());
         assertEquals(1, metadata.getTotalPages());
     }
-
-    @Test
-    void testForceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        when(mockScheduler.fetchInvoices()).thenReturn(new JobExecution(1L));
-        service.forceFetchInvoices();
-        verify(mockScheduler, times(1)).fetchInvoices();
-    }
-
-    @Test
-    void testForceRunBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        doNothing().when(mockScheduler).runBackup();
-        service.forceCreateBackup();
-        verify(mockScheduler, times(1)).runBackup();
-    }
-
-    @Test
-    void testForceRestoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        doNothing().when(mockScheduler).restoreBackup();
-        service.forceRestoreBackup();
-        verify(mockScheduler, times(1)).restoreBackup();
-    }
 }

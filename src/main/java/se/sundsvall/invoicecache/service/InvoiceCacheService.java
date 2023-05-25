@@ -6,14 +6,9 @@ import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -22,9 +17,7 @@ import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoiceMapper;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.api.model.MetaData;
-import se.sundsvall.invoicecache.integration.db.EntityMapper;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
-import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoiceSpecifications;
 import se.sundsvall.invoicecache.integration.party.PartyClient;
@@ -35,23 +28,16 @@ public class InvoiceCacheService {
     private static final Logger LOG = LoggerFactory.getLogger(InvoiceCacheService.class);
     
     private final InvoiceEntityRepository invoiceRepository;
-    private final PdfEntityRepository pdfRepository;
-    private final EntityMapper entityMapper;
     private final InvoiceMapper mapper;
     private final InvoiceSpecifications invoiceSpecifications;
-    private final Scheduler scheduler;
     private final PartyClient partyClient;
 
     public InvoiceCacheService(final InvoiceEntityRepository invoiceRepository,
-            final PdfEntityRepository pdfRepository, final EntityMapper entityMapper,
             final InvoiceMapper mapper, final InvoiceSpecifications invoiceSpecifications,
-            final Scheduler scheduler, final PartyClient partyClient) {
+            final PartyClient partyClient) {
         this.invoiceRepository = invoiceRepository;
-        this.pdfRepository = pdfRepository;
-        this.entityMapper = entityMapper;
         this.mapper = mapper;
         this.invoiceSpecifications = invoiceSpecifications;
-        this.scheduler = scheduler;
         this.partyClient = partyClient;
     }
     
@@ -113,24 +99,5 @@ public class InvoiceCacheService {
      */
     private Pageable getPagingParameters(InvoiceFilterRequest request) {
         return PageRequest.of(request.getPage() - 1, request.getLimit());
-    }
-
-    //The following methods are only to be used when there's a need to manipulate invoices via actuators in se.sundsvall.invoicecache.api.batchactuator
-
-    @Async
-    public void forceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        scheduler.fetchInvoices();
-    }
-
-    //Only to be used by actuators
-    @Async
-    public void forceCreateBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        scheduler.runBackup();
-    }
-
-    //Only to be used by actuators
-    @Async
-    public void forceRestoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        scheduler.restoreBackup();
     }
 }
