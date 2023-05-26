@@ -14,7 +14,6 @@
     <version>2.0</version>
     <name>Invoice Cache</name>
 
-
     <properties>
         <docker.image.name>ms-invoicecache</docker.image.name>
         <exposed.app.port>8080</exposed.app.port>
@@ -35,6 +34,25 @@
 
         <sandbox.wiremock>false</sandbox.wiremock>
     </properties>
+
+    <!--
+		Override of managed dependency:
+		https://jira.sundsvall.se/browse/UF-5329
+		https://github.com/FasterXML/jackson-core/issues/1014
+
+		Remove this dependencyManagement when jackson 2.15.1 is offered by spring-boot
+	-->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>2.15.1</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <dependencies>
 
