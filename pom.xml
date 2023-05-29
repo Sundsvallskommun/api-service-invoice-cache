@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>2.1.0</version>
+        <version>2.1.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -35,29 +35,7 @@
         <sandbox.wiremock>false</sandbox.wiremock>
     </properties>
 
-    <!--
-		Override of managed dependency:
-		https://jira.sundsvall.se/browse/UF-5329
-		https://github.com/FasterXML/jackson-core/issues/1014
-
-		Remove this dependencyManagement when jackson 2.15.1 is offered by spring-boot
-	-->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>2.15.1</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
-
     <dependencies>
-
-        <!-- DEPT44 Framework-->
-
         <dependency>
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-starter-test</artifactId>
