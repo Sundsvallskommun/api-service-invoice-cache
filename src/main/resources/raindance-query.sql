@@ -96,7 +96,7 @@ left join (
 
 -- Fetch data from transaction database with total amount for debt collection
 left join (
-    SELECT * FROM SADB023.rdprodb4.raindance.RKZBEARB11
+    SELECT * FROM rdprodb4.raindance.RKZBEARB11
     where BEATYP='BP2' and FR='300'
 ) as it on cast(kf.NR as varchar)=substring(cast(it.BEARPNR as varchar),3,10)
 
