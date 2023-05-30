@@ -26,8 +26,8 @@
         <jcifs-ng.version>2.1.9</jcifs-ng.version>
         <mariab-java-client.version>3.0.5</mariab-java-client.version>
 
-        <app.jvm.xms.mb>512</app.jvm.xms.mb>
-        <app.jvm.xmx.mb>512</app.jvm.xmx.mb>
+        <app.jvm.xms.mb>1024</app.jvm.xms.mb>
+        <app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
 
         <party-generated-sources-folder>${project.build.directory}/party-sources
         </party-generated-sources-folder>
