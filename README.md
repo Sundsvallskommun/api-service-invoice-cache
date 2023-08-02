@@ -44,3 +44,15 @@ run by first building a docker image: `mvn clean spring-boot:build-image` in the
 
 Followed by: 
 `docker-compose -f src/main/docker/docker-compose-local-sandbox.yaml up --remove-orphans` to start the container and the needed databases.
+
+## Status
+
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-invoice-cache&metric=alert_status)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-invoice-cache)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-invoice-cache&metric=reliability_rating)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-invoice-cache)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-invoice-cache&metric=security_rating)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-invoice-cache)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-invoice-cache&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-invoice-cache)
+[![Vulnerabilities](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-invoice-cache&metric=vulnerabilities)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-invoice-cache)
+[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=Sundsvallskommun_api-service-invoice-cache&metric=bugs)](https://sonarcloud.io/summary/overall?id=Sundsvallskommun_api-service-invoice-cache)
+
+## 
+Copyright (c) 2021 Sundsvalls kommun
