@@ -1,8 +1,0 @@
-ignoreFiles = """
-target/
-bin/
-"""
-
-ignoreRules = ["CRLF_INJECTION_LOGS", "MissingSummary", "UnnecessarilyFullyQualified", "InlineFormatString", "UnnecessaryParenthesis", "UnnecessaryFinal", "YodaCondition" ]
-
-jdkVersion = "17"
