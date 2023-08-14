@@ -1,9 +1,6 @@
 package se.sundsvall.invoicecache.integration.db.entity;
 
-
 import java.sql.Blob;
-
-import se.sundsvall.invoicecache.api.model.InvoiceType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,6 +16,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import se.sundsvall.invoicecache.api.model.InvoiceType;
 
 @Entity
 @Table(name = "invoice_pdf")
@@ -29,30 +27,30 @@ import lombok.Setter;
 @AllArgsConstructor
 public class PdfEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private Integer id;
 
-    @Column(name = "filename", unique = true)
-    private String filename;
+	@Column(name = "filename", unique = true)
+	private String filename;
 
-    @Lob
-    @Column(name = "document", columnDefinition = "LONGBLOB")
-    private Blob document;
+	@Lob
+	@Column(name = "document", columnDefinition = "LONGBLOB")
+	private Blob document;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "invoice_type", length = 24)
-    private InvoiceType invoiceType;
+	@Enumerated(EnumType.STRING)
+	@Column(name = "invoice_type", length = 24)
+	private InvoiceType invoiceType;
 
-    @Column(name = "invoice_issuer_legal_id")
-    private String invoiceIssuerLegalId;
+	@Column(name = "invoice_issuer_legal_id")
+	private String invoiceIssuerLegalId;
 
-    @Column(name = "invoice_debtor_legal_id")
-    private String invoiceDebtorLegalId;
+	@Column(name = "invoice_debtor_legal_id")
+	private String invoiceDebtorLegalId;
 
-    @Column(name = "invoice_number")
-    private String invoiceNumber;
+	@Column(name = "invoice_number")
+	private String invoiceNumber;
 
-    @Column(name = "invoice_id")
-    private String invoiceId;
+	@Column(name = "invoice_id")
+	private String invoiceId;
 }

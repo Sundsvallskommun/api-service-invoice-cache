@@ -25,79 +25,80 @@ import se.sundsvall.invoicecache.integration.party.PartyClient;
 @Service
 public class InvoiceCacheService {
 
-    private static final Logger LOG = LoggerFactory.getLogger(InvoiceCacheService.class);
-    
-    private final InvoiceEntityRepository invoiceRepository;
-    private final InvoiceMapper mapper;
-    private final InvoiceSpecifications invoiceSpecifications;
-    private final PartyClient partyClient;
+	private static final Logger LOG = LoggerFactory.getLogger(InvoiceCacheService.class);
 
-    public InvoiceCacheService(final InvoiceEntityRepository invoiceRepository,
-            final InvoiceMapper mapper, final InvoiceSpecifications invoiceSpecifications,
-            final PartyClient partyClient) {
-        this.invoiceRepository = invoiceRepository;
-        this.mapper = mapper;
-        this.invoiceSpecifications = invoiceSpecifications;
-        this.partyClient = partyClient;
-    }
-    
-    public InvoicesResponse getInvoices(InvoiceFilterRequest request) {
-        final InvoicesResponse response = new InvoicesResponse();
+	private final InvoiceEntityRepository invoiceRepository;
+	private final InvoiceMapper mapper;
+	private final InvoiceSpecifications invoiceSpecifications;
+	private final PartyClient partyClient;
 
-        //Key: partyId, Value: legalId. Used later for mapping back which invoice belongs to which partyId
-        Map<String, String> legalIdPartyIdMap = new HashMap<>();
+	public InvoiceCacheService(final InvoiceEntityRepository invoiceRepository,
+		final InvoiceMapper mapper, final InvoiceSpecifications invoiceSpecifications,
+		final PartyClient partyClient) {
+		this.invoiceRepository = invoiceRepository;
+		this.mapper = mapper;
+		this.invoiceSpecifications = invoiceSpecifications;
+		this.partyClient = partyClient;
+	}
 
-        //Fetch legalIds (if any) from party service and set them in the request.
-        if(!CollectionUtils.isEmpty(request.getPartyIds())) {
-            request.getPartyIds().forEach(partyId -> {
-                String legalId = partyClient.getLegalIdsFromParty(partyId);
+	public InvoicesResponse getInvoices(InvoiceFilterRequest request) {
+		final InvoicesResponse response = new InvoicesResponse();
 
-                //Store each legalId in a hashmap
-                legalIdPartyIdMap.put(legalId, partyId);
-            });
+		// Key: partyId, Value: legalId. Used later for mapping back which invoice belongs to which partyId
+		final Map<String, String> legalIdPartyIdMap = new HashMap<>();
 
-            //Set the fetched legalIds in the request.
-            request.setLegalIds(legalIdPartyIdMap.keySet().stream().toList());
-            LOG.info("legalIds to look for: {}", request.getLegalIds());
-        }
+		// Fetch legalIds (if any) from party service and set them in the request.
+		if (!CollectionUtils.isEmpty(request.getPartyIds())) {
+			request.getPartyIds().forEach(partyId -> {
+				final String legalId = partyClient.getLegalIdsFromParty(partyId);
 
-        //Find all invoices matching the request, map them and add them to the response.
-        Page<InvoiceEntity> invoicePage = invoiceRepository.findAll(invoiceSpecifications.createInvoicesSpecification(request), getPagingParameters(request));
+				// Store each legalId in a hashmap
+				legalIdPartyIdMap.put(legalId, partyId);
+			});
 
-        LOG.info("Got {} invoices from the DB.", invoicePage.getTotalElements());
-        invoicePage.forEach(entity -> {
-                    Invoice invoice = mapper.entityToInvoice(entity);
-                    invoice.setPartyId(legalIdPartyIdMap.getOrDefault(invoice.getLegalId(), null));
-                    response.addInvoice(invoice);
-                });
+			// Set the fetched legalIds in the request.
+			request.setLegalIds(legalIdPartyIdMap.keySet().stream().toList());
+			LOG.info("legalIds to look for: {}", request.getLegalIds());
+		}
 
-        //Set pagination data
-        response.setMetaData(createMetaData(request, invoicePage));
-        return response;
-    }
+		// Find all invoices matching the request, map them and add them to the response.
+		final Page<InvoiceEntity> invoicePage = invoiceRepository.findAll(invoiceSpecifications.createInvoicesSpecification(request), getPagingParameters(request));
 
-    public Optional<Invoice> getInvoice(String invoiceNumber) {
-        return invoiceRepository.findByInvoiceNumber(invoiceNumber)
-            .map(mapper::entityToInvoice);
-    }
+		LOG.info("Got {} invoices from the DB.", invoicePage.getTotalElements());
+		invoicePage.forEach(entity -> {
+			final Invoice invoice = mapper.entityToInvoice(entity);
+			invoice.setPartyId(legalIdPartyIdMap.getOrDefault(invoice.getLegalId(), null));
+			response.addInvoice(invoice);
+		});
 
-    MetaData createMetaData(InvoiceFilterRequest request, Page<InvoiceEntity> page) {
-        return MetaData.builder()
-                .withPage(request.getPage())
-                .withLimit(request.getLimit())
-                .withTotalRecords(page.getTotalElements())
-                .withCount(page.getNumberOfElements())
-                .withTotalPages(page.getTotalPages())
-                .build();
-    }
+		// Set pagination data
+		response.setMetaData(createMetaData(request, invoicePage));
+		return response;
+	}
 
-    /**
-     * To mimic the api for Invoices, a page starts with "1" and that is also the minimum value in the api.
-     * The PageRequest originally has a 0-based page index, subtract 1 for which page to request.
-     * @param request
-     * @return+
-     */
-    private Pageable getPagingParameters(InvoiceFilterRequest request) {
-        return PageRequest.of(request.getPage() - 1, request.getLimit());
-    }
+	public Optional<Invoice> getInvoice(String invoiceNumber) {
+		return invoiceRepository.findByInvoiceNumber(invoiceNumber)
+			.map(mapper::entityToInvoice);
+	}
+
+	MetaData createMetaData(InvoiceFilterRequest request, Page<InvoiceEntity> page) {
+		return MetaData.builder()
+			.withPage(request.getPage())
+			.withLimit(request.getLimit())
+			.withTotalRecords(page.getTotalElements())
+			.withCount(page.getNumberOfElements())
+			.withTotalPages(page.getTotalPages())
+			.build();
+	}
+
+	/**
+	 * To mimic the api for Invoices, a page starts with "1" and that is also the minimum value in the api.
+	 * The PageRequest originally has a 0-based page index, subtract 1 for which page to request.
+	 *
+	 * @param request
+	 * @return+
+	 */
+	private Pageable getPagingParameters(InvoiceFilterRequest request) {
+		return PageRequest.of(request.getPage() - 1, request.getLimit());
+	}
 }

@@ -1,14 +1,16 @@
 package se.sundsvall.invoicecache.util;
 
-import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
-import org.apache.commons.validator.routines.checkdigit.LuhnCheckDigit;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
+import org.apache.commons.validator.routines.checkdigit.LuhnCheckDigit;
+
+import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
+
 public final class OCR {
 
-	private OCR() { }
+	private OCR() {}
 
 	private static final LuhnCheckDigit LUHN = new LuhnCheckDigit();
 
@@ -16,7 +18,7 @@ public final class OCR {
 	private static final DateTimeFormatter OUT_PATTERN = DateTimeFormatter.ofPattern("yyMMdd");
 
 	public static String generate(final int Z11_BLOPNR, final String Z11_BEADAT) {
-		var sb = new StringBuilder()
+		final var sb = new StringBuilder()
 			.append("2")		// Fast värde som talar om att det är en påminnelse - alltid 2
 			.append("300")		// Företagsnummer - kommunen har 300
 			.append("1")		// Nummer (för BSB) - alltid 1
@@ -26,7 +28,7 @@ public final class OCR {
 		sb.append(LocalDate.parse(Z11_BEADAT, IN_PATTERN).format(OUT_PATTERN));
 
 		// Padda Z11_BLOPNR med nollor i början
-		var blopNrLength = (int) (Math.log10(Z11_BLOPNR) + 1);
+		final var blopNrLength = (int) (Math.log10(Z11_BLOPNR) + 1);
 		sb.append("00000".substring(blopNrLength)).append(Z11_BLOPNR);
 
 		// Längd (tiotalssiffran utelämnad)
@@ -35,8 +37,8 @@ public final class OCR {
 		// Kontrollsiffra
 		try {
 			return sb + LUHN.calculate(sb.toString());
-		} catch (CheckDigitException e) {
-			throw new RuntimeException("Unable to calculate check digit for OCR", e);
+		} catch (final CheckDigitException e) {
+			throw new InvoiceCacheException("Unable to calculate check digit for OCR", e);
 		}
 	}
 }
