@@ -1,6 +1,5 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
@@ -20,43 +19,43 @@ import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RestoreBackupListenerTest {
-    
-    @Mock
-    private InvoiceEntityRepository mockInvoiceRepository;
 
-    @Mock
-    private BackupInvoiceRepository mockBackupInvoiceRepository;
-    
-    @Mock
-    private StepExecution mockStepExecution;
-    
-    @InjectMocks
-    private RestoreBackupListener invoiceListener;
-    
-    @Test
-    void testBeforeStep() {
-        doNothing().when(mockInvoiceRepository).deleteAllInBatch();
-        when(mockBackupInvoiceRepository.count()).thenReturn(10L);
-        invoiceListener.beforeStep(mockStepExecution);
-        
-        verify(mockInvoiceRepository, times(1)).deleteAllInBatch();
-        verify(mockBackupInvoiceRepository, times(1)).count();
-    }
-    
-    @Test
+	@Mock
+	private InvoiceEntityRepository mockInvoiceRepository;
+
+	@Mock
+	private BackupInvoiceRepository mockBackupInvoiceRepository;
+
+	@Mock
+	private StepExecution mockStepExecution;
+
+	@InjectMocks
+	private RestoreBackupListener invoiceListener;
+
+	@Test
+	void testBeforeStep() {
+		doNothing().when(mockInvoiceRepository).deleteAllInBatch();
+		when(mockBackupInvoiceRepository.count()).thenReturn(10L);
+		invoiceListener.beforeStep(mockStepExecution);
+
+		verify(mockInvoiceRepository, times(1)).deleteAllInBatch();
+		verify(mockBackupInvoiceRepository, times(1)).count();
+	}
+
+	@Test
     void testSuccessfulAfterStep() {
         when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.COMPLETED);
         final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
         assertNull(exitStatus); //intended
         verify(mockStepExecution, times(0)).getSummary();
     }
-    
-    @Test
+
+	@Test
     void testFailedAfterStep() {
         when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.FAILED);
         final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
         assertNull(exitStatus); //intended
         verify(mockStepExecution, times(1)).getSummary();
     }
-    
+
 }

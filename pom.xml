@@ -5,7 +5,7 @@
     <parent>
         <groupId>se.sundsvall.dept44</groupId>
         <artifactId>dept44-service-parent</artifactId>
-        <version>2.1.1</version>
+        <version>2.1.3</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -15,24 +15,22 @@
     <name>Invoice Cache</name>
 
     <properties>
+		<!-- Pipeline properties -->
         <docker.image.name>ms-invoicecache</docker.image.name>
         <exposed.app.port>8080</exposed.app.port>
         <published.container.port.sandbox>8750</published.container.port.sandbox>
         <published.container.port.test>8750</published.container.port.test>
         <published.container.port.production>8750</published.container.port.production>
-
+        <sandbox.wiremock>false</sandbox.wiremock>
+		<!-- Service properties -->
         <commons-validator.version>1.7</commons-validator.version>
         <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
         <jcifs-ng.version>2.1.9</jcifs-ng.version>
         <mariab-java-client.version>3.0.5</mariab-java-client.version>
-
+        <openapi-generator-maven-plugin.version>6.6.0</openapi-generator-maven-plugin.version>
         <app.jvm.xms.mb>1024</app.jvm.xms.mb>
         <app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
-
-        <party-generated-sources-folder>${project.build.directory}/party-sources
-        </party-generated-sources-folder>
-
-        <sandbox.wiremock>false</sandbox.wiremock>
+        <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
     </properties>
 
     <dependencies>
@@ -40,12 +38,10 @@
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-starter-test</artifactId>
         </dependency>
-
         <dependency>
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-starter-feign</artifactId>
         </dependency>
-
         <dependency>
             <groupId>se.sundsvall.dept44</groupId>
             <artifactId>dept44-common-validators</artifactId>
@@ -56,17 +52,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-batch</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-jpa</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-jdbc</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
@@ -84,12 +77,10 @@
             <groupId>org.mariadb.jdbc</groupId>
             <artifactId>mariadb-java-client</artifactId>
         </dependency>
-
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-jpamodelgen</artifactId>
         </dependency>
-
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
@@ -109,7 +100,6 @@
             <artifactId>commons-validator</artifactId>
             <version>${commons-validator.version}</version>
         </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -123,33 +113,28 @@
             <version>${jackson-databind-nullable.version}</version>
         </dependency>
 
-
         <!-- Test-->
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mariadb</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>org.springframework.batch</groupId>
             <artifactId>spring-batch-test</artifactId>
             <scope>test</scope>
         </dependency>
-
         <dependency>
             <groupId>com.h2database</groupId>
             <artifactId>h2</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -192,28 +177,17 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>${project.build.directory}/generated-sources</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${party-generated-sources-folder}</source>
+                                <source>${generated-sources-path}/party</source>
+      							<source>${generated-sources-path}/annotations</source>
                             </sources>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
-
             <plugin>
                 <groupId>org.openapitools</groupId>
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>6.5.0</version>
+                <version>${openapi-generator-maven-plugin.version}</version>
                 <executions>
                     <execution>
                         <id>party-api</id>
@@ -222,9 +196,10 @@
                         </goals>
                         <configuration>
                             <inputSpec>${project.basedir}/src/main/resources/contracts/party/party.yaml</inputSpec>
-                            <output>${party-generated-sources-folder}</output>
+                            <output>${generated-sources-path}</output>
                             <generatorName>spring</generatorName>
                             <generateApis>false</generateApis>
+                            <generateSupportingFiles>false</generateSupportingFiles>
                             <configOptions>
                                 <useSpringBoot3>true</useSpringBoot3>
                                 <dateLibrary>java8</dateLibrary>
@@ -234,6 +209,7 @@
                                 <modelPackage>generated.se.sundsvall.party</modelPackage>
                                 <useBeanValidation>true</useBeanValidation>
                                 <useSwaggerAnnotations>true</useSwaggerAnnotations>
+                                <sourceFolder>party</sourceFolder>
                             </configOptions>
                         </configuration>
                     </execution>

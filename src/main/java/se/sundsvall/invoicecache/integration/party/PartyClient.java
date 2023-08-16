@@ -12,23 +12,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class PartyClient {
 
-    private final PartyIntegration partyIntegration;
+	private final PartyIntegration partyIntegration;
 
-    public PartyClient(PartyIntegration partyIntegration) {
-        this.partyIntegration = partyIntegration;
-    }
+	public PartyClient(PartyIntegration partyIntegration) {
+		this.partyIntegration = partyIntegration;
+	}
 
-    /**
-     * Get legalIds for the partyId sent in.
-     * @param partyId
-     * @return a legalIds
-     */
-    public String getLegalIdsFromParty(String partyId) {
+	/**
+	 * Get legalIds for the partyId sent in.
+	 *
+	 * @param  partyId
+	 * @return         a legalIds
+	 */
+	public String getLegalIdsFromParty(String partyId) {
 
-        return partyIntegration.getLegalId(PRIVATE, partyId)
-                        //Since raindance only handles legalIds without century digits, for private persons.
-                        .map(legalId -> StringUtils.substring(legalId, 2))
-                        .or(() -> partyIntegration.getLegalId(ENTERPRISE, partyId))
-                        .orElse("");
-    }
+		return partyIntegration.getLegalId(PRIVATE, partyId)
+			// Since raindance only handles legalIds without century digits, for private persons.
+			.map(legalId -> StringUtils.substring(legalId, 2))
+			.or(() -> partyIntegration.getLegalId(ENTERPRISE, partyId))
+			.orElse("");
+	}
 }

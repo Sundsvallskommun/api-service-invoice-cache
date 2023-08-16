@@ -18,28 +18,28 @@ import se.sundsvall.invoicecache.service.batch.JobHelper;
 
 @ExtendWith(MockitoExtension.class)
 class BatchEndpointTest {
-    
-    @Mock
-    private JobHelper mockJobHelper;
-    
-    @InjectMocks
-    private BatchEndpoint batchEndpoint;
-    
-    @Test
-    void health() {
-        final JobStatus jobStatus = TestObjectFactory.generateCompletedJobStatus();
-        
-        when(mockJobHelper.getJobs()).thenReturn(List.of(jobStatus, jobStatus));
-    
-        final BatchHealth health = batchEndpoint.health();
-        final List<JobStatus> statuses = health.getDetails().get("batchHistory");
-        
-        assertThat(statuses).hasSize(2)
-                .allMatch(status -> status.getStepStatusMap().get("invoiceStep").getStepName().equals("invoiceStep"))
-                .allMatch(status -> status.getStepStatusMap().get("invoiceStep").getStepWriteCount() == 5L)
-                .allMatch(status -> status.getStepStatusMap().get("invoiceStep").getStepReadCount() == 6L)
-                .allMatch(status -> status.getStatus().equals(ExitStatus.COMPLETED.toString()))
-                .allMatch(status -> status.getStartTime().isEqual(LocalDateTime.of(2022, 1, 1, 1, 1, 1)))
-                .allMatch(status -> status.getEndTime().isEqual(LocalDateTime.of(2022, 1, 1, 1, 2, 2)));
-    }
+
+	@Mock
+	private JobHelper mockJobHelper;
+
+	@InjectMocks
+	private BatchEndpoint batchEndpoint;
+
+	@Test
+	void health() {
+		final JobStatus jobStatus = TestObjectFactory.generateCompletedJobStatus();
+
+		when(mockJobHelper.getJobs()).thenReturn(List.of(jobStatus, jobStatus));
+
+		final BatchHealth health = batchEndpoint.health();
+		final List<JobStatus> statuses = health.getDetails().get("batchHistory");
+
+		assertThat(statuses).hasSize(2)
+			.allMatch(status -> "invoiceStep".equals(status.getStepStatusMap().get("invoiceStep").getStepName()))
+			.allMatch(status -> status.getStepStatusMap().get("invoiceStep").getStepWriteCount() == 5L)
+			.allMatch(status -> status.getStepStatusMap().get("invoiceStep").getStepReadCount() == 6L)
+			.allMatch(status -> status.getStatus().equals(ExitStatus.COMPLETED.toString()))
+			.allMatch(status -> status.getStartTime().isEqual(LocalDateTime.of(2022, 1, 1, 1, 1, 1)))
+			.allMatch(status -> status.getEndTime().isEqual(LocalDateTime.of(2022, 1, 1, 1, 2, 2)));
+	}
 }
