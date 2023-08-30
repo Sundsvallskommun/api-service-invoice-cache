@@ -27,7 +27,7 @@
         <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
         <jcifs-ng.version>2.1.9</jcifs-ng.version>
         <mariab-java-client.version>3.0.5</mariab-java-client.version>
-        <openapi-generator-maven-plugin.version>6.6.0</openapi-generator-maven-plugin.version>
+        <openapi-generator-maven-plugin.version>7.0.0</openapi-generator-maven-plugin.version>
         <app.jvm.xms.mb>1024</app.jvm.xms.mb>
         <app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
