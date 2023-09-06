@@ -18,11 +18,9 @@
 		<!-- Pipeline properties -->
         <docker.image.name>ms-invoicecache</docker.image.name>
         <exposed.app.port>8080</exposed.app.port>
-        <published.container.port.sandbox>8750</published.container.port.sandbox>
         <published.container.port.test>8750</published.container.port.test>
         <published.container.port.production>8750</published.container.port.production>
-        <sandbox.wiremock>false</sandbox.wiremock>
-		<!-- Service properties -->
+        		<!-- Service properties -->
         <commons-validator.version>1.7</commons-validator.version>
         <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
         <jcifs-ng.version>2.1.9</jcifs-ng.version>
