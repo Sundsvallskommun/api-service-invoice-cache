@@ -1,6 +1,14 @@
 package se.sundsvall.invoicecache.integration.db.entity;
 
+import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.hibernate.annotations.TimeZoneStorageType.NORMALIZE;
+
 import java.sql.Blob;
+import java.time.OffsetDateTime;
+
+import org.hibernate.annotations.TimeZoneStorage;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -10,6 +18,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
+import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,4 +62,13 @@ public class PdfEntity {
 
 	@Column(name = "invoice_id")
 	private String invoiceId;
+
+	@Column(name = "created", nullable = false)
+	@TimeZoneStorage(NORMALIZE)
+	private OffsetDateTime created;
+
+	@PrePersist
+	void onCreate() {
+		created = now(systemDefault()).truncatedTo(MILLIS);
+	}
 }

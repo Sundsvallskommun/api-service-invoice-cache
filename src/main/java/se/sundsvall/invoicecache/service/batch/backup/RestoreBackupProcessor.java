@@ -2,9 +2,10 @@ package se.sundsvall.invoicecache.service.batch.backup;
 
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
-import se.sundsvall.invoicecache.integration.db.EntityMapper;
+
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
+import se.sundsvall.invoicecache.integration.db.mapper.EntityMapper;
 
 @Component
 public class RestoreBackupProcessor implements ItemProcessor<BackupInvoiceEntity, InvoiceEntity> {

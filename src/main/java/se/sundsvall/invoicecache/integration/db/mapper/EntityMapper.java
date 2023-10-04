@@ -1,4 +1,4 @@
-package se.sundsvall.invoicecache.integration.db;
+package se.sundsvall.invoicecache.integration.db.mapper;
 
 import org.springframework.stereotype.Component;
 

@@ -1,4 +1,4 @@
-package se.sundsvall.invoicecache.integration.db;
+package se.sundsvall.invoicecache.integration.db.mapper;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -12,6 +12,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import se.sundsvall.invoicecache.TestObjectFactory;
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
+
 @ExtendWith(SoftAssertionsExtension.class)
 class EntityMapperTest {
 
