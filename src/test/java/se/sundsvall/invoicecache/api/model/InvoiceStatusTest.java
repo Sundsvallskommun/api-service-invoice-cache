@@ -1,10 +1,8 @@
-package se.sundsvall.invoicecache.integration.db;
+package se.sundsvall.invoicecache.api.model;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.Test;
-
-import se.sundsvall.invoicecache.api.model.InvoiceStatus;
 
 class InvoiceStatusTest {
     

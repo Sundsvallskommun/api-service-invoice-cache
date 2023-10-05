@@ -179,8 +179,8 @@ create or replace index bak_org_index
 
 create or replace table `ms-invoicecache`.invoice_pdf
 (
-    id                      int auto_increment
-        primary key,
+    id                      int auto_increment primary key,
+    created datetime(6)     not null,
     document                longblob     null,
     filename                varchar(255) null,
     invoice_issuer_legal_id varchar(255) null,
