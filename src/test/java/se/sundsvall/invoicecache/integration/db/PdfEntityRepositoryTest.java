@@ -8,18 +8,16 @@ import static org.assertj.core.api.Assertions.within;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import jakarta.transaction.Transactional;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
 /**
  * Pdf entity repository tests.
  */
-@SpringBootTest
+@DataJpaTest
 @ActiveProfiles("junit")
-@Transactional
 class PdfEntityRepositoryTest {
 
 	@Autowired
@@ -28,7 +26,7 @@ class PdfEntityRepositoryTest {
 	@Test
 	void create() {
 		final var filename = "invoice_000099.pdf";
-		repository.saveAndFlush(PdfEntity.builder().withFilename(filename).build());
+		repository.save(PdfEntity.builder().withFilename(filename).build());
 
 		assertThat(repository.findByFilename(filename).get().getCreated()).isCloseTo(now(systemDefault()), within(2, SECONDS));
 	}
