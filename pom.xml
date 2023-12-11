@@ -21,7 +21,7 @@
         <published.container.port.test>8750</published.container.port.test>
         <published.container.port.production>8750</published.container.port.production>
         		<!-- Service properties -->
-        <commons-validator.version>1.7</commons-validator.version>
+        <commons-validator.version>1.8.0</commons-validator.version>
         <jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
         <jcifs-ng.version>2.1.10</jcifs-ng.version>
         <mariab-java-client.version>3.0.5</mariab-java-client.version>
