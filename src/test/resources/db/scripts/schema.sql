@@ -60,13 +60,13 @@
     create table invoice_pdf (
         id integer not null auto_increment,
         created datetime(6) not null,
-        invoice_type enum ('CONSOLIDATED_INVOICE','CREDIT_INVOICE','DIRECT_DEBIT','FINAL_INVOICE','INVOICE','REMINDER','SELF_INVOICE'),
         filename varchar(255),
         invoice_debtor_legal_id varchar(255),
         invoice_id varchar(255),
         invoice_issuer_legal_id varchar(255),
         invoice_number varchar(255),
         document LONGBLOB,
+        invoice_type varchar(24),
         primary key (id)
     ) engine=InnoDB;
 

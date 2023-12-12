@@ -1,0 +1,53 @@
+integration:
+  party:
+    connect-timeout: PT5S
+    read-timeout: PT10S
+invoice:
+  scheduled:
+    fixedrate: PT10M
+    initialdelay: PT5S
+logbook:
+  exclusionfilters:
+    json-path:
+      '$..content': '[base64]'
+management:
+  endpoints:
+    enabled-by-default: true
+    web:
+      exposure:
+        include: '*'
+  security:
+    enabled: false
+openapi:
+  name: api-invoicecache
+  title: api-invoicecache
+  version: '@project.version@'
+raindance:
+  invoice:
+    outdated: PT24H
+  sql:
+    filename: raindance-query.sql
+security:
+  basic:
+    enabled: false
+spring:
+  application:
+    name: api-invoicecache
+  batch:
+    jdbc:
+      initialize-schema: never
+    job:
+      enabled: false
+  datasource:
+    hikari:
+      maximum-pool-size: 3
+  flyway:
+    enabled: true
+    group: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  main:
+    banner-mode: 'off'
+  security:
+    enabled: false
