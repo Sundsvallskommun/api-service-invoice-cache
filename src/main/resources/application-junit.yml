@@ -1,0 +1,39 @@
+integration:
+  party:
+    connectTimeout: 10
+    oauth2-client-id: client-id
+    oauth2-client-secret: client-secret
+    oauth2-token-url: api-gateway-url
+    readTimeout: 20
+    url: api-party-url
+  smb:
+    cron: '-'
+    domain: 127.0.0.1
+    password: smb-password
+    remoteDir: remote-dir
+    shareAndDir: /
+    user: smb-user
+    userDomain: user-domain
+spring:
+  datasource:
+    driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
+    url: jdbc:tc:mariadb:10.6.12:///
+  flyway:
+    enabled: false
+  jpa:
+    properties:
+      hibernate:
+        format_sql: true
+        hbm2ddl:
+          schema-generation:
+            script:
+              append: false
+      jakarta:
+        persistence:
+          schema-generation:
+            create-source: metadata
+            database:
+              action: update
+            scripts:
+              action: create
+              create-target: target/database/generated-schema.sql

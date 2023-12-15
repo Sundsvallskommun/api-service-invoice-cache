@@ -1,0 +1,41 @@
+integration:
+  party:
+    oauth2-client-id: ${env.INTEGRATION_PARTY_OAUTH2_CLIENT_ID}
+    oauth2-client-secret: ${env.INTEGRATION_PARTY_OAUTH2_CLIENT_SECRET}
+    oauth2-token-url: ${env.INTEGRATION_PARTY_OAUTH2_TOKEN}
+    url: ${env.INTEGRATION_PARTY_URL}
+  smb:
+    cron: ${env.INTEGRATION_SMB_CRON}
+    domain: ${env.INTEGRATION_SMB_DOMAIN}
+    password: ${env.INTEGRATION_SMB_PASSWORD}
+    remoteDir: ${env.INTEGRATION_SMB_REMOTE_DIR}
+    shareAndDir: ${env.INTEGRATION_SMB_SHARE_AND_DIR}
+    user: ${env.INTEGRATION_SMB_USER}
+invoice:
+  scheduled:
+    fixedrate: PT25M
+    initialdelay: PT5S
+raindance:
+  invoice:
+    outdated: PT5M
+  sql:
+    filename: local-query.sql
+spring:
+  batch:
+    jdbc:
+      initialize-schema: never
+  cache:
+    type: none
+  datasource:
+    driver-class-name: ${env.DATASOURCE_DRIVER_CLASS_NAME}
+    password: ${env.DATASOURCE_PASSWORD}
+    url: ${env.DATASOURCE_URL}
+    username: ${env.DATASOURCE_USERNAME}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+  raindance-datasource:
+    driver-class-name: ${env.RAINDANCE_DATASOURCE_DRIVER_CLASS_NAME}
+    password: ${env.RAINDANCE_DATASOURCE_PASSWORD}
+    url: ${env.RAINDANCE_DATASOURCE_URL}
+    username: ${env.RAINDANCE_DATASOURCE_USERNAME}

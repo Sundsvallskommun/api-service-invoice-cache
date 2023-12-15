@@ -48,7 +48,7 @@ public class PdfEntity {
 	private Blob document;
 
 	@Enumerated(EnumType.STRING)
-	@Column(name = "invoice_type", length = 24)
+	@Column(name = "invoice_type", length = 24, columnDefinition = "varchar(24)")
 	private InvoiceType invoiceType;
 
 	@Column(name = "invoice_issuer_legal_id")
