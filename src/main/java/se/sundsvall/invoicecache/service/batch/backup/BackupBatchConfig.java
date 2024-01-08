@@ -29,110 +29,110 @@ import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 @Configuration
 @EnableBatchProcessing(dataSourceRef = "batchDataSource", transactionManagerRef = "transactionManager")
 public class BackupBatchConfig {
-    
-    private static final int CHUNK_SIZE = 2000;
-    public static final String BACKUP_JOB_NAME = "backupJob";
-    public static final String RESTORE_BACKUP_JOB_NAME = "restoreBackupJob";
-    
-    private final InvoiceEntityRepository invoiceRepository;
-    private final BackupInvoiceRepository backupRepository;
-    private final BackupProcessor backupProcessor;
 
-    private final RestoreBackupProcessor restoreBackupProcessor;
-    private final BackupListener backupListener;
-    private final RestoreBackupListener restoreBackupListener;
-    
-    public BackupBatchConfig(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
-            final BackupProcessor backupProcessor, final RestoreBackupProcessor restoreBackupProcessor, final BackupListener backupListener,
-            final RestoreBackupListener restoreBackupListener) {
-        this.invoiceRepository = invoiceRepository;
-        this.backupRepository = backupRepository;
-        this.backupProcessor = backupProcessor;
-        this.restoreBackupProcessor = restoreBackupProcessor;
-        this.backupListener = backupListener;
-        this.restoreBackupListener = restoreBackupListener;
-    }
-    
-    public RepositoryItemReader<InvoiceEntity> invoiceReader() {
-        return new RepositoryItemReaderBuilder<InvoiceEntity>()
-                .repository(invoiceRepository)
-                .sorts(getSorting())
-                .saveState(false)
-                .name("invoiceToBackupReader")
-                .methodName("findAll")
-                .pageSize(CHUNK_SIZE)
-                .build();
-    }
-    
-    public RepositoryItemWriter<BackupInvoiceEntity> invoiceBackupWriter() {
-        return new RepositoryItemWriterBuilder<BackupInvoiceEntity>()
-                .repository(backupRepository)
-                .build();
-    }
-    
-    public Step backupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("backupStep", jobRepository)
-                .<InvoiceEntity, BackupInvoiceEntity> chunk(CHUNK_SIZE, transactionManager)
-                .reader(invoiceReader())
-                .processor(backupProcessor)
-                .writer(invoiceBackupWriter())
-                .listener(backupListener)
-                .build();
-    }
-    
-    @Bean(name = BACKUP_JOB_NAME)
-    public Job backupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new JobBuilder(BACKUP_JOB_NAME, jobRepository)
-                .repository(jobRepository)
-                .start(backupStep(jobRepository, transactionManager))
-                .build();
-    }
-    
-    /////////////////////////////////////
-    // Restore backup bacth config below
-    /////////////////////////////////////
-    
-    public RepositoryItemReader<BackupInvoiceEntity> invoiceBackupReader() {
-        return new RepositoryItemReaderBuilder<BackupInvoiceEntity>()
-                .repository(backupRepository)
-                .name("backupToInvoiceReader")
-                .sorts(getSorting())
-                .methodName("findAll")
-                .pageSize(CHUNK_SIZE)
-                .build();
-    }
-    
-    public RepositoryItemWriter<InvoiceEntity> backupToInvoiceEntityWriter() {
-        return new RepositoryItemWriterBuilder<InvoiceEntity>()
-                .repository(invoiceRepository)
-                .build();
-    }
+	private static final int CHUNK_SIZE = 2000;
+	public static final String BACKUP_JOB_NAME = "backupJob";
+	public static final String RESTORE_BACKUP_JOB_NAME = "restoreBackupJob";
 
-    public Step restoreBackupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("restoreBackupStep", jobRepository)
-                .<BackupInvoiceEntity, InvoiceEntity> chunk(CHUNK_SIZE, transactionManager)
-                .reader(invoiceBackupReader())
-                .processor(restoreBackupProcessor)
-                .writer(backupToInvoiceEntityWriter())
-                .listener(restoreBackupListener)
-                .build();
-    }
-    
-    @Bean(name = RESTORE_BACKUP_JOB_NAME)
-    public Job restoreBackupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new JobBuilder(RESTORE_BACKUP_JOB_NAME, jobRepository)
-                .start(restoreBackupStep(jobRepository, transactionManager))
-                .build();
-    }
-    
-    /**
-     * Sort by invoicenumber when reading from our own database.
-     * @return sorting strategy
-     */
-    private Map<String, Sort.Direction> getSorting() {
-        Map<String, Sort.Direction> sorting = new HashMap<>();
-        sorting.put("invoiceNumber", Sort.Direction.ASC);
-        
-        return sorting;
-    }
+	private final InvoiceEntityRepository invoiceRepository;
+	private final BackupInvoiceRepository backupRepository;
+	private final BackupProcessor backupProcessor;
+
+	private final RestoreBackupProcessor restoreBackupProcessor;
+	private final BackupListener backupListener;
+	private final RestoreBackupListener restoreBackupListener;
+
+	public BackupBatchConfig(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
+		final BackupProcessor backupProcessor, final RestoreBackupProcessor restoreBackupProcessor, final BackupListener backupListener,
+		final RestoreBackupListener restoreBackupListener) {
+		this.invoiceRepository = invoiceRepository;
+		this.backupRepository = backupRepository;
+		this.backupProcessor = backupProcessor;
+		this.restoreBackupProcessor = restoreBackupProcessor;
+		this.backupListener = backupListener;
+		this.restoreBackupListener = restoreBackupListener;
+	}
+
+	public RepositoryItemReader<InvoiceEntity> invoiceReader() {
+		return new RepositoryItemReaderBuilder<InvoiceEntity>()
+			.repository(invoiceRepository)
+			.sorts(getSorting())
+			.saveState(false)
+			.name("invoiceToBackupReader")
+			.methodName("findAll")
+			.pageSize(CHUNK_SIZE)
+			.build();
+	}
+
+	public RepositoryItemWriter<BackupInvoiceEntity> invoiceBackupWriter() {
+		return new RepositoryItemWriterBuilder<BackupInvoiceEntity>()
+			.repository(backupRepository)
+			.build();
+	}
+
+	public Step backupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+		return new StepBuilder("backupStep", jobRepository)
+			.<InvoiceEntity, BackupInvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
+			.reader(invoiceReader())
+			.processor(backupProcessor)
+			.writer(invoiceBackupWriter())
+			.listener(backupListener)
+			.build();
+	}
+
+	@Bean(name = BACKUP_JOB_NAME)
+	Job backupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+		return new JobBuilder(BACKUP_JOB_NAME, jobRepository)
+			.start(backupStep(jobRepository, transactionManager))
+			.build();
+	}
+
+	/////////////////////////////////////
+	// Restore backup bacth config below
+	/////////////////////////////////////
+
+	public RepositoryItemReader<BackupInvoiceEntity> invoiceBackupReader() {
+		return new RepositoryItemReaderBuilder<BackupInvoiceEntity>()
+			.repository(backupRepository)
+			.name("backupToInvoiceReader")
+			.sorts(getSorting())
+			.methodName("findAll")
+			.pageSize(CHUNK_SIZE)
+			.build();
+	}
+
+	public RepositoryItemWriter<InvoiceEntity> backupToInvoiceEntityWriter() {
+		return new RepositoryItemWriterBuilder<InvoiceEntity>()
+			.repository(invoiceRepository)
+			.build();
+	}
+
+	public Step restoreBackupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+		return new StepBuilder("restoreBackupStep", jobRepository)
+			.<BackupInvoiceEntity, InvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
+			.reader(invoiceBackupReader())
+			.processor(restoreBackupProcessor)
+			.writer(backupToInvoiceEntityWriter())
+			.listener(restoreBackupListener)
+			.build();
+	}
+
+	@Bean(name = RESTORE_BACKUP_JOB_NAME)
+	Job restoreBackupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+		return new JobBuilder(RESTORE_BACKUP_JOB_NAME, jobRepository)
+			.start(restoreBackupStep(jobRepository, transactionManager))
+			.build();
+	}
+
+	/**
+	 * Sort by invoicenumber when reading from our own database.
+	 *
+	 * @return sorting strategy
+	 */
+	private Map<String, Sort.Direction> getSorting() {
+		final Map<String, Sort.Direction> sorting = new HashMap<>();
+		sorting.put("invoiceNumber", Sort.Direction.ASC);
+
+		return sorting;
+	}
 }
