@@ -8,6 +8,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.TimeZone;
 
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +59,7 @@ public class SMBIntegration {
 	}
 
 	@Scheduled(cron = "${integration.smb.cron}")
+	@SchedulerLock(name = "cacheInvoicePdfs", lockAtMostFor = "${integration.smb.shedlock-lock-at-most-for}")
 	void cacheInvoicePdfs() {
 
 		final long start = System.currentTimeMillis();

@@ -2,10 +2,13 @@ integration:
   party:
     connect-timeout: PT5S
     read-timeout: PT10S
+  smb:
+    shedlock-lock-at-most-for: PT10M
 invoice:
   scheduled:
     fixedrate: PT10M
     initialdelay: PT5S
+    shedlock-lock-at-most-for: PT10M
 logbook:
   exclusionfilters:
     json-path:

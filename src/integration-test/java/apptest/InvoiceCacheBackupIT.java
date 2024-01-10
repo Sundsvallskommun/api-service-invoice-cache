@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -27,6 +28,9 @@ import se.sundsvall.invoicecache.InvoiceCache;
 @WireMockAppTestSuite(files = "classpath:/InvoiceCacheBackup/",
         classes = InvoiceCache.class)
 @Testcontainers
+@Sql({
+    "/InvoiceCacheBackup/sql/data-local.sql"
+})
 public class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 
     private static final String MARIADB_VERSION = "mariadb:10.6.12";
@@ -42,8 +46,7 @@ public class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
     public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
             .withDatabaseName("ms-invoicecache")
             .withUsername("root")
-            .withPassword("")
-            .withInitScript("InvoiceCacheBackup/sql/init-local.sql");
+            .withPassword("");
     
     static {
         Stream.of(raindanceDb, invoiceDb).parallel().forEach(MariaDBContainer::start);
