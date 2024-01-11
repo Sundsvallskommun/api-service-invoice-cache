@@ -49,6 +49,7 @@ spring:
     configuration:
       maximum-pool-size: 2
       connection-timeout: 5000
+      read-only: true
   flyway:
     enabled: true
     group: true
