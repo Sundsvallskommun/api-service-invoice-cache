@@ -2,6 +2,7 @@ package se.sundsvall.invoicecache.integration.db;
 
 import javax.sql.DataSource;
 
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
@@ -26,8 +27,9 @@ public class LocalDataSourceConfig {
     
     @Primary
     @Bean(name = "batchDataSource")
+    @ConfigurationProperties(prefix = "spring.datasource.configuration")
     public DataSource localDataSource(@Qualifier("localDataSourceProperties") DataSourceProperties dataSourceProperties) {
-        return dataSourceProperties.initializeDataSourceBuilder().build();
+        return dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
     }
 
     @Primary
