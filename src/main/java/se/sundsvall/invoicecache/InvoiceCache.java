@@ -1,5 +1,6 @@
 package se.sundsvall.invoicecache;
 
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.boot.SpringApplication;
 import org.springframework.cache.annotation.EnableCaching;
@@ -13,6 +14,7 @@ import se.sundsvall.dept44.ServiceApplication;
 @EnableCaching
 @EnableBatchProcessing
 @EnableAsync
+@EnableSchedulerLock(defaultLockAtMostFor = "PT10M")
 public class InvoiceCache {
     public static void main(String[] args) {
         SpringApplication.run(InvoiceCache.class, args);

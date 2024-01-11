@@ -37,8 +37,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
 		.withDatabaseName("ms-invoicecache")
 		.withUsername("root")
-		.withPassword("")
-		.withInitScript("InvoiceCache/sql/init-local.sql");
+		.withPassword("");
 
 	static {
 		Stream.of(raindanceDb, invoiceDb).parallel().forEach(MariaDBContainer::start);

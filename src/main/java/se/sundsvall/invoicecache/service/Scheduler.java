@@ -6,6 +6,8 @@ import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDA
 
 import java.util.Date;
 
+import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -62,6 +64,7 @@ public class Scheduler {
 	 * @throws JobRestartException
 	 */
 	@Scheduled(initialDelayString = "${invoice.scheduled.initialdelay}", fixedRateString = "${invoice.scheduled.fixedrate}")
+	@SchedulerLock(name = "invoiceLaunchJob", lockAtMostFor = "${invoice.scheduled.shedlock-lock-at-most-for}")
 	public void launchJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 		// Only run if scheduling is enabled
 		if (schedulingIsEnabled) {
