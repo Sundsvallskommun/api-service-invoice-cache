@@ -42,8 +42,13 @@ spring:
     job:
       enabled: false
   datasource:
-    hikari:
-      maximum-pool-size: 3
+    configuration:
+      maximum-pool-size: 10
+      connection-timeout: 5000
+  raindance-datasource:
+    configuration:
+      maximum-pool-size: 2
+      connection-timeout: 5000
   flyway:
     enabled: true
     group: true
