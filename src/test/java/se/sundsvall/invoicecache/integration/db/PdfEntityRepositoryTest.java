@@ -8,7 +8,7 @@ import static org.assertj.core.api.Assertions.within;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
@@ -16,7 +16,7 @@ import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 /**
  * Pdf entity repository tests.
  */
-@DataJpaTest
+@SpringBootTest
 @ActiveProfiles("junit")
 class PdfEntityRepositoryTest {
 

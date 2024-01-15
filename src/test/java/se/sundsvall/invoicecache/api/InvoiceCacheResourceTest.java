@@ -62,7 +62,7 @@ class InvoiceCacheResourceTest {
 		final var request = new InvoiceFilterRequest();
 		assertThatExceptionOfType(ThrowableProblem.class)
 			.isThrownBy(() -> resource.getInvoices(request))
-			.withMessage("One of legalIds, invoiceNumbers or ocrNumber needs to be set.");
+			.withMessage("One of partyIds, invoiceNumbers or ocrNumber needs to be set.");
 
 		verify(mockService, times(0)).getInvoices(any(InvoiceFilterRequest.class));
 	}

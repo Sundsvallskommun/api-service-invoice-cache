@@ -5,13 +5,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -24,23 +24,17 @@ import se.sundsvall.invoicecache.InvoiceCache;
 @Testcontainers
 class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 
-	private static final String MARIADB_VERSION = "mariadb:10.6.12";
-
 	@Container
-	public static MariaDBContainer<?> raindanceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
-		.withDatabaseName("raindance")
-		.withUsername("root")
-		.withPassword("")
-		.withInitScript("InvoiceCache/sql/init-raindance.sql");
+	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
+			.withInitScript("InvoiceCache/sql/init-raindance.sql");
 
 	@Container
 	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
-		.withDatabaseName("ms-invoicecache")
-		.withUsername("root")
-		.withPassword("");
+			.withDatabaseName("ms-invoicecache");
 
 	static {
-		Stream.of(raindanceDb, invoiceDb).parallel().forEach(MariaDBContainer::start);
+		raindanceDb.start();
+		invoiceDb.start();
 	}
 
 	@Override
@@ -68,11 +62,11 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-			.withServicePath("/invoices?page=1&limit=100&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&partyIds=fb2f0290-3820-11ed-a261-0242ac120003")
-			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
-			.withExpectedResponse("expected.json")
-			.sendRequestAndVerifyResponse();
+				.withServicePath("/invoices?page=1&limit=100&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&partyIds=fb2f0290-3820-11ed-a261-0242ac120003")
+				.withHttpMethod(HttpMethod.GET)
+				.withExpectedResponseStatus(HttpStatus.OK)
+				.withExpectedResponse("expected.json")
+				.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -80,11 +74,11 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-			.withServicePath("/invoices?page=1&limit=10&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002")
-			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
-			.withExpectedResponse("expected.json")
-			.sendRequestAndVerifyResponse();
+				.withServicePath("/invoices?page=1&limit=10&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002")
+				.withHttpMethod(HttpMethod.GET)
+				.withExpectedResponseStatus(HttpStatus.OK)
+				.withExpectedResponse("expected.json")
+				.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -92,12 +86,12 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-			.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(11) + "&invoiceDateTo=" + now().minusMonths(10) + "&dueDateFrom=" + now().minusMonths(10) +
-				"&dueDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumbers=53626804")
-			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
-			.withExpectedResponse("expected.json")
-			.sendRequestAndVerifyResponse();
+				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(11) + "&invoiceDateTo=" + now().minusMonths(10) + "&dueDateFrom=" + now().minusMonths(10) +
+						"&dueDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumbers=53626804")
+				.withHttpMethod(HttpMethod.GET)
+				.withExpectedResponseStatus(HttpStatus.OK)
+				.withExpectedResponse("expected.json")
+				.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -105,11 +99,11 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-			.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=2022-08-09&invoiceDateTo=2022-08-09&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumber=53626804")
-			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
-			.withExpectedResponse("expected.json")
-			.sendRequestAndVerifyResponse();
+				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=2022-08-09&invoiceDateTo=2022-08-09&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumber=53626804")
+				.withHttpMethod(HttpMethod.GET)
+				.withExpectedResponseStatus(HttpStatus.OK)
+				.withExpectedResponse("expected.json")
+				.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -117,10 +111,10 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-			.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(11) + "&invoiceNumbers=53626800")
-			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
-			.withExpectedResponse("expected.json")
-			.sendRequestAndVerifyResponse();
+				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(11) + "&invoiceNumbers=53626800")
+				.withHttpMethod(HttpMethod.GET)
+				.withExpectedResponseStatus(HttpStatus.OK)
+				.withExpectedResponse("expected.json")
+				.sendRequestAndVerifyResponse();
 	}
 }

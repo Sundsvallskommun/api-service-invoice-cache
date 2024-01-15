@@ -1,33 +1,62 @@
-package openapi;
+package apptest;
 
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.io.Resource;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.web.util.UriComponentsBuilder;
+import java.time.Duration;
+import java.util.Optional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.io.Resource;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.testcontainers.containers.MSSQLServerContainer;
+import org.testcontainers.containers.MariaDBContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
+import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.invoicecache.InvoiceCache;
 
-@ActiveProfiles("openapi")
-@SpringBootTest(
-	webEnvironment = WebEnvironment.RANDOM_PORT,
-	classes = InvoiceCache.class,
-	properties = {
-		"spring.main.banner-mode=off",
-		"logging.level.se.sundsvall.dept44.payload=OFF"
-	})
-class OpenApiSpecificationIT {
+@WireMockAppTestSuite(files = "classpath:/InvoiceCache/", classes = InvoiceCache.class)
+@Testcontainers
+class OpenApiSpecificationIT extends AbstractInvoiceCacheAppTest {
+
+	@Container
+	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
+			.withInitScript("InvoiceCache/sql/init-raindance.sql");
+
+	@Container
+	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
+			.withDatabaseName("ms-invoicecache");
+
+	static {
+		raindanceDb.start();
+		invoiceDb.start();
+	}
+
+	/**
+	 * get the url, user and password from the container and set them in the context.
+	 *
+	 * @param registry
+	 */
+	@DynamicPropertySource
+	static void registerProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.raindance-datasource.url", raindanceDb::getJdbcUrl);
+		registry.add("spring.raindance-datasource.username", raindanceDb::getUsername);
+		registry.add("spring.raindance-datasource.password", raindanceDb::getPassword);
+		registry.add("spring.datasource.url", invoiceDb::getJdbcUrl);
+		registry.add("spring.datasource.username", invoiceDb::getUsername);
+		registry.add("spring.datasource.password", invoiceDb::getPassword);
+	}
 
 	private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
 

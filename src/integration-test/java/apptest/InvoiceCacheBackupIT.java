@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.time.Duration;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
@@ -12,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
+import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -33,23 +33,17 @@ import se.sundsvall.invoicecache.InvoiceCache;
 })
 public class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 
-    private static final String MARIADB_VERSION = "mariadb:10.6.12";
-    
     @Container
-    public static MariaDBContainer<?> raindanceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
-            .withDatabaseName("raindance")
-            .withUsername("root")
-            .withPassword("")
+    public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
             .withInitScript("InvoiceCacheBackup/sql/init-raindance.sql");
     
     @Container
     public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
-            .withDatabaseName("ms-invoicecache")
-            .withUsername("root")
-            .withPassword("");
-    
+            .withDatabaseName("ms-invoicecache");
+
     static {
-        Stream.of(raindanceDb, invoiceDb).parallel().forEach(MariaDBContainer::start);
+        raindanceDb.start();
+        invoiceDb.start();
     }
     
     @Override

@@ -1,4 +1,4 @@
--- "Local" query modified for use with MariaDB
+-- "Local" query modified for use with MSSQL
 SELECT kf.NR,
        dk.KUNDID_TEXT,
        dk.KUNDID,
@@ -45,11 +45,11 @@ SELECT kf.NR,
        dk.ADR2,
        dk.ORT,
        -- Kopplingar inkasso
-       cast(ik.BLOPNR as char) as Z21_BLOPNR,
+       cast(ik.BLOPNR as nvarchar) as Z21_BLOPNR,
        ik.RPNR as Z21_RPNR,
        ik.BEABEL1 as Z21_BEABEL1,
        ik.BEADAT as Z21_BEADAT,
-       cast(it.BLOPNR as char) as Z11_BLOPNR,
+       cast(it.BLOPNR as nvarchar) as Z11_BLOPNR,
        it.SBNR as Z11_SBNR,
        it.BEASUM1 as Z11_BEASUM1,
        it.BEARPNR as Z11_BEARPNR,
@@ -83,20 +83,20 @@ FROM
           and not ORGNR like '%TF%'
           and not (KUNDID_TEXT like '% DB%' or KUNDID_TEXT like '%dödsbo%' or KUNDID_TEXT like 'DB%')
 
-          and length(ltrim(rtrim(ORGNR)))=10
+          and len(ltrim(rtrim(ORGNR)))=10
     ) as dk on kf.KUNDID=dk.KUNDID
 
         left join (
         SELECT * FROM raindance.inkasso
         where BEATYP='BP2' and FR='300'
-    ) as ik on cast(kf.NR as char)=substring(cast(ik.RPNR as char),3,10)
+    ) as ik on cast(kf.NR as varchar)=substring(cast(ik.RPNR as varchar),3,10)
 -- Hämtar data från transaktionsdatabas med totalt belopp för inkasso
         left join (
         SELECT * FROM raindance.inkassotransaktion
         where BEATYP='BP2' and FR='300'
-    ) as it on cast(kf.NR as char)=substring(cast(it.BEARPNR as char),3,10)
+    ) as it on cast(kf.NR as varchar)=substring(cast(it.BEARPNR as varchar),3,10)
 
-where kf.FORFALLODATUM >= date_add(curdate(), interval -18 month )
+where kf.FORFALLODATUM >= dateadd(month, -18, getdate())
   and not kf.FAKTSTATUS='PREL'
   and not kf.FAKTSTATUS='NY'
   and not kf.FAKTSTATUS='MAK'
