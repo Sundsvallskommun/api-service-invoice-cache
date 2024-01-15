@@ -1,0 +1,42 @@
+integration:
+    party:
+        oauth2-client-id: override
+        oauth2-client-secret: override
+        oauth2-token-url: http://nowhere.com
+        url: http://nowhere.com
+    smb:
+        cron: 0 30 5 * * MON-FRI
+        domain: domain.local
+        password: password
+        remoteDir: /
+        shareAndDir: test
+        user: user
+invoice:
+    scheduled:
+        fixedrate: P1D
+        initialdelay: P1D
+raindance:
+    invoice:
+        outdated: P1D
+    sql:
+        filename: local-query.sql
+spring:
+    batch:
+        jdbc:
+            initialize-schema: never
+    datasource:
+        driverClassName: org.h2.Driver
+        password: password
+        url: jdbc:h2:mem:ms-invoicecache
+        username: sa
+    flyway:
+        enabled: false
+    jpa:
+        database-platform: org.hibernate.dialect.H2Dialect
+        hibernate:
+            ddl-auto: none
+    raindance-datasource:
+        driver-class-name: org.h2.Driver
+        password: password
+        url: jdbc:h2:mem:raindance
+        username: sa

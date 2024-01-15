@@ -6,8 +6,6 @@ import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDA
 
 import java.util.Date;
 
-import net.javacrumbs.shedlock.spring.annotation.EnableSchedulerLock;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -26,6 +24,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import se.sundsvall.invoicecache.service.batch.JobHelper;
+
+import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 
 @Configuration
 @EnableScheduling

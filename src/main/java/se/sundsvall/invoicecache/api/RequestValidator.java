@@ -43,7 +43,7 @@ public class RequestValidator {
 
 		if (!(hasValidOcrNumber || hasValidLegalIds || hasValidInvoiceNumbers)) {
 			throw Problem.builder()
-				.withTitle("One of legalIds, invoiceNumbers or ocrNumber needs to be set.")
+				.withTitle("One of partyIds, invoiceNumbers or ocrNumber needs to be set.")
 				.withStatus(BAD_REQUEST)
 				.build();
 		}

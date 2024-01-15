@@ -61,7 +61,7 @@ class RequestValidatorTest {
 	void testNoFieldIsSet() {
 		final var request = new InvoiceFilterRequest();
 		assertThatExceptionOfType(ThrowableProblem.class).isThrownBy(() -> RequestValidator.validateRequest(request))
-			.withMessage("One of legalIds, invoiceNumbers or ocrNumber needs to be set.");
+			.withMessage("One of partyIds, invoiceNumbers or ocrNumber needs to be set.");
 	}
 
 	@ParameterizedTest
@@ -71,7 +71,7 @@ class RequestValidatorTest {
 		request.setPartyIds(List.of(testString));
 
 		assertThatExceptionOfType(ThrowableProblem.class).isThrownBy(() -> RequestValidator.validateRequest(request))
-			.withMessage("One of legalIds, invoiceNumbers or ocrNumber needs to be set.");
+			.withMessage("One of partyIds, invoiceNumbers or ocrNumber needs to be set.");
 	}
 
 	@ParameterizedTest
@@ -81,7 +81,7 @@ class RequestValidatorTest {
 		request.setInvoiceNumbers(List.of(testString));
 
 		assertThatExceptionOfType(ThrowableProblem.class).isThrownBy(() -> RequestValidator.validateRequest(request))
-			.withMessage("One of legalIds, invoiceNumbers or ocrNumber needs to be set.");
+			.withMessage("One of partyIds, invoiceNumbers or ocrNumber needs to be set.");
 	}
 
 	@ParameterizedTest
@@ -91,6 +91,6 @@ class RequestValidatorTest {
 		request.setOcrNumber(testString);
 
 		assertThatExceptionOfType(ThrowableProblem.class).isThrownBy(() -> RequestValidator.validateRequest(request))
-			.withMessage("One of legalIds, invoiceNumbers or ocrNumber needs to be set.");
+			.withMessage("One of partyIds, invoiceNumbers or ocrNumber needs to be set.");
 	}
 }
