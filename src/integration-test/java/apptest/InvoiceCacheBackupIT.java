@@ -33,9 +33,6 @@ import se.sundsvall.invoicecache.InvoiceCache;
 })
 public class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 
-    private static final String MARIADB_VERSION = "mariadb:10.6.12";
-    private static final String MSSQL_VERSION = "mcr.microsoft.com/mssql/server:2019-latest";
-
     @Container
     public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
             .withInitScript("InvoiceCacheBackup/sql/init-raindance.sql");
