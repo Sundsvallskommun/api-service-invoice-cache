@@ -10,9 +10,10 @@ invoice:
     initialdelay: PT5S
     shedlock-lock-at-most-for: PT10M
 logbook:
-  exclusionfilters:
+  body-filters:
     json-path:
-      '$..content': '[base64]'
+      - key: '$..content'
+        value: '[base64]'
 management:
   endpoints:
     enabled-by-default: true
