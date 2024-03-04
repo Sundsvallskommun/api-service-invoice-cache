@@ -2,8 +2,13 @@ package apptest;
 
 import static java.time.LocalDate.now;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.Test;
@@ -63,8 +68,8 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
 				.withServicePath("/invoices?page=1&limit=100&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&partyIds=fb2f0290-3820-11ed-a261-0242ac120003")
-				.withHttpMethod(HttpMethod.GET)
-				.withExpectedResponseStatus(HttpStatus.OK)
+				.withHttpMethod(GET)
+				.withExpectedResponseStatus(OK)
 				.withExpectedResponse("expected.json")
 				.sendRequestAndVerifyResponse();
 	}
@@ -75,8 +80,8 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
 				.withServicePath("/invoices?page=1&limit=10&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002")
-				.withHttpMethod(HttpMethod.GET)
-				.withExpectedResponseStatus(HttpStatus.OK)
+				.withHttpMethod(GET)
+				.withExpectedResponseStatus(OK)
 				.withExpectedResponse("expected.json")
 				.sendRequestAndVerifyResponse();
 	}
@@ -88,8 +93,8 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		setupCall()
 				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(11) + "&invoiceDateTo=" + now().minusMonths(10) + "&dueDateFrom=" + now().minusMonths(10) +
 						"&dueDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumbers=53626804")
-				.withHttpMethod(HttpMethod.GET)
-				.withExpectedResponseStatus(HttpStatus.OK)
+				.withHttpMethod(GET)
+				.withExpectedResponseStatus(OK)
 				.withExpectedResponse("expected.json")
 				.sendRequestAndVerifyResponse();
 	}
@@ -100,8 +105,8 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
 				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=2022-08-09&invoiceDateTo=2022-08-09&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumber=53626804")
-				.withHttpMethod(HttpMethod.GET)
-				.withExpectedResponseStatus(HttpStatus.OK)
+				.withHttpMethod(GET)
+				.withExpectedResponseStatus(OK)
 				.withExpectedResponse("expected.json")
 				.sendRequestAndVerifyResponse();
 	}
@@ -112,9 +117,20 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
 				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(11) + "&invoiceNumbers=53626800")
-				.withHttpMethod(HttpMethod.GET)
-				.withExpectedResponseStatus(HttpStatus.OK)
+				.withHttpMethod(GET)
+				.withExpectedResponseStatus(OK)
 				.withExpectedResponse("expected.json")
 				.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test6_importInvoice(){
+		setupCall()
+			.withServicePath("/invoices")
+			.withHttpMethod(POST)
+			.withRequest("request.json")
+			.withExpectedResponseStatus(CREATED)
+			.withExpectedResponseHeader("Location", List.of("^/invoices/(.*)$"))
+			.sendRequestAndVerifyResponse();
 	}
 }

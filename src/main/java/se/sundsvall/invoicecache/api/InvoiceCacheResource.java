@@ -3,7 +3,8 @@ package se.sundsvall.invoicecache.api;
 import static org.springframework.http.MediaType.ALL_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-import static se.sundsvall.invoicecache.api.InvoiceCacheResource.PATH;
+import static org.springframework.http.ResponseEntity.ok;
+import static org.springframework.web.util.UriComponentsBuilder.fromPath;
 
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriComponentsBuilder;
+
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
 
@@ -36,19 +37,16 @@ import se.sundsvall.invoicecache.service.InvoiceCacheService;
 import se.sundsvall.invoicecache.service.InvoicePdfService;
 
 @RestController
-@RequestMapping(value = PATH)
+@RequestMapping(value = "/invoices")
 @Tag(name = "Invoice Cache")
 @ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = Problem.class)))
 @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
-public class InvoiceCacheResource {
-
-	static final String PATH = "/invoices";
-	static final String FILENAME_PATH = "/{filename}";
+class InvoiceCacheResource {
 
 	private final InvoiceCacheService invoiceCacheService;
 	private final InvoicePdfService invoicePdfService;
 
-	public InvoiceCacheResource(final InvoiceCacheService invoiceCacheService,
+	InvoiceCacheResource(final InvoiceCacheService invoiceCacheService,
 		final InvoicePdfService invoicePdfService) {
 		this.invoiceCacheService = invoiceCacheService;
 		this.invoicePdfService = invoicePdfService;
@@ -63,10 +61,10 @@ public class InvoiceCacheResource {
 				content = @Content(schema = @Schema(implementation = InvoicesResponse.class)))
 		})
 	@GetMapping(produces = APPLICATION_JSON_VALUE)
-	public ResponseEntity<InvoicesResponse> getInvoices(@Valid InvoiceFilterRequest request) {
+	public ResponseEntity<InvoicesResponse> getInvoices(@Valid final InvoiceFilterRequest request) {
 		RequestValidator.validateRequest(request);
 
-		return ResponseEntity.ok(invoiceCacheService.getInvoices(request));
+		return ok(invoiceCacheService.getInvoices(request));
 	}
 
 	@Operation(
@@ -81,26 +79,24 @@ public class InvoiceCacheResource {
 				description = "Not Found",
 				content = @Content(schema = @Schema(implementation = Problem.class)))
 		})
-	@GetMapping(FILENAME_PATH)
-	public ResponseEntity<InvoicePdf> getInvoicePdf(@PathVariable @NotBlank String filename) {
+	@GetMapping("/{filename}")
+	public ResponseEntity<InvoicePdf> getInvoicePdf(@PathVariable @NotBlank final String filename) {
 		final var invoicePdf = invoicePdfService.getInvoicePdf(filename);
 
 		if (invoicePdf == null) {
 			throw Problem.valueOf(Status.NOT_FOUND);
 		}
-		return ResponseEntity.ok(invoicePdf);
+		return ok(invoicePdf);
 	}
 
 	@GetMapping("/{issuerlegalid}/{invoicenumber}/pdf")
-	public ResponseEntity<InvoicePdf> getInvoicePdf(@PathVariable String issuerlegalid,
-		@PathVariable String invoicenumber,
-		@ParameterObject @Valid InvoicePdfFilterRequest request) {
+	public ResponseEntity<InvoicePdf> getInvoicePdf(@PathVariable final String issuerlegalid,
+		@PathVariable final String invoicenumber,
+		@ParameterObject @Valid  final InvoicePdfFilterRequest request) {
 		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
 			invoicenumber, request);
-		if (invoicePdf == null) {
-			throw Problem.valueOf(Status.NOT_FOUND);
-		}
-		return ResponseEntity.ok(invoicePdf);
+
+		return ok(invoicePdf);
 	}
 
 	@Operation(
@@ -116,13 +112,7 @@ public class InvoiceCacheResource {
 	public ResponseEntity<Void> importInvoice(@Valid @RequestBody final InvoicePdfRequest request) {
 		final var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request);
 
-		final var uri = UriComponentsBuilder.newInstance()
-			.path(PATH + FILENAME_PATH)
-			.buildAndExpand(invoiceFilename)
-			.toUri();
-
-		return ResponseEntity.created(uri)
-			// Work around that the API-manager sets the content-type to "application/octet-stream" when no content-type is set.
+		return ResponseEntity.created(fromPath("/invoices/{filename}").buildAndExpand(invoiceFilename).toUri())
 			.header(HttpHeaders.CONTENT_TYPE, ALL_VALUE)
 			.build();
 	}
