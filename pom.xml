@@ -25,7 +25,7 @@
         <app.jvm.xms.mb>1024</app.jvm.xms.mb>
         <app.jvm.xmx.mb>1024</app.jvm.xmx.mb>
         <generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
-        <shedlock.version>5.11.0</shedlock.version>
+        <shedlock.version>5.12.0</shedlock.version>
     </properties>
     <dependencies>
         <dependency>
