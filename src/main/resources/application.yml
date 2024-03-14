@@ -29,8 +29,6 @@ openapi:
 raindance:
   invoice:
     outdated: PT24H
-  sql:
-    filename: raindance-query.sql
 security:
   basic:
     enabled: false
