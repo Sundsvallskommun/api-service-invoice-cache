@@ -1,11 +1,11 @@
 {
-  "issuerLegalId": "1234567890",
-  "debtorLegalId": "1234567890",
-  "invoiceNumber": "1234567890",
-  "invoiceId": "1234567890",
-  "invoiceType": "REMINDER",
-  "attachment": {
-    "content": "dGVzdA==",
-    "name": "test.txt"
-  }
+	"issuerLegalId": "1234567890",
+	"debtorLegalId": "1234567890",
+	"invoiceNumber": "1234567890",
+	"invoiceId": "1234567890",
+	"invoiceType": "REMINDER",
+	"attachment": {
+		"content": "dGVzdA==",
+		"name": "test.txt"
+	}
 }
