@@ -3,24 +3,21 @@ package apptest;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static net.javacrumbs.jsonunit.core.Option.IGNORING_ARRAY_ORDER;
 
-import java.time.Duration;
-import java.util.Optional;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.web.util.UriComponentsBuilder;
+import org.springframework.test.web.reactive.server.WebTestClient;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
 
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.dept44.util.ResourceUtils;
@@ -58,18 +55,13 @@ class OpenApiSpecificationIT extends AbstractInvoiceCacheAppTest {
 		registry.add("spring.datasource.password", invoiceDb::getPassword);
 	}
 
-	private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
-
-	@Value("${openapi.name}")
-	private String openApiName;
-	@Value("${openapi.version}")
-	private String openApiVersion;
+	private final YAMLMapper yamlMapper = new YAMLMapper();
 
 	@Value("classpath:/openapi.yaml")
 	private Resource openApiResource;
 
 	@Autowired
-	private TestRestTemplate restTemplate;
+	private WebTestClient webTestClient;
 
 	@Test
 	void compareOpenApiSpecifications() {
@@ -88,11 +80,12 @@ class OpenApiSpecificationIT extends AbstractInvoiceCacheAppTest {
 	 * @return the current OpenAPI specification
 	 */
 	private String getCurrentOpenApiSpecification() {
-		final var uri = UriComponentsBuilder.fromPath("/api-docs.yaml")
-			.buildAndExpand(openApiName, openApiVersion)
-			.toUri();
-
-		return restTemplate.getForObject(uri, String.class);
+		return webTestClient.get().uri("/api-docs")
+			.exchange()
+			.expectStatus().isOk()
+			.expectBody(String.class)
+			.returnResult()
+			.getResponseBody();
 	}
 
 	/**
@@ -103,7 +96,7 @@ class OpenApiSpecificationIT extends AbstractInvoiceCacheAppTest {
 	 */
 	private String toJson(final String yaml) {
 		try {
-			return YAML_MAPPER.readTree(yaml).toString();
+			return yamlMapper.readTree(yaml).toString();
 		} catch (final JsonProcessingException e) {
 			throw new IllegalStateException("Unable to convert YAML to JSON", e);
 		}

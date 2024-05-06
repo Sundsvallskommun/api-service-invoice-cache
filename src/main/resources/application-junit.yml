@@ -1,19 +1,19 @@
 integration:
   party:
-    connectTimeout: 10
+    connectTimeout: PT10S
     oauth2-client-id: client-id
     oauth2-client-secret: client-secret
     oauth2-token-url: api-gateway-url
-    readTimeout: 20
+    readTimeout: PT20S
     url: api-party-url
   smb:
     cron: '-'
-    domain: 127.0.0.1
+    domain: smb-domain
     password: smb-password
-    remoteDir: remote-dir
-    shareAndDir: /
+    remoteDir: smb-remote-dir
+    shareAndDir: smb-share-and-dir
     user: smb-user
-    userDomain: user-domain
+    userDomain: smb-user-domain
 raindance:
   sql:
     filename: raindance-test.sql
