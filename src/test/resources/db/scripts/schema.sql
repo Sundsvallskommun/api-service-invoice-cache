@@ -83,4 +83,4 @@
        on invoice (customer_id);
 
     alter table if exists invoice_pdf 
-       add constraint UK_97gdx5bau45snxx119ad6givd unique (filename);
+       add constraint UK97gdx5bau45snxx119ad6givd unique (filename);
