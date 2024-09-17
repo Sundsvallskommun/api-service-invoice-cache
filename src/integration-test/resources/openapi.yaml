@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "3.0"
 servers:
-  - url: http://localhost:53165
+  - url: http://localhost:55694
     description: Generated server url
 paths:
   /{municipalityId}/invoices:
@@ -87,18 +87,14 @@ paths:
               schema:
                 $ref: "#/components/schemas/Problem"
         "201":
-          description: Successful Operation
-          headers:
-            Location:
-              style: simple
-              schema:
-                type: string
+          description: Created
           content:
             '*/*': { }
   /{municipalityId}/invoices/{issuerlegalid}/{invoicenumber}/pdf:
     get:
       tags:
         - Invoice Cache
+      summary: Fetch an invoice PDF via issuer legal id and invoice number
       operationId: getInvoicePdf
       parameters:
         - name: municipalityId
@@ -166,6 +162,12 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InvoicePdf"
   /{municipalityId}/invoices/{filename}:
     get:
       tags:
@@ -186,20 +188,8 @@ paths:
           schema:
             type: string
       responses:
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/InvoicePdfResponse"
         "400":
           description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
           content:
             '*/*':
               schema:
@@ -210,6 +200,18 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InvoicePdf"
   /api-docs:
     get:
       tags:
@@ -295,11 +297,11 @@ components:
     StatusType:
       type: object
       properties:
-        reasonPhrase:
-          type: string
         statusCode:
           type: integer
           format: int32
+        reasonPhrase:
+          type: string
     InvoiceFilterRequest:
       type: object
       properties:
@@ -521,31 +523,4 @@ components:
           example: 23
       description: Metadata model
       readOnly: true
-    InvoicePdfResponse:
-      required:
-        - attachment
-      type: object
-      properties:
-        issuerLegalId:
-          type: string
-          description: Invoice issuer legal id
-        debtorLegalId:
-          type: string
-          description: Invoice debtor legal id
-        invoiceNumber:
-          type: string
-          description: Invoice number
-        invoiceType:
-          type: string
-          description: Invoice type
-          enum:
-            - INVOICE
-            - CREDIT_INVOICE
-            - DIRECT_DEBIT
-            - SELF_INVOICE
-            - REMINDER
-            - FINAL_INVOICE
-            - CONSOLIDATED_INVOICE
-        attachment:
-          $ref: "#/components/schemas/InvoicePdf"
   securitySchemes: { }

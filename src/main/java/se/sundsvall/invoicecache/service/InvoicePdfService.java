@@ -22,30 +22,37 @@ import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
 public class InvoicePdfService {
 
 	private final PdfEntityRepository pdfRepository;
+
 	private final SMBIntegration smbIntegration;
+
 	private final InvoicePdfSpecifications invoicePdfSpecifications;
 
 	public InvoicePdfService(final PdfEntityRepository pdfRepository,
-		final SMBIntegration smbIntegration, InvoicePdfSpecifications invoicePdfSpecifications) {
+		final SMBIntegration smbIntegration, final InvoicePdfSpecifications invoicePdfSpecifications) {
 		this.pdfRepository = pdfRepository;
 		this.smbIntegration = smbIntegration;
 		this.invoicePdfSpecifications = invoicePdfSpecifications;
 	}
 
 	public InvoicePdf getInvoicePdf(final String filename) {
+
 		try {
-			return pdfRepository.findByFilename(filename)
+			final var result = pdfRepository.findByFilename(filename)
 				.map(this::mapToResponse)
 				.orElseGet(() -> mapToResponse(smbIntegration.findPdf(filename)));
+			if (result == null) {
+				throw Problem.valueOf(Status.NOT_FOUND);
+			}
+			return result;
 		} catch (final Exception e) {
 			throw new InvoiceCacheException("Unable to get invoice PDF", e);
 		}
 	}
 
-	public InvoicePdf getInvoicePdfByInvoiceNumber(String issuerLegalId, String invoiceNumber,
-		InvoicePdfFilterRequest request) {
+	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber,
+		final InvoicePdfFilterRequest request) {
 		return pdfRepository.findAll(invoicePdfSpecifications
-			.createInvoicesSpecification(request, invoiceNumber, issuerLegalId))
+				.createInvoicesSpecification(request, invoiceNumber, issuerLegalId))
 			.stream().findFirst()
 			.map(this::mapToResponse)
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND));
@@ -106,4 +113,5 @@ public class InvoicePdfService {
 			throw new InvoiceCacheException("Unable to map response", e);
 		}
 	}
+
 }

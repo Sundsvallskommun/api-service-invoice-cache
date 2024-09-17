@@ -24,6 +24,4 @@ class SMBProperties {
 
 	private String remoteDir;
 
-	private String municipalityId;
-
 }

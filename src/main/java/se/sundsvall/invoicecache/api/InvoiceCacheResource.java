@@ -19,21 +19,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
 
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
-import se.sundsvall.invoicecache.api.model.InvoicePdfResponse;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.service.InvoiceCacheService;
 import se.sundsvall.invoicecache.service.InvoicePdfService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.headers.Header;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -57,7 +54,7 @@ class InvoiceCacheResource {
 	}
 
 	@Operation(summary = "Search for and fetch invoices")
-	@ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = InvoicesResponse.class)))
+	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	@GetMapping(produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<InvoicesResponse> getInvoices(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
@@ -68,7 +65,7 @@ class InvoiceCacheResource {
 	}
 
 	@Operation(summary = "Fetch an invoice PDF via filename")
-	@ApiResponse(responseCode = "200", description = "Successful Operation", content = @Content(schema = @Schema(implementation = InvoicePdfResponse.class)))
+	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
 	@GetMapping("/{filename}")
 	public ResponseEntity<InvoicePdf> getInvoicePdf(
@@ -76,13 +73,12 @@ class InvoiceCacheResource {
 		@PathVariable @NotBlank final String filename) {
 		final var invoicePdf = invoicePdfService.getInvoicePdf(filename);
 
-		if (invoicePdf == null) {
-			throw Problem.valueOf(Status.NOT_FOUND);
-		}
 		return ok(invoicePdf);
 	}
 
 	@GetMapping("/{issuerlegalid}/{invoicenumber}/pdf")
+	@Operation(summary = "Fetch an invoice PDF via issuer legal id and invoice number")
+	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
 	public ResponseEntity<InvoicePdf> getInvoicePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable final String issuerlegalid,
@@ -95,7 +91,7 @@ class InvoiceCacheResource {
 	}
 
 	@Operation(summary = "Create/import an invoice")
-	@ApiResponse(responseCode = "201", description = "Successful Operation", headers = @Header(name = HttpHeaders.LOCATION, schema = @Schema(type = "string")), content = @Content(mediaType = ALL_VALUE))
+	@ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = ALL_VALUE), useReturnTypeSchema = true)
 	@PostMapping(consumes = APPLICATION_JSON_VALUE, produces = {ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
 	public ResponseEntity<Void> importInvoice(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
