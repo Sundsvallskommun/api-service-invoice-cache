@@ -71,7 +71,7 @@ class InvoiceCacheResource {
 	public ResponseEntity<InvoicePdf> getInvoicePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable @NotBlank final String filename) {
-		final var invoicePdf = invoicePdfService.getInvoicePdf(filename);
+		final var invoicePdf = invoicePdfService.getInvoicePdf(filename, municipalityId);
 
 		return ok(invoicePdf);
 	}
@@ -85,7 +85,7 @@ class InvoiceCacheResource {
 		@PathVariable final String invoicenumber,
 		@ParameterObject @Valid final InvoicePdfFilterRequest request) {
 		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
-			invoicenumber, request);
+			invoicenumber, request, municipalityId);
 
 		return ok(invoicePdf);
 	}
@@ -96,7 +96,7 @@ class InvoiceCacheResource {
 	public ResponseEntity<Void> importInvoice(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Valid @RequestBody final InvoicePdfRequest request) {
-		final var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request);
+		final var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request, municipalityId);
 
 		return ResponseEntity.created(fromPath("/" + municipalityId + "/invoices/{filename}").buildAndExpand(invoiceFilename).toUri())
 			.header(HttpHeaders.CONTENT_TYPE, ALL_VALUE)

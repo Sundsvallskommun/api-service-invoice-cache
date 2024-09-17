@@ -66,7 +66,7 @@ class InvoiceCacheServiceTest {
 		final var municipalityId = "2281";
 		when(mockPartyClient.getLegalIdsFromParty("ab123", municipalityId)).thenReturn("197001011234");
 		when(mockPartyClient.getLegalIdsFromParty("cde345", municipalityId)).thenReturn("197001011235");
-		when(mockInvoiceSpecifications.createInvoicesSpecification(any(InvoiceFilterRequest.class))).thenReturn(mockSpecification);
+		when(mockInvoiceSpecifications.createInvoicesSpecification(any(InvoiceFilterRequest.class), eq(municipalityId))).thenReturn(mockSpecification);
 		when(mockRepository.findAll(Mockito.<Specification<InvoiceEntity>>any(), any(Pageable.class))).thenReturn(invoicePage);
 		when(mockMapper.entityToInvoice(any(InvoiceEntity.class))).thenReturn(new Invoice());
 
@@ -77,7 +77,7 @@ class InvoiceCacheServiceTest {
 		assertThat(response).isNotNull();
 		assertThat(response.getInvoices()).hasSize(2);
 		verify(mockPartyClient, times(2)).getLegalIdsFromParty(anyString(), eq(municipalityId));
-		verify(mockInvoiceSpecifications, times(1)).createInvoicesSpecification(any(InvoiceFilterRequest.class));
+		verify(mockInvoiceSpecifications, times(1)).createInvoicesSpecification(any(InvoiceFilterRequest.class), eq(municipalityId));
 		verify(mockRepository, times(1)).findAll(Mockito.<Specification<InvoiceEntity>>any(), any(Pageable.class));
 		verify(mockMapper, times(2)).entityToInvoice(any(InvoiceEntity.class));
 	}

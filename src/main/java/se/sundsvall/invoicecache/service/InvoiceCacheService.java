@@ -64,7 +64,7 @@ public class InvoiceCacheService {
 		}
 
 		// Find all invoices matching the request, map them and add them to the response.
-		final Page<InvoiceEntity> invoicePage = invoiceRepository.findAll(invoiceSpecifications.createInvoicesSpecification(request), getPagingParameters(request));
+		final Page<InvoiceEntity> invoicePage = invoiceRepository.findAll(invoiceSpecifications.createInvoicesSpecification(request, municipalityId), getPagingParameters(request));
 
 		LOG.info("Got {} invoices from the DB.", invoicePage.getTotalElements());
 		invoicePage.forEach(entity -> {

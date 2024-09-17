@@ -84,16 +84,16 @@ class InvoiceCacheResourceTest {
 	void testGetPdfSuccessfulRequest_shouldReturnResponse() {
 
 		// Arrange
-		final var municipalityId = "2281";
 		final var fileName = "fileName";
-		when(mockPdfService.getInvoicePdf(fileName)).thenReturn(generateInvoicePdf());
+		final var municipalityId = "2281";
+		when(mockPdfService.getInvoicePdf(fileName, municipalityId)).thenReturn(generateInvoicePdf());
 
 		// Act
 
 		final var invoicePdfResponse = resource.getInvoicePdf(municipalityId, fileName);
 
 		// Assert
-		verify(mockPdfService, times(1)).getInvoicePdf(fileName);
+		verify(mockPdfService, times(1)).getInvoicePdf(fileName, municipalityId);
 		verifyNoInteractions(mockService);
 		verifyNoMoreInteractions(mockPdfService);
 
@@ -112,7 +112,7 @@ class InvoiceCacheResourceTest {
 		// Arrange
 		final var municipalityId = "2281";
 		final var request = InvoicePdfRequest.builder().build();
-		when(mockPdfService.createOrUpdateInvoice(request)).thenReturn("someFilename");
+		when(mockPdfService.createOrUpdateInvoice(request, municipalityId)).thenReturn("someFilename");
 
 		// Act
 		final var response = resource.importInvoice(municipalityId, request);
@@ -122,7 +122,7 @@ class InvoiceCacheResourceTest {
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 		assertThat(response.getHeaders()).containsKey(HttpHeaders.LOCATION);
 
-		verify(mockPdfService, times(1)).createOrUpdateInvoice(request);
+		verify(mockPdfService, times(1)).createOrUpdateInvoice(request, municipalityId);
 	}
 
 	@Test
@@ -134,7 +134,7 @@ class InvoiceCacheResourceTest {
 		final var invoiceNumber = "invoicenumber";
 		final var issuerLegalId = "issuerlegalid";
 
-		when(mockPdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request)).thenReturn(generateInvoicePdf());
+		when(mockPdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId)).thenReturn(generateInvoicePdf());
 
 		// Act
 
@@ -142,7 +142,7 @@ class InvoiceCacheResourceTest {
 
 		// Assert
 		verify(mockPdfService, times(1))
-			.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request);
+			.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
 		verifyNoInteractions(mockService);
 		verifyNoMoreInteractions(mockPdfService);
 

@@ -20,6 +20,8 @@ public class RaindanceToInvoiceMapper {
 
 	private static final String ZIP_AND_CITY_REGEX = "^(s-|S-)?\\d{3}\\s?\\d{2}\\s?.{2,}$";
 
+	private static final String MUNICIPALITY_ID = "2281"; // Hardcoded for now
+
 	public InvoiceEntity mapRaindanceDtoToInvoice(final RaindanceQueryResultDto dto) {
 		final InvoiceEntity invoice = new InvoiceEntity();
 
@@ -48,6 +50,7 @@ public class RaindanceToInvoiceMapper {
 		invoice.setPaymentStatus(trim(dto.getTabBehand()));
 		invoice.setStreet(trim(dto.getAdr2()));
 		invoice.setVat(dto.getMomsVal());
+		invoice.setMunicipalityId(MUNICIPALITY_ID);
 
 		setZipAndCityIfCorrectFormat(dto, invoice);
 

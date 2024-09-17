@@ -34,12 +34,12 @@ public class InvoicePdfService {
 		this.invoicePdfSpecifications = invoicePdfSpecifications;
 	}
 
-	public InvoicePdf getInvoicePdf(final String filename) {
+	public InvoicePdf getInvoicePdf(final String filename, final String municipalityId) {
 
 		try {
-			final var result = pdfRepository.findByFilename(filename)
+			final var result = pdfRepository.findByFilenameAndMunicipalityId(filename, municipalityId)
 				.map(this::mapToResponse)
-				.orElseGet(() -> mapToResponse(smbIntegration.findPdf(filename)));
+				.orElseGet(() -> mapToResponse(smbIntegration.findPdf(filename, municipalityId)));
 			if (result == null) {
 				throw Problem.valueOf(Status.NOT_FOUND);
 			}
@@ -50,28 +50,29 @@ public class InvoicePdfService {
 	}
 
 	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber,
-		final InvoicePdfFilterRequest request) {
+		final InvoicePdfFilterRequest request, final String municipalityId) {
 		return pdfRepository.findAll(invoicePdfSpecifications
-				.createInvoicesSpecification(request, invoiceNumber, issuerLegalId))
+				.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
 			.stream().findFirst()
 			.map(this::mapToResponse)
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND));
 
 	}
 
-	public String createOrUpdateInvoice(final InvoicePdfRequest request) {
-		final var pdfEntity = pdfRepository.findByInvoiceNumberAndInvoiceId(request.invoiceNumber(), request.invoiceId())
+	public String createOrUpdateInvoice(final InvoicePdfRequest request, final String municipalityId) {
+		final var pdfEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId(request.invoiceNumber(), request.invoiceId(), municipalityId)
 			.map(existingPdfEntity -> mapOntoExistingEntity(existingPdfEntity, request))
-			.orElseGet(() -> mapToEntity(request));
+			.orElseGet(() -> mapToEntity(request, municipalityId));
 
 		return pdfRepository.save(pdfEntity).getFilename();
 	}
 
-	PdfEntity mapToEntity(final InvoicePdfRequest request) {
+	PdfEntity mapToEntity(final InvoicePdfRequest request, final String municipalityId) {
 		try {
 			final var document = new SerialBlob(Base64.getDecoder().decode(request.attachment().content()));
 
 			return PdfEntity.builder()
+				.withMunicipalityId(municipalityId)
 				.withInvoiceIssuerLegalId(request.issuerLegalId())
 				.withInvoiceDebtorLegalId(request.debtorLegalId())
 				.withInvoiceNumber(request.invoiceNumber())

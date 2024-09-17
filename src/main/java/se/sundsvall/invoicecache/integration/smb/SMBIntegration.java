@@ -32,6 +32,8 @@ public class SMBIntegration {
 
 	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
 
+	private static final String MUNICIPALITY_ID = "2281";
+
 	private static final Logger logger = LoggerFactory.getLogger(SMBIntegration.class);
 
 	private final PdfEntityRepository pdfRepository;
@@ -54,9 +56,9 @@ public class SMBIntegration {
 		return LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), TimeZone.getDefault().toZoneId()).isAfter(LocalDateTime.now().minusDays(1));
 	}
 
-	public PdfEntity findPdf(final String filename) {
+	public PdfEntity findPdf(final String filename, final String municipalityId) {
 		try (final var file = createSmbFile(sourceUrl + "/" + filename)) {
-			return saveFile(file);
+			return saveFile(file, municipalityId);
 		} catch (final MalformedURLException e) {
 			logger.warn("Something went wrong when trying to find pdf", e);
 			return null;
@@ -72,7 +74,7 @@ public class SMBIntegration {
 
 		try (final var directory = createSmbFile(sourceUrl)) {
 			Arrays.stream(Objects.requireNonNull(directory)
-				.listFiles(file -> isAfterYesterday(file.lastModified()))).forEach(this::saveFile);
+				.listFiles(file -> isAfterYesterday(file.lastModified()))).forEach(file1 -> saveFile(file1, MUNICIPALITY_ID));
 
 		} catch (final CIFSException | MalformedURLException e) {
 			logger.warn("Something went wrong when trying to cache pdf", e);
@@ -90,13 +92,14 @@ public class SMBIntegration {
 		}
 	}
 
-	private PdfEntity saveFile(final SmbFile file) {
+	private PdfEntity saveFile(final SmbFile file, final String municipalityId) {
 		try (final var inputStream = new SmbFileInputStream(file)) {
 			final var filename = file.getName().replace(properties.getRemoteDir(), "");
-			final var entity = invoiceRepository.findByFileName(filename).orElse(null);
+			final var entity = invoiceRepository.findByFileNameAndMunicipalityId(filename, municipalityId).orElse(null);
 
 			if (entity != null) {
 				return pdfRepository.save(PdfEntity.builder()
+					.withMunicipalityId(municipalityId)
 					.withFilename(filename)
 					.withDocument(BlobProxy.generateProxy(inputStream.readAllBytes()))
 					.withInvoiceIssuerLegalId(INVOICE_ISSUER_LEGAL_ID)

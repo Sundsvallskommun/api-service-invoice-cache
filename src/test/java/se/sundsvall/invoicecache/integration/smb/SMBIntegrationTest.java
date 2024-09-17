@@ -57,11 +57,13 @@ class SMBIntegrationTest {
 		final var fileName = "test.pdf";
 		final var orgNr = "someOrgNr";
 		final var invoiceNumber = "someInvoiceNumber";
+		final var municipalityId = "2281";
 
 		when(smbProperties.getRemoteDir()).thenReturn("TEST");
 
-		when(invoiceEntityRepository.findByFileName(fileName))
+		when(invoiceEntityRepository.findByFileNameAndMunicipalityId(fileName, municipalityId))
 			.thenReturn(Optional.ofNullable(InvoiceEntity.builder()
+				.withMunicipalityId(municipalityId)
 				.withOrganizationNumber(orgNr)
 				.withInvoiceNumber(invoiceNumber)
 				.build()));
@@ -69,6 +71,7 @@ class SMBIntegrationTest {
 		when(pdfRepository.save(any())).thenReturn(PdfEntity.builder()
 			.withFilename(fileName)
 			.withDocument(blob)
+			.withMunicipalityId(municipalityId)
 			.withInvoiceDebtorLegalId(orgNr)
 			.withInvoiceIssuerLegalId(INVOICE_ISSUER_LEGAL_ID)
 			.withInvoiceNumber(invoiceNumber)
@@ -81,11 +84,12 @@ class SMBIntegrationTest {
 				when(mock.readAllBytes()).thenReturn(new byte[]{});// any additional mocking
 			})) {
 
-			final var result = smbIntegration.findPdf(fileName);
+			final var result = smbIntegration.findPdf(fileName, municipalityId);
 
 			// Assert
 			assertThat(result).isNotNull();
 			assertThat(result.getFilename()).isEqualTo(fileName);
+			assertThat(result.getMunicipalityId()).isEqualTo(municipalityId);
 			assertThat(result.getId()).isEqualTo(1);
 			assertThat(result.getDocument()).isEqualTo(blob);
 
@@ -105,8 +109,9 @@ class SMBIntegrationTest {
 	void handleFile_ThrowsError(final CapturedOutput output) {
 		// Arrange
 		final var file = "";
+		final var municipalityId = "2281";
 		// Act
-		smbIntegration.findPdf(file);
+		smbIntegration.findPdf(file, municipalityId);
 		// Assert
 		assertThat(output).contains("Something went wrong when trying to save file");
 		verifyNoInteractions(pdfRepository);

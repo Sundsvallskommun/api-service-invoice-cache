@@ -19,6 +19,7 @@
         invoice_reference varchar(255),
         invoice_status varchar(255),
         invoice_status2 varchar(255),
+        municipality_id varchar(255),
         name varchar(255),
         ocr_number varchar(255),
         organization_number varchar(255),
@@ -48,6 +49,7 @@
         invoice_reference varchar(255),
         invoice_status varchar(255),
         invoice_status2 varchar(255),
+        municipality_id varchar(255),
         name varchar(255),
         ocr_number varchar(255),
         organization_number varchar(255),
@@ -65,10 +67,14 @@
         invoice_id varchar(255),
         invoice_issuer_legal_id varchar(255),
         invoice_number varchar(255),
+        municipality_id varchar(255),
         document LONGBLOB,
         invoice_type varchar(24),
         primary key (id)
     ) engine=InnoDB;
+
+    create index backup_municipality_id_index 
+       on backupinvoice (municipality_id);
 
     create index bak_inv_index 
        on invoice (invoice_number);
@@ -81,6 +87,9 @@
 
     create index bak_cus_index 
        on invoice (customer_id);
+
+    create index bak_mun_index 
+       on invoice (municipality_id);
 
     alter table if exists invoice_pdf 
        add constraint UK97gdx5bau45snxx119ad6givd unique (filename);

@@ -8,8 +8,6 @@ import static org.hibernate.annotations.TimeZoneStorageType.NORMALIZE;
 import java.sql.Blob;
 import java.time.OffsetDateTime;
 
-import org.hibernate.annotations.TimeZoneStorage;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -20,12 +18,16 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+
+import org.hibernate.annotations.TimeZoneStorage;
+
+import se.sundsvall.invoicecache.api.model.InvoiceType;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import se.sundsvall.invoicecache.api.model.InvoiceType;
 
 @Entity
 @Table(name = "invoice_pdf")
@@ -40,6 +42,9 @@ public class PdfEntity {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
+	@Column(name = "municipality_id")
+	private String municipalityId;
+	
 	@Column(name = "filename", unique = true)
 	private String filename;
 
@@ -71,4 +76,5 @@ public class PdfEntity {
 	void onCreate() {
 		created = now(systemDefault()).truncatedTo(MILLIS);
 	}
+
 }
