@@ -14,7 +14,7 @@ public class PartyClient {
 
 	private final PartyIntegration partyIntegration;
 
-	public PartyClient(PartyIntegration partyIntegration) {
+	public PartyClient(final PartyIntegration partyIntegration) {
 		this.partyIntegration = partyIntegration;
 	}
 
@@ -24,12 +24,12 @@ public class PartyClient {
 	 * @param  partyId
 	 * @return         a legalIds
 	 */
-	public String getLegalIdsFromParty(String partyId) {
+	public String getLegalIdsFromParty(final String partyId, final String municipalityId) {
 
-		return partyIntegration.getLegalId(PRIVATE, partyId)
-			// Since raindance only handles legalIds without century digits, for private persons.
+		return partyIntegration.getLegalId(municipalityId,PRIVATE, partyId)
+			// Since raindance on¢¢ly handles legalIds without century digits, for private persons.
 			.map(legalId -> StringUtils.substring(legalId, 2))
-			.or(() -> partyIntegration.getLegalId(ENTERPRISE, partyId))
+			.or(() -> partyIntegration.getLegalId(municipalityId,ENTERPRISE, partyId))
 			.orElse("");
 	}
 }

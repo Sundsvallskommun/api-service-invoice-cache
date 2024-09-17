@@ -21,28 +21,25 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
-import se.sundsvall.invoicecache.InvoiceCache;
+import se.sundsvall.invoicecache.Application;
 
-@WireMockAppTestSuite(files = "classpath:/InvoiceCache/", classes = InvoiceCache.class)
+@WireMockAppTestSuite(files = "classpath:/InvoiceCache/", classes = Application.class)
 @Testcontainers
 class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 
+	private static final String PATH = "/2281/invoices";
+
 	@Container
 	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
-			.withInitScript("InvoiceCache/sql/init-raindance.sql");
+		.withInitScript("InvoiceCache/sql/init-raindance.sql");
 
 	@Container
 	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
-			.withDatabaseName("ms-invoicecache");
+		.withDatabaseName("ms-invoicecache");
 
 	static {
 		raindanceDb.start();
 		invoiceDb.start();
-	}
-
-	@Override
-	protected Optional<Duration> getSendRequestAndVerifyResponseDelay() {
-		return Optional.of(Duration.ofSeconds(2L));
 	}
 
 	/**
@@ -51,7 +48,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 	 * @param registry
 	 */
 	@DynamicPropertySource
-	static void registerProperties(DynamicPropertyRegistry registry) {
+	static void registerProperties(final DynamicPropertyRegistry registry) {
 		registry.add("spring.raindance-datasource.url", raindanceDb::getJdbcUrl);
 		registry.add("spring.raindance-datasource.username", raindanceDb::getUsername);
 		registry.add("spring.raindance-datasource.password", raindanceDb::getPassword);
@@ -60,16 +57,21 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		registry.add("spring.datasource.password", invoiceDb::getPassword);
 	}
 
+	@Override
+	protected Optional<Duration> getSendRequestAndVerifyResponseDelay() {
+		return Optional.of(Duration.ofSeconds(2L));
+	}
+
 	@Test
 	void test1_findByOrganizationNumber() {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-				.withServicePath("/invoices?page=1&limit=100&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&partyIds=fb2f0290-3820-11ed-a261-0242ac120003")
-				.withHttpMethod(GET)
-				.withExpectedResponseStatus(OK)
-				.withExpectedResponse("expected.json")
-				.sendRequestAndVerifyResponse();
+			.withServicePath(PATH + "?page=1&limit=100&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&partyIds=fb2f0290-3820-11ed-a261-0242ac120003")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("expected.json")
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -77,11 +79,11 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-				.withServicePath("/invoices?page=1&limit=10&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002")
-				.withHttpMethod(GET)
-				.withExpectedResponseStatus(OK)
-				.withExpectedResponse("expected.json")
-				.sendRequestAndVerifyResponse();
+			.withServicePath(PATH + "?page=1&limit=10&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("expected.json")
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -89,12 +91,12 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(11) + "&invoiceDateTo=" + now().minusMonths(10) + "&dueDateFrom=" + now().minusMonths(10) +
-						"&dueDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumbers=53626804")
-				.withHttpMethod(GET)
-				.withExpectedResponseStatus(OK)
-				.withExpectedResponse("expected.json")
-				.sendRequestAndVerifyResponse();
+			.withServicePath(PATH + "?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(11) + "&invoiceDateTo=" + now().minusMonths(10) + "&dueDateFrom=" + now().minusMonths(10) +
+				"&dueDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumbers=53626804")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("expected.json")
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -102,11 +104,11 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=2022-08-09&invoiceDateTo=2022-08-09&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumber=53626804")
-				.withHttpMethod(GET)
-				.withExpectedResponseStatus(OK)
-				.withExpectedResponse("expected.json")
-				.sendRequestAndVerifyResponse();
+			.withServicePath(PATH + "?page=1&limit=100&invoiceDateFrom=2022-08-09&invoiceDateTo=2022-08-09&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumber=53626804")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("expected.json")
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
@@ -114,21 +116,22 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
-				.withServicePath("/invoices?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(11) + "&invoiceNumbers=53626800")
-				.withHttpMethod(GET)
-				.withExpectedResponseStatus(OK)
-				.withExpectedResponse("expected.json")
-				.sendRequestAndVerifyResponse();
+			.withServicePath(PATH + "?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(11) + "&invoiceNumbers=53626800")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponse("expected.json")
+			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
-	void test6_importInvoice(){
+	void test6_importInvoice() {
 		setupCall()
-			.withServicePath("/invoices")
+			.withServicePath(PATH)
 			.withHttpMethod(POST)
 			.withRequest("request.json")
 			.withExpectedResponseStatus(CREATED)
-			.withExpectedResponseHeader("Location", List.of("^/invoices/(.*)$"))
+			.withExpectedResponseHeader("Location", List.of("^" + PATH + "/(.*)$"))
 			.sendRequestAndVerifyResponse();
 	}
+
 }

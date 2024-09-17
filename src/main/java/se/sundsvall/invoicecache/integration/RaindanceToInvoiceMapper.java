@@ -18,9 +18,9 @@ import se.sundsvall.invoicecache.util.OCR;
 @Component
 public class RaindanceToInvoiceMapper {
 
-	private static final String ZIP_AND_CITY_REGEX = "^(s-|S-)?[\\d]{3}\\s?[\\d]{2}\\s?.{2,}$";
+	private static final String ZIP_AND_CITY_REGEX = "^(s-|S-)?\\d{3}\\s?\\d{2}\\s?.{2,}$";
 
-	public InvoiceEntity mapRaindanceDtoToInvoice(RaindanceQueryResultDto dto) {
+	public InvoiceEntity mapRaindanceDtoToInvoice(final RaindanceQueryResultDto dto) {
 		final InvoiceEntity invoice = new InvoiceEntity();
 
 		invoice.setClaimLevel(dto.getKravniva());
@@ -57,8 +57,8 @@ public class RaindanceToInvoiceMapper {
 	/**
 	 * Map reminder date. If it's the default value in raindance, the SQL query will map it to null.
 	 *
-	 * @param  timestamp - might be null
-	 * @return
+	 * @param timestamp - might be null
+	 * @return LocalDate or null
 	 */
 	LocalDate mapTimeStampToLocalDate(final Timestamp timestamp) {
 		return Optional.ofNullable(timestamp)
@@ -70,8 +70,8 @@ public class RaindanceToInvoiceMapper {
 	 * Make sure we can parse zip and city, if we cannot the city will contain the "full" value from "ort" and zip will be
 	 * null
 	 *
-	 * @param dto
-	 * @param invoice
+	 * @param dto - raindance dto
+	 * @param invoice - invoice entity
 	 */
 	void setZipAndCityIfCorrectFormat(final RaindanceQueryResultDto dto, final InvoiceEntity invoice) {
 		if (zipAndCityHasValidFormat(dto.getOrt())) {
@@ -86,10 +86,10 @@ public class RaindanceToInvoiceMapper {
 	 * Check if the OCR-number is present. If not, also check that the customerType is "KA".
 	 * If that's the case, generate an OCR number.
 	 *
-	 * @param  dto
-	 * @return
+	 * @param dto - raindance dto
+	 * @return the OCR-number
 	 */
-	String getOrCalculateOcr(RaindanceQueryResultDto dto) {
+	String getOrCalculateOcr(final RaindanceQueryResultDto dto) {
 		// Check if the OCR-number is missing and we have the correct customer type, then calculate it.
 		if (isOcrBlankAndCustomerTypeKA(dto) && blopnrAndBeadatIsPresent(dto)) {
 			// Also check that we have blopnr and beadat
@@ -101,7 +101,7 @@ public class RaindanceToInvoiceMapper {
 		return dto.getOcrnr();
 	}
 
-	boolean isOcrBlankAndCustomerTypeKA(RaindanceQueryResultDto dto) {
+	boolean isOcrBlankAndCustomerTypeKA(final RaindanceQueryResultDto dto) {
 		return StringUtils.isBlank(dto.getOcrnr()) && "KA".equalsIgnoreCase(dto.getKundrtyp().trim());
 	}
 
@@ -115,10 +115,11 @@ public class RaindanceToInvoiceMapper {
 	 *
 	 * @return true/false
 	 */
-	boolean zipAndCityHasValidFormat(String zipAndCity) {
+	boolean zipAndCityHasValidFormat(final String zipAndCity) {
 		if (StringUtils.isNotBlank(zipAndCity)) {
 			return zipAndCity.trim().matches(ZIP_AND_CITY_REGEX);
 		}
 		return false;
 	}
+
 }
