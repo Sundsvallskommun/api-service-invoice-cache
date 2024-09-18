@@ -9,7 +9,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
-import java.sql.Blob;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
@@ -26,16 +25,17 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 
-import jcifs.smb.SmbFileInputStream;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
 import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
-@ExtendWith({ MockitoExtension.class, OutputCaptureExtension.class })
+import jcifs.smb.SmbFileInputStream;
+
+@ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
 class SMBIntegrationTest {
 
-	private final static String INVOICE_ISSUER_LEGAL_ID = "2120002411";
+	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
 
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private SMBProperties smbProperties;
@@ -52,41 +52,53 @@ class SMBIntegrationTest {
 	@Test
 	void findPdf_successfully() throws IOException {
 
-		final Blob blob = BlobProxy.generateProxy("blobMe".getBytes());
+		// Arrange
+		final var blob = BlobProxy.generateProxy("blobMe".getBytes());
+		final var fileName = "test.pdf";
+		final var orgNr = "someOrgNr";
+		final var invoiceNumber = "someInvoiceNumber";
+		final var municipalityId = "2281";
+
 		when(smbProperties.getRemoteDir()).thenReturn("TEST");
-		when(invoiceEntityRepository.findByFileName(any(String.class)))
+
+		when(invoiceEntityRepository.findByFileNameAndMunicipalityId(fileName, municipalityId))
 			.thenReturn(Optional.ofNullable(InvoiceEntity.builder()
-				.withOrganizationNumber("someOrgNr")
-				.withInvoiceNumber("someInvoiceNumber")
+				.withMunicipalityId(municipalityId)
+				.withOrganizationNumber(orgNr)
+				.withInvoiceNumber(invoiceNumber)
 				.build()));
 
 		when(pdfRepository.save(any())).thenReturn(PdfEntity.builder()
-			.withFilename("test.pdf")
+			.withFilename(fileName)
 			.withDocument(blob)
-			.withInvoiceDebtorLegalId("someOrgnr")
+			.withMunicipalityId(municipalityId)
+			.withInvoiceDebtorLegalId(orgNr)
 			.withInvoiceIssuerLegalId(INVOICE_ISSUER_LEGAL_ID)
-			.withInvoiceNumber("someInvoiceNumber")
+			.withInvoiceNumber(invoiceNumber)
 			.withId(1)
 			.build());
 
-		try (MockedConstruction<SmbFileInputStream> myobjectMockedConstruction = Mockito.mockConstruction(SmbFileInputStream.class,
+		// Act
+		try (final MockedConstruction<SmbFileInputStream> myobjectMockedConstruction = Mockito.mockConstruction(SmbFileInputStream.class,
 			(mock, context) -> {
-				when(mock.readAllBytes()).thenReturn(new byte[] {});// any additional mocking
+				when(mock.readAllBytes()).thenReturn(new byte[]{});// any additional mocking
 			})) {
 
-			final var result = smbIntegration.findPdf("test.pdf");
+			final var result = smbIntegration.findPdf(fileName, municipalityId);
 
+			// Assert
 			assertThat(result).isNotNull();
-			assertThat(result.getFilename()).isEqualTo("test.pdf");
+			assertThat(result.getFilename()).isEqualTo(fileName);
+			assertThat(result.getMunicipalityId()).isEqualTo(municipalityId);
 			assertThat(result.getId()).isEqualTo(1);
 			assertThat(result.getDocument()).isEqualTo(blob);
 
 			assertThat(result.getInvoiceIssuerLegalId()).isEqualTo(INVOICE_ISSUER_LEGAL_ID);
-			assertThat(result.getInvoiceDebtorLegalId()).isEqualTo("someOrgnr");
-			assertThat(result.getInvoiceNumber()).isEqualTo("someInvoiceNumber");
+			assertThat(result.getInvoiceDebtorLegalId()).isEqualTo(orgNr);
+			assertThat(result.getInvoiceNumber()).isEqualTo(invoiceNumber);
 
 			assertThat(myobjectMockedConstruction.constructed()).hasSize(1);
-			final SmbFileInputStream mock = myobjectMockedConstruction.constructed().get(0);
+			final var mock = myobjectMockedConstruction.constructed().getFirst();
 			verify(mock, times(1)).readAllBytes();
 			verify(pdfRepository, times(1)).save(any());
 			verifyNoMoreInteractions(pdfRepository);
@@ -94,14 +106,19 @@ class SMBIntegrationTest {
 	}
 
 	@Test
-	void handleFile_ThrowsError(CapturedOutput output) {
-		smbIntegration.findPdf("");
+	void handleFile_ThrowsError(final CapturedOutput output) {
+		// Arrange
+		final var file = "";
+		final var municipalityId = "2281";
+		// Act
+		smbIntegration.findPdf(file, municipalityId);
+		// Assert
 		assertThat(output).contains("Something went wrong when trying to save file");
 		verifyNoInteractions(pdfRepository);
 	}
 
 	@Test
-	void tryCache_ThrowsError(CapturedOutput output) {
+	void tryCache_ThrowsError(final CapturedOutput output) {
 		smbIntegration.cacheInvoicePdfs();
 		assertThat(output).contains("Something went wrong when trying to cache pdf");
 	}
@@ -118,4 +135,5 @@ class SMBIntegrationTest {
 		final var result = SMBIntegration.isAfterYesterday(testValue);
 		assertThat(result).isFalse();
 	}
+
 }

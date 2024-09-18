@@ -8,7 +8,9 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,7 +21,10 @@ import lombok.Setter;
  * Basically a copy of InvoiceEntity. Since it's messy with inheritance and JPA
  */
 @Entity
-@Table(name = "backupinvoice")
+@Table(name = "backupinvoice",
+	indexes = {
+		@Index(name = "backup_municipality_id_index", columnList = "municipality_id")
+	})
 @Getter
 @Setter
 @Builder(setterPrefix = "with")
@@ -30,6 +35,9 @@ public class BackupInvoiceEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@Column(name = "municipality_id")
+	private String municipalityId;
 
 	@Column(name = "city")
 	private String city;
@@ -102,4 +110,5 @@ public class BackupInvoiceEntity {
 
 	@Column(name = "zip")
 	private String zip;
+
 }

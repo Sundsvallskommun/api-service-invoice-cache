@@ -11,10 +11,17 @@ import lombok.Setter;
 @Component
 @ConfigurationProperties(prefix = "integration.smb")
 class SMBProperties {
+
 	private String domain;
+
 	private String userDomain;
+
 	private String user;
+
 	private String password;
+
 	private String shareAndDir;
+
 	private String remoteDir;
+
 }

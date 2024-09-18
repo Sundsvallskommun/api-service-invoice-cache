@@ -18,7 +18,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith(value = { MockitoExtension.class, SoftAssertionsExtension.class })
+@ExtendWith(value = {MockitoExtension.class, SoftAssertionsExtension.class})
 class PartyClientTest {
 
 	@Mock
@@ -28,28 +28,40 @@ class PartyClientTest {
 	private PartyClient partyClient;
 
 	@Test
-    void testGetLegalId_shouldReturnPartyIds_whenOnlyPrivateExists() {
-        when(mockPartyIntegration.getLegalId(eq(PRIVATE), any(String.class)))
-                .thenReturn(Optional.of("198001011234"));
+	void testGetLegalId_shouldReturnPartyIds_whenOnlyPrivateExists() {
 
-        final String legalId = partyClient.getLegalIdsFromParty("party1");
+		// Arrange
+		final var municipalityId = "2281";
 
-        verify(mockPartyIntegration, times(1)).getLegalId(eq(PRIVATE), any(String.class));
-        verify(mockPartyIntegration, times(0)).getLegalId(eq(ENTERPRISE), any(String.class));
-        assertEquals("8001011234", legalId);
-    }
+		when(mockPartyIntegration.getLegalId(eq(municipalityId),eq(PRIVATE), any(String.class)))
+			.thenReturn(Optional.of("198001011234"));
+
+		// Act
+		final var legalId = partyClient.getLegalIdsFromParty("party1",municipalityId);
+
+		// Assert
+		verify(mockPartyIntegration, times(1)).getLegalId(eq(municipalityId),eq(PRIVATE), any(String.class));
+		verify(mockPartyIntegration, times(0)).getLegalId(eq(municipalityId),eq(ENTERPRISE), any(String.class));
+		assertEquals("8001011234", legalId);
+	}
 
 	@Test
-    void testGetLegalId_shouldReturnPartyIds_whenOnePrivateAndOneEnterprise() {
-        when(mockPartyIntegration.getLegalId(PRIVATE, "party1"))
-                .thenReturn(Optional.empty());  //Fake that we got no match
-        when(mockPartyIntegration.getLegalId(ENTERPRISE, "party1"))
-                .thenReturn(Optional.of("5591621234"));
+	void testGetLegalId_shouldReturnPartyIds_whenOnePrivateAndOneEnterprise() {
+		// Arrange
+		final var municipalityId = "2281";
 
-        final String legalId = partyClient.getLegalIdsFromParty("party1");
+		when(mockPartyIntegration.getLegalId(municipalityId,PRIVATE, "party1"))
+			.thenReturn(Optional.empty());  //Fake that we got no match
+		when(mockPartyIntegration.getLegalId(municipalityId,ENTERPRISE, "party1"))
+			.thenReturn(Optional.of("5591621234"));
 
-        verify(mockPartyIntegration, times(1)).getLegalId(eq(PRIVATE), any(String.class));
-        verify(mockPartyIntegration, times(1)).getLegalId(eq(ENTERPRISE), any(String.class));
-        assertEquals("5591621234", legalId);
-    }
+		// Act
+		final var legalId = partyClient.getLegalIdsFromParty("party1",municipalityId);
+
+		// Assert
+		verify(mockPartyIntegration, times(1)).getLegalId(eq(municipalityId),eq(PRIVATE), any(String.class));
+		verify(mockPartyIntegration, times(1)).getLegalId(eq(municipalityId),eq(ENTERPRISE), any(String.class));
+		assertEquals("5591621234", legalId);
+	}
+
 }

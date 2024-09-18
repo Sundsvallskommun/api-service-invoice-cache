@@ -24,22 +24,28 @@ public interface PartyIntegration {
 	/**
 	 * Get legalID by partyId
 	 *
+	 * @param municipalityId municipality id
 	 * @param  partyType "ENTERPRISE" or "PRIVATE"
 	 * @param  partyId   uuid of the person or organization
 	 * @return           legalId of the person or organization, Optional.empty() if not found.
 	 */
 	@Cacheable("legalIds")
-	@GetMapping(path = "/{type}/{partyId}/legalId", produces = { TEXT_PLAIN_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
-	Optional<String> getLegalId(@PathVariable("type") PartyType partyType, @PathVariable("partyId") String partyId);
+	@GetMapping(path = "/{municipalityId}/{type}/{partyId}/legalId", produces = { TEXT_PLAIN_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	Optional<String> getLegalId(
+		@PathVariable("municipalityId") String municipalityId,
+		@PathVariable("type") PartyType partyType, @PathVariable("partyId") String partyId);
 
 	/**
 	 * Get partyId for a legalId
 	 *
+	 * @param municipalityId municipality id
 	 * @param  partyType "ENTERPRISE" or "PRIVATE"
 	 * @param  legalId   legalid of the person or organization
 	 * @return           partyId of the person or organization, Optional.empty() if not found.
 	 */
 	@Cacheable("partyIds")
-	@GetMapping(path = "/{type}/{legalId}/partyId", produces = { TEXT_PLAIN_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
-	Optional<String> getPartyId(@PathVariable("type") PartyType partyType, @PathVariable("legalId") String legalId);
+	@GetMapping(path = "/{municipalityId}/{type}/{legalId}/partyId", produces = { TEXT_PLAIN_VALUE, APPLICATION_PROBLEM_JSON_VALUE })
+	Optional<String> getPartyId(
+		@PathVariable("municipalityId") String municipalityId,
+		@PathVariable("type") PartyType partyType, @PathVariable("legalId") String legalId);
 }

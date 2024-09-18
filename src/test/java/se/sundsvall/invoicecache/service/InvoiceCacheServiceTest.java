@@ -1,9 +1,9 @@
 package se.sundsvall.invoicecache.service;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -36,6 +36,8 @@ import se.sundsvall.invoicecache.integration.party.PartyClient;
 @ExtendWith(MockitoExtension.class)
 class InvoiceCacheServiceTest {
 
+	private final Page<InvoiceEntity> invoicePage = new PageImpl<>(Arrays.asList(generateMinimalInvoiceEntity("7001011234"), generateMinimalInvoiceEntity("7001011235")));
+
 	@Mock
 	private InvoiceEntityRepository mockRepository;
 
@@ -57,33 +59,40 @@ class InvoiceCacheServiceTest {
 	@InjectMocks
 	private InvoiceCacheService service;
 
-	private final Page<InvoiceEntity> invoicePage = new PageImpl<>(Arrays.asList(generateMinimalInvoiceEntity("7001011234"), generateMinimalInvoiceEntity("7001011235")));
-
 	@Test
-    void testGetInvoices() {
-        when(mockPartyClient.getLegalIdsFromParty("ab123")).thenReturn("197001011234");
-        when(mockPartyClient.getLegalIdsFromParty("cde345")).thenReturn("197001011235");
-        when(mockInvoiceSpecifications.createInvoicesSpecification(any(InvoiceFilterRequest.class))).thenReturn(mockSpecification);
-        when(mockRepository.findAll(Mockito.<Specification<InvoiceEntity>>any(), any(Pageable.class))).thenReturn(invoicePage);
-        when(mockMapper.entityToInvoice(any(InvoiceEntity.class))).thenReturn(new Invoice());
+	void testGetInvoices() {
 
-        final InvoicesResponse response = service.getInvoices(generateMinimalInvoiceFilterRequest());
+		// Arrange
+		final var municipalityId = "2281";
+		when(mockPartyClient.getLegalIdsFromParty("ab123", municipalityId)).thenReturn("197001011234");
+		when(mockPartyClient.getLegalIdsFromParty("cde345", municipalityId)).thenReturn("197001011235");
+		when(mockInvoiceSpecifications.createInvoicesSpecification(any(InvoiceFilterRequest.class), eq(municipalityId))).thenReturn(mockSpecification);
+		when(mockRepository.findAll(Mockito.<Specification<InvoiceEntity>>any(), any(Pageable.class))).thenReturn(invoicePage);
+		when(mockMapper.entityToInvoice(any(InvoiceEntity.class))).thenReturn(new Invoice());
 
-        assertNotNull(response);
-        assertEquals(2, response.getInvoices().size());
-        verify(mockPartyClient, times(2)).getLegalIdsFromParty(anyString());
-        verify(mockInvoiceSpecifications, times(1)).createInvoicesSpecification(any(InvoiceFilterRequest.class));
-        verify(mockRepository, times(1)).findAll(Mockito.<Specification<InvoiceEntity>>any(), any(Pageable.class));
-        verify(mockMapper, times(2)).entityToInvoice(any(InvoiceEntity.class));
-    }
+		// Act
+		final InvoicesResponse response = service.getInvoices(generateMinimalInvoiceFilterRequest(), municipalityId);
+
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getInvoices()).hasSize(2);
+		verify(mockPartyClient, times(2)).getLegalIdsFromParty(anyString(), eq(municipalityId));
+		verify(mockInvoiceSpecifications, times(1)).createInvoicesSpecification(any(InvoiceFilterRequest.class), eq(municipalityId));
+		verify(mockRepository, times(1)).findAll(Mockito.<Specification<InvoiceEntity>>any(), any(Pageable.class));
+		verify(mockMapper, times(2)).entityToInvoice(any(InvoiceEntity.class));
+	}
 
 	@Test
 	void testCreateMetadata() {
+		// Act
 		final MetaData metadata = service.createMetaData(generateMinimalInvoiceFilterRequest(), invoicePage);
-		assertEquals(1, metadata.getPage());
-		assertEquals(100, metadata.getLimit());
-		assertEquals(2, metadata.getTotalRecords());
-		assertEquals(2, metadata.getCount());
-		assertEquals(1, metadata.getTotalPages());
+
+		// Assert
+		assertThat(metadata.getPage()).isEqualTo(1);
+		assertThat(metadata.getLimit()).isEqualTo(100);
+		assertThat(metadata.getTotalRecords()).isEqualTo(2);
+		assertThat(metadata.getCount()).isEqualTo(2);
+		assertThat(metadata.getTotalPages()).isEqualTo(1);
 	}
+
 }

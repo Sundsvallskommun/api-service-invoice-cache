@@ -2,7 +2,6 @@ package se.sundsvall.invoicecache.service;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Optional;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,8 +27,11 @@ public class InvoiceCacheService {
 	private static final Logger LOG = LoggerFactory.getLogger(InvoiceCacheService.class);
 
 	private final InvoiceEntityRepository invoiceRepository;
+
 	private final InvoiceMapper mapper;
+
 	private final InvoiceSpecifications invoiceSpecifications;
+
 	private final PartyClient partyClient;
 
 	public InvoiceCacheService(final InvoiceEntityRepository invoiceRepository,
@@ -41,7 +43,7 @@ public class InvoiceCacheService {
 		this.partyClient = partyClient;
 	}
 
-	public InvoicesResponse getInvoices(InvoiceFilterRequest request) {
+	public InvoicesResponse getInvoices(final InvoiceFilterRequest request, final String municipalityId) {
 		final InvoicesResponse response = new InvoicesResponse();
 
 		// Key: partyId, Value: legalId. Used later for mapping back which invoice belongs to which partyId
@@ -50,7 +52,7 @@ public class InvoiceCacheService {
 		// Fetch legalIds (if any) from party service and set them in the request.
 		if (!CollectionUtils.isEmpty(request.getPartyIds())) {
 			request.getPartyIds().forEach(partyId -> {
-				final String legalId = partyClient.getLegalIdsFromParty(partyId);
+				final String legalId = partyClient.getLegalIdsFromParty(partyId, municipalityId);
 
 				// Store each legalId in a hashmap
 				legalIdPartyIdMap.put(legalId, partyId);
@@ -62,7 +64,7 @@ public class InvoiceCacheService {
 		}
 
 		// Find all invoices matching the request, map them and add them to the response.
-		final Page<InvoiceEntity> invoicePage = invoiceRepository.findAll(invoiceSpecifications.createInvoicesSpecification(request), getPagingParameters(request));
+		final Page<InvoiceEntity> invoicePage = invoiceRepository.findAll(invoiceSpecifications.createInvoicesSpecification(request, municipalityId), getPagingParameters(request));
 
 		LOG.info("Got {} invoices from the DB.", invoicePage.getTotalElements());
 		invoicePage.forEach(entity -> {
@@ -76,12 +78,7 @@ public class InvoiceCacheService {
 		return response;
 	}
 
-	public Optional<Invoice> getInvoice(String invoiceNumber) {
-		return invoiceRepository.findByInvoiceNumber(invoiceNumber)
-			.map(mapper::entityToInvoice);
-	}
-
-	MetaData createMetaData(InvoiceFilterRequest request, Page<InvoiceEntity> page) {
+	MetaData createMetaData(final InvoiceFilterRequest request, final Page<InvoiceEntity> page) {
 		return MetaData.builder()
 			.withPage(request.getPage())
 			.withLimit(request.getLimit())
@@ -95,10 +92,11 @@ public class InvoiceCacheService {
 	 * To mimic the api for Invoices, a page starts with "1" and that is also the minimum value in the api.
 	 * The PageRequest originally has a 0-based page index, subtract 1 for which page to request.
 	 *
-	 * @param request
-	 * @return+
+	 * @param request - the request
+	 * @return Pageable
 	 */
-	private Pageable getPagingParameters(InvoiceFilterRequest request) {
+	private Pageable getPagingParameters(final InvoiceFilterRequest request) {
 		return PageRequest.of(request.getPage() - 1, request.getLimit());
 	}
+
 }

@@ -10,6 +10,7 @@ public class EntityMapper {
 
 	public BackupInvoiceEntity mapInvoiceEntityToBackupEntity(final InvoiceEntity invoiceEntity) {
 		return BackupInvoiceEntity.builder()
+			.withMunicipalityId(invoiceEntity.getMunicipalityId())
 			.withCity(invoiceEntity.getCity())
 			.withClaimLevel(invoiceEntity.getClaimLevel())
 			.withCustomerId(invoiceEntity.getCustomerId())
@@ -36,6 +37,7 @@ public class EntityMapper {
 
 	public InvoiceEntity mapBackupEntityToInvoiceEntity(final BackupInvoiceEntity invoiceEntity) {
 		return InvoiceEntity.builder()
+			.withMunicipalityId(invoiceEntity.getMunicipalityId())
 			.withCity(invoiceEntity.getCity())
 			.withClaimLevel(invoiceEntity.getClaimLevel())
 			.withCustomerId(invoiceEntity.getCustomerId())
@@ -59,4 +61,5 @@ public class EntityMapper {
 			.withZip(invoiceEntity.getZip())
 			.build();
 	}
+
 }

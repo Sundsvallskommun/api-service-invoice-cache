@@ -3,6 +3,7 @@ package se.sundsvall.invoicecache.api;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -42,14 +43,20 @@ class InvoiceCacheResourceTest {
 
 	@Test
 	void testGetInvoicesSuccessfulRequest_shouldReturnResponse() {
+
+		// Arrange
+		final var municipalityId = "2281";
 		final var invoicesResponse = new InvoicesResponse();
 		invoicesResponse.addInvoice(new Invoice()); // Fake that we got an invoice
+		final var request = generateInvoiceFilterRequest();
 
-		when(mockService.getInvoices(any(InvoiceFilterRequest.class))).thenReturn(invoicesResponse);
+		when(mockService.getInvoices(request, municipalityId)).thenReturn(invoicesResponse);
 
-		final var response = resource.getInvoices(generateInvoiceFilterRequest());
+		// Act
+		final var response = resource.getInvoices(municipalityId, request);
 
-		verify(mockService, times(1)).getInvoices(any(InvoiceFilterRequest.class));
+		// Assert
+		verify(mockService, times(1)).getInvoices(request, municipalityId);
 		verifyNoInteractions(mockPdfService);
 
 		assertThat(response).isNotNull();
@@ -59,66 +66,94 @@ class InvoiceCacheResourceTest {
 
 	@Test
 	void testGetInvoicesFailedRequestValidation_shouldThrowException() {
+
+		// Arrange
+		final var municipalityId = "2281";
 		final var request = new InvoiceFilterRequest();
+
+		// Act
 		assertThatExceptionOfType(ThrowableProblem.class)
-			.isThrownBy(() -> resource.getInvoices(request))
+			.isThrownBy(() -> resource.getInvoices(municipalityId, request))
 			.withMessage("One of partyIds, invoiceNumbers or ocrNumber needs to be set.");
 
-		verify(mockService, times(0)).getInvoices(any(InvoiceFilterRequest.class));
+		// Assert
+		verify(mockService, times(0)).getInvoices(any(InvoiceFilterRequest.class), eq(municipalityId));
 	}
 
 	@Test
-    void testGetPdfSuccessfulRequest_shouldReturnResponse() {
-        when(mockPdfService.getInvoicePdf(any(String.class))).thenReturn(generateInvoicePdf());
+	void testGetPdfSuccessfulRequest_shouldReturnResponse() {
 
-        final var invoicePdfResponse = resource.getInvoicePdf("fileName");
+		// Arrange
+		final var fileName = "fileName";
+		final var municipalityId = "2281";
+		when(mockPdfService.getInvoicePdf(fileName, municipalityId)).thenReturn(generateInvoicePdf());
 
-        verify(mockPdfService, times(1)).getInvoicePdf(any(String.class));
-        verifyNoInteractions(mockService);
-        verifyNoMoreInteractions(mockPdfService);
+		// Act
 
-        assertThat(invoicePdfResponse).isNotNull();
-        assertThat(invoicePdfResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(invoicePdfResponse.getBody()).isNotNull();
+		final var invoicePdfResponse = resource.getInvoicePdf(municipalityId, fileName);
 
-        final var invoicePdf = invoicePdfResponse.getBody();
-        assertThat(invoicePdf.name()).isEqualTo("someName");
-        assertThat(invoicePdf.content()).isEqualTo("someContent");
-    }
+		// Assert
+		verify(mockPdfService, times(1)).getInvoicePdf(fileName, municipalityId);
+		verifyNoInteractions(mockService);
+		verifyNoMoreInteractions(mockPdfService);
 
-	@Test
-    void testImportInvoice() {
-        when(mockPdfService.createOrUpdateInvoice(any(InvoicePdfRequest.class))).thenReturn("someFilename");
+		assertThat(invoicePdfResponse).isNotNull();
+		assertThat(invoicePdfResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(invoicePdfResponse.getBody()).isNotNull();
 
-        final var response = resource.importInvoice(InvoicePdfRequest.builder().build());
-
-        assertThat(response).isNotNull();
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-        assertThat(response.getHeaders()).containsKey(HttpHeaders.LOCATION);
-
-        verify(mockPdfService, times(1)).createOrUpdateInvoice(any(InvoicePdfRequest.class));
-    }
+		final var invoicePdf = invoicePdfResponse.getBody();
+		assertThat(invoicePdf.name()).isEqualTo("someName");
+		assertThat(invoicePdf.content()).isEqualTo("someContent");
+	}
 
 	@Test
-    void testGetPdfWithSpecificationSuccessfulRequest_shouldReturnResponse() {
-        when(mockPdfService.getInvoicePdfByInvoiceNumber(any(String.class),
-            any(String.class), any(InvoicePdfFilterRequest.class))).thenReturn(generateInvoicePdf());
+	void testImportInvoice() {
 
-        final var invoicePdfResponse = resource
-            .getInvoicePdf("issuerlegalid", "invoicenumber", new InvoicePdfFilterRequest());
+		// Arrange
+		final var municipalityId = "2281";
+		final var request = InvoicePdfRequest.builder().build();
+		when(mockPdfService.createOrUpdateInvoice(request, municipalityId)).thenReturn("someFilename");
 
-        verify(mockPdfService, times(1))
-            .getInvoicePdfByInvoiceNumber(any(String.class), any(String.class), any(InvoicePdfFilterRequest.class));
-        verifyNoInteractions(mockService);
-        verifyNoMoreInteractions(mockPdfService);
+		// Act
+		final var response = resource.importInvoice(municipalityId, request);
 
-        assertThat(invoicePdfResponse).isNotNull();
-        assertThat(invoicePdfResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-        assertThat(invoicePdfResponse.getBody()).isNotNull();
+		// Assert
+		assertThat(response).isNotNull();
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+		assertThat(response.getHeaders()).containsKey(HttpHeaders.LOCATION);
 
-        final var invoicePdf = invoicePdfResponse.getBody();
-        assertThat(invoicePdf.name()).isEqualTo("someName");
-        assertThat(invoicePdf.content()).isEqualTo("someContent");
+		verify(mockPdfService, times(1)).createOrUpdateInvoice(request, municipalityId);
+	}
 
-    }
+	@Test
+	void testGetPdfWithSpecificationSuccessfulRequest_shouldReturnResponse() {
+
+		// Arrange
+		final var municipalityId = "2281";
+		final var request = new InvoicePdfFilterRequest();
+		final var invoiceNumber = "invoicenumber";
+		final var issuerLegalId = "issuerlegalid";
+
+		when(mockPdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId)).thenReturn(generateInvoicePdf());
+
+		// Act
+
+		final var invoicePdfResponse = resource.getInvoicePdf(municipalityId, issuerLegalId, invoiceNumber, request);
+
+		// Assert
+		verify(mockPdfService, times(1))
+			.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
+		verifyNoInteractions(mockService);
+		verifyNoMoreInteractions(mockPdfService);
+
+		assertThat(invoicePdfResponse).isNotNull();
+		assertThat(invoicePdfResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(invoicePdfResponse.getBody()).isNotNull();
+
+		final var invoicePdf = invoicePdfResponse.getBody();
+		assertThat(invoicePdf.name()).isEqualTo("someName");
+		assertThat(invoicePdf.content()).isEqualTo("someContent");
+
+	}
+
 }

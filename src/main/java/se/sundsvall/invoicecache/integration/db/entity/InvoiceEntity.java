@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Index;
 import jakarta.persistence.Table;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -22,7 +23,9 @@ import lombok.Setter;
 		@Index(name = "bak_inv_index", columnList = "invoice_number"),
 		@Index(name = "bak_org_index", columnList = "organization_number"),
 		@Index(name = "bak_ocr_index", columnList = "ocr_number"),
-		@Index(name = "bak_cus_index", columnList = "customer_id")
+		@Index(name = "bak_cus_index", columnList = "customer_id"),
+		@Index(name = "bak_mun_index", columnList = "municipality_id"),
+
 	})
 @Getter
 @Setter
@@ -34,6 +37,9 @@ public class InvoiceEntity {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
+
+	@Column(name = "municipality_id")
+	private String municipalityId;
 
 	@Column(name = "city")
 	private String city;
@@ -106,4 +112,5 @@ public class InvoiceEntity {
 
 	@Column(name = "zip")
 	private String zip;
+
 }

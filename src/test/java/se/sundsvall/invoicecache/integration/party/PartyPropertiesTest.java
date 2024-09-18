@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import se.sundsvall.invoicecache.InvoiceCache;
+import se.sundsvall.invoicecache.Application;
 
-@SpringBootTest(classes = InvoiceCache.class)
+@SpringBootTest(classes = Application.class)
 @ActiveProfiles("junit")
 class PartyPropertiesTest {
 
@@ -27,4 +27,5 @@ class PartyPropertiesTest {
 		assertThat(properties.getReadTimeout()).isEqualTo(Duration.ofSeconds(20));
 		assertThat(properties.getUrl()).isEqualTo("api-party-url");
 	}
+
 }

@@ -26,8 +26,10 @@ class PdfEntityRepositoryTest {
 	@Test
 	void create() {
 		final var filename = "invoice_000099.pdf";
-		repository.save(PdfEntity.builder().withFilename(filename).build());
+		final var municipalityId = "2281";
+		repository.save(PdfEntity.builder().withMunicipalityId(municipalityId).withFilename(filename).build());
 
-		assertThat(repository.findByFilename(filename).get().getCreated()).isCloseTo(now(systemDefault()), within(2, SECONDS));
+		assertThat(repository.findByFilenameAndMunicipalityId(filename, municipalityId).orElseThrow().getCreated()).isCloseTo(now(systemDefault()), within(2, SECONDS));
 	}
+
 }

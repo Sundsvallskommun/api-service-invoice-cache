@@ -5,13 +5,15 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
+
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 
 @CircuitBreaker(name = "pdfEntityRepository")
 public interface PdfEntityRepository extends JpaRepository<PdfEntity, Long>, JpaSpecificationExecutor<PdfEntity> {
 
-	Optional<PdfEntity> findByFilename(String filename);
+	Optional<PdfEntity> findByFilenameAndMunicipalityId(String filename, String municipalityId);
 
-	Optional<PdfEntity> findByInvoiceNumberAndInvoiceId(String invoiceNumber, String invoiceId);
+	Optional<PdfEntity> findByInvoiceNumberAndInvoiceIdAndMunicipalityId(String invoiceNumber, String invoiceId, String municipalityId);
+
 }
