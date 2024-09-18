@@ -91,5 +91,8 @@
     create index bak_mun_index 
        on invoice (municipality_id);
 
+    create index invoice_pdf_municipality_id_index 
+       on invoice_pdf (municipality_id);
+
     alter table if exists invoice_pdf 
        add constraint UK97gdx5bau45snxx119ad6givd unique (filename);
