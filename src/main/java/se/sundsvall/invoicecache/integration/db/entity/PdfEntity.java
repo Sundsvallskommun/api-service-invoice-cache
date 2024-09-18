@@ -33,8 +33,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "invoice_pdf",
 	indexes = {
-		@Index(name = "invoice_pdf_municipality_id_index", columnList = "municipality_id"),
-
+		@Index(name = "invoice_pdf_municipality_id_index", columnList = "municipality_id")
 	})
 @Getter
 @Setter
