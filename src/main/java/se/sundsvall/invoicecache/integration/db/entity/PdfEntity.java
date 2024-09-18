@@ -15,6 +15,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
@@ -30,7 +31,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "invoice_pdf")
+@Table(name = "invoice_pdf",
+	indexes = {
+		@Index(name = "invoice_pdf_municipality_id_index", columnList = "municipality_id")
+	})
 @Getter
 @Setter
 @Builder(setterPrefix = "with")
@@ -44,7 +48,7 @@ public class PdfEntity {
 
 	@Column(name = "municipality_id")
 	private String municipalityId;
-	
+
 	@Column(name = "filename", unique = true)
 	private String filename;
 
