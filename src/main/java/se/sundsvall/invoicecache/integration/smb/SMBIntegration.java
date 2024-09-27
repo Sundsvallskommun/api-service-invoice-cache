@@ -96,8 +96,10 @@ public class SMBIntegration {
 		try (final var inputStream = new SmbFileInputStream(file)) {
 			final var filename = file.getName().replace(properties.getRemoteDir(), "");
 			final var entity = invoiceRepository.findByFileNameAndMunicipalityId(filename, municipalityId).orElse(null);
+			final var pdfEntity = pdfRepository.findByFilenameAndMunicipalityId(filename, municipalityId);
 
-			if (entity != null) {
+			// Only save if entity exists and pdfEntity does not exist (indication that it has already been saved)
+			if (entity != null && pdfEntity.isEmpty() ) {
 				return pdfRepository.save(PdfEntity.builder()
 					.withMunicipalityId(municipalityId)
 					.withFilename(filename)

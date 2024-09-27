@@ -23,7 +23,7 @@ spring:
     url: jdbc:tc:mariadb:10.6.12:///
   raindance-datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
-    url: jdbc:tc:mssql/server:2019-latest:///
+    url: jdbc:tc:mssql/server:2019-CU28:///
   flyway:
     enabled: false
   jpa:
