@@ -68,6 +68,7 @@ class SMBIntegrationTest {
 				.withInvoiceNumber(invoiceNumber)
 				.build()));
 
+		when(pdfRepository.findByFilenameAndMunicipalityId(fileName, municipalityId)).thenReturn(Optional.empty());
 		when(pdfRepository.save(any())).thenReturn(PdfEntity.builder()
 			.withFilename(fileName)
 			.withDocument(blob)
@@ -100,6 +101,7 @@ class SMBIntegrationTest {
 			assertThat(myobjectMockedConstruction.constructed()).hasSize(1);
 			final var mock = myobjectMockedConstruction.constructed().getFirst();
 			verify(mock, times(1)).readAllBytes();
+			verify(pdfRepository).findByFilenameAndMunicipalityId(fileName, municipalityId);
 			verify(pdfRepository, times(1)).save(any());
 			verifyNoMoreInteractions(pdfRepository);
 		}
