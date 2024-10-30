@@ -60,8 +60,8 @@ public class RaindanceToInvoiceMapper {
 	/**
 	 * Map reminder date. If it's the default value in raindance, the SQL query will map it to null.
 	 *
-	 * @param timestamp - might be null
-	 * @return LocalDate or null
+	 * @param  timestamp - might be null
+	 * @return           LocalDate or null
 	 */
 	LocalDate mapTimeStampToLocalDate(final Timestamp timestamp) {
 		return Optional.ofNullable(timestamp)
@@ -73,7 +73,7 @@ public class RaindanceToInvoiceMapper {
 	 * Make sure we can parse zip and city, if we cannot the city will contain the "full" value from "ort" and zip will be
 	 * null
 	 *
-	 * @param dto - raindance dto
+	 * @param dto     - raindance dto
 	 * @param invoice - invoice entity
 	 */
 	void setZipAndCityIfCorrectFormat(final RaindanceQueryResultDto dto, final InvoiceEntity invoice) {
@@ -89,8 +89,8 @@ public class RaindanceToInvoiceMapper {
 	 * Check if the OCR-number is present. If not, also check that the customerType is "KA".
 	 * If that's the case, generate an OCR number.
 	 *
-	 * @param dto - raindance dto
-	 * @return the OCR-number
+	 * @param  dto - raindance dto
+	 * @return     the OCR-number
 	 */
 	String getOrCalculateOcr(final RaindanceQueryResultDto dto) {
 		// Check if the OCR-number is missing and we have the correct customer type, then calculate it.

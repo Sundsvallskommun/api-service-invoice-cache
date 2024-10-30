@@ -65,7 +65,9 @@ class RequestValidatorTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " " })
+	@ValueSource(strings = {
+		"", " "
+	})
 	void testOnlyOrganizationNumberHasFaultyValues(final String testString) {
 		final var request = new InvoiceFilterRequest();
 		request.setPartyIds(List.of(testString));
@@ -75,7 +77,9 @@ class RequestValidatorTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " " })
+	@ValueSource(strings = {
+		"", " "
+	})
 	void testOnlyInvoiceNumberHasFaultyValues(final String testString) {
 		final var request = new InvoiceFilterRequest();
 		request.setInvoiceNumbers(List.of(testString));
@@ -85,7 +89,9 @@ class RequestValidatorTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = { "", " " })
+	@ValueSource(strings = {
+		"", " "
+	})
 	void testOnlyOcrNumberHasFaultyValues(final String testString) {
 		final var request = new InvoiceFilterRequest();
 		request.setOcrNumber(testString);

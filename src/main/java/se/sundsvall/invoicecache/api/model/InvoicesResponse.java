@@ -17,14 +17,14 @@ import lombok.Setter;
 @Schema(description = "Response with invoices")
 public class InvoicesResponse {
 
-    @JsonProperty("_meta")
-    @Schema(implementation = MetaData.class, accessMode = READ_ONLY)
-    private MetaData metaData;
-    
-    @ArraySchema(schema = @Schema(implementation = Invoice.class))
-    private final List<Invoice> invoices = new ArrayList<>();
+	@JsonProperty("_meta")
+	@Schema(implementation = MetaData.class, accessMode = READ_ONLY)
+	private MetaData metaData;
 
-    public void addInvoice(final Invoice invoice) {
-        this.invoices.add(invoice);
-    }
+	@ArraySchema(schema = @Schema(implementation = Invoice.class))
+	private final List<Invoice> invoices = new ArrayList<>();
+
+	public void addInvoice(final Invoice invoice) {
+		this.invoices.add(invoice);
+	}
 }

@@ -16,17 +16,17 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class BackupProcessorTest {
-    
-    @Mock
-    private EntityMapper mockEntityMapper;
-    
-    @InjectMocks
-    private BackupProcessor backupProcessor;
-    
-    @Test
-    void testProcess() {
-        when(mockEntityMapper.mapInvoiceEntityToBackupEntity(any(InvoiceEntity.class))).thenReturn(new BackupInvoiceEntity());
-        final BackupInvoiceEntity backupEntity = backupProcessor.process(new InvoiceEntity());
-        assertNotNull(backupEntity);
-    }
+
+	@Mock
+	private EntityMapper mockEntityMapper;
+
+	@InjectMocks
+	private BackupProcessor backupProcessor;
+
+	@Test
+	void testProcess() {
+		when(mockEntityMapper.mapInvoiceEntityToBackupEntity(any(InvoiceEntity.class))).thenReturn(new BackupInvoiceEntity());
+		final BackupInvoiceEntity backupEntity = backupProcessor.process(new InvoiceEntity());
+		assertNotNull(backupEntity);
+	}
 }

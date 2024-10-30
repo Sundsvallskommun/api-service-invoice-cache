@@ -1,33 +1,31 @@
 {
-	"invoices": [
-		{
-			"customerName": "Kalle Kallesson",
-			"customerType": "BO",
-			"invoiceNumber": "53626800",
-			"invoiceStatus": "UNPAID",
-			"ocrNumber": "34563460",
-			"invoiceDescription": "Something Else",
-			"invoiceDueDate": "${json-unit.any-string}",
-			"invoiceDate": "${json-unit.any-string}",
-			"paidAmount": 0.0,
-			"totalAmount": 1500.0,
-			"invoiceFileName": "Faktura_53626800_to_9512245031.pdf",
-			"vat": 300.0,
-			"amountVatExcluded": 1200.0,
-			"invoiceType": "INVOICE",
-			"invoiceAddress": {
-				"city": "ANKEBORG",
-				"street": "Ankeborgsvägen 5 B LGH 1111",
-				"postcode": "987 62",
-				"careOf": ""
-			}
-		}
-	],
+	"invoices": [{
+		"ocrNumber": "34563460",
+		"invoiceDescription": "Something Else",
+		"vat": 300,
+		"invoiceAddress": {
+			"careOf": "",
+			"city": "ANKEBORG",
+			"street": "Ankeborgsvägen 5 B LGH 1111",
+			"postcode": "987 62"
+		},
+		"invoiceDate": "${json-unit.any-string}",
+		"customerName": "Kalle Kallesson",
+		"invoiceDueDate": "${json-unit.any-string}",
+		"totalAmount": 1500,
+		"customerType": "BO",
+		"invoiceNumber": "53626800",
+		"invoiceType": "INVOICE",
+		"invoiceStatus": "UNPAID",
+		"paidAmount": 0,
+		"invoiceFileName": "Faktura_53626800_to_9512245031.pdf",
+		"amountVatExcluded": 1200
+	}],
 	"_meta": {
-		"page": 1,
+		"totalRecords": 1,
 		"limit": 100,
 		"count": 1,
-		"totalRecords": 1,
-		"totalPages": 1
+		"totalPages": 1,
+		"page": 1
 	}
 }

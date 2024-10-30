@@ -37,7 +37,7 @@ public class InvoiceSpecifications {
 				predicates.add(criteriaBuilder.in(root.get(InvoiceEntity_.INVOICE_NUMBER)).value(request.getInvoiceNumbers()));
 			}
 
-			//Not checking for valid dates since it has already been checked if we're here.
+			// Not checking for valid dates since it has already been checked if we're here.
 			if (request.getInvoiceDateFrom() != null) {
 				predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(InvoiceEntity_.invoiceDate), request.getInvoiceDateFrom()));
 			}

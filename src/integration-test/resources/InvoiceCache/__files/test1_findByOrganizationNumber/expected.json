@@ -1,80 +1,80 @@
 {
 	"invoices": [
 		{
-			"customerName": "Janne Jannesson",
-			"customerType": "AV",
-			"invoiceNumber": "504013",
-			"invoiceStatus": "REMINDER",
 			"ocrNumber": "45673456",
-			"partyId": "fb2f0290-3820-11ed-a261-0242ac120003",
 			"invoiceDescription": "Something Utbildning",
-			"invoiceDueDate": "${json-unit.any-string}",
-			"invoiceDate": "${json-unit.any-string}",
-			"invoiceReminderDate": "${json-unit.any-string}",
-			"paidAmount": 0.0,
-			"totalAmount": 250.0,
-			"invoiceFileName": "Faktura_504013_to_9512245030.pdf",
-			"vat": 0.0,
-			"amountVatExcluded": 250.0,
-			"invoiceType": "INVOICE",
+			"vat": 0,
 			"invoiceAddress": {
+				"careOf": "c/o Kalle",
 				"city": "SUNDSVALL",
 				"street": "Vägen 5 A LGH 1111",
-				"postcode": "123 45",
-				"careOf": "c/o Kalle"
-			}
+				"postcode": "123 45"
+			},
+			"invoiceDate": "${json-unit.any-string}",
+			"customerName": "Janne Jannesson",
+			"invoiceDueDate": "${json-unit.any-string}",
+			"totalAmount": 250,
+			"customerType": "AV",
+			"invoiceReminderDate": "${json-unit.any-string}",
+			"invoiceNumber": "504013",
+			"invoiceType": "INVOICE",
+			"invoiceStatus": "REMINDER",
+			"partyId": "fb2f0290-3820-11ed-a261-0242ac120003",
+			"paidAmount": 0,
+			"invoiceFileName": "Faktura_504013_to_9512245030.pdf",
+			"amountVatExcluded": 250
 		},
 		{
-			"customerName": "Janne Jannesson",
-			"customerType": "AV",
-			"invoiceNumber": "504013",
-			"invoiceStatus": "REMINDER",
 			"ocrNumber": "45673456",
-			"partyId": "fb2f0290-3820-11ed-a261-0242ac120003",
 			"invoiceDescription": "Something Utbildning",
-			"invoiceDueDate": "${json-unit.any-string}",
-			"invoiceDate": "${json-unit.any-string}",
-			"invoiceReminderDate": "${json-unit.any-string}",
-			"paidAmount": 0.0,
-			"totalAmount": 250.0,
-			"invoiceFileName": "Faktura_504013_to_9512245030.pdf",
-			"vat": 0.0,
-			"amountVatExcluded": 250.0,
-			"invoiceType": "INVOICE",
+			"vat": 0,
 			"invoiceAddress": {
+				"careOf": "c/o Kalle",
 				"city": "SUNDSVALL",
 				"street": "Vägen 5 A LGH 1111",
-				"postcode": "123 45",
-				"careOf": "c/o Kalle"
-			}
+				"postcode": "123 45"
+			},
+			"invoiceDate": "${json-unit.any-string}",
+			"customerName": "Janne Jannesson",
+			"invoiceDueDate": "${json-unit.any-string}",
+			"totalAmount": 250,
+			"customerType": "AV",
+			"invoiceReminderDate": "${json-unit.any-string}",
+			"invoiceNumber": "504013",
+			"invoiceType": "INVOICE",
+			"invoiceStatus": "REMINDER",
+			"partyId": "fb2f0290-3820-11ed-a261-0242ac120003",
+			"paidAmount": 0,
+			"invoiceFileName": "Faktura_504013_to_9512245030.pdf",
+			"amountVatExcluded": 250
 		},
 		{
-			"customerName": "Jalle Jallesson",
-			"customerType": "KA",
-			"invoiceNumber": "53626810",
-			"invoiceStatus": "DEBT_COLLECTION",
 			"ocrNumber": "2300122208180015699",
-			"partyId": "fb2f0290-3820-11ed-a261-0242ac120002",
 			"invoiceDescription": "Something Else",
-			"invoiceDueDate": "${json-unit.any-string}",
-			"invoiceDate": "${json-unit.any-string}",
-			"paidAmount": 0.0,
-			"totalAmount": 1740.0,
-			"vat": 0.0,
-			"amountVatExcluded": 1740.0,
-			"invoiceType": "INVOICE",
+			"vat": 0,
 			"invoiceAddress": {
 				"city": "ANKEBORG",
 				"street": "Ankeborgsv 1A",
 				"postcode": "987 52"
-			}
+			},
+			"invoiceDate": "${json-unit.any-string}",
+			"customerName": "Jalle Jallesson",
+			"invoiceDueDate": "${json-unit.any-string}",
+			"totalAmount": 1740,
+			"customerType": "KA",
+			"invoiceNumber": "53626810",
+			"invoiceType": "INVOICE",
+			"invoiceStatus": "DEBT_COLLECTION",
+			"partyId": "fb2f0290-3820-11ed-a261-0242ac120002",
+			"paidAmount": 0,
+			"amountVatExcluded": 1740
 		}
 	],
 	"_meta": {
-		"page": 1,
+		"totalRecords": 3,
 		"limit": 100,
 		"count": 3,
-		"totalRecords": 3,
-		"totalPages": 1
+		"totalPages": 1,
+		"page": 1
 	}
 }

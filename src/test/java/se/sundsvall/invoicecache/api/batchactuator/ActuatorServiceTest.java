@@ -28,11 +28,11 @@ class ActuatorServiceTest {
 	private ActuatorService service;
 
 	@Test
-    void testForceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        when(mockScheduler.fetchInvoices()).thenReturn(new JobExecution(1L));
-        service.forceFetchInvoices();
-        verify(mockScheduler, times(1)).fetchInvoices();
-    }
+	void testForceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+		when(mockScheduler.fetchInvoices()).thenReturn(new JobExecution(1L));
+		service.forceFetchInvoices();
+		verify(mockScheduler, times(1)).fetchInvoices();
+	}
 
 	@Test
 	void testForceRunBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {

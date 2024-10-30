@@ -21,8 +21,8 @@ public class PartyClient {
 	/**
 	 * Get legalIds for the partyId sent in.
 	 *
-	 * @param partyId the partyId to get legalIds for
-	 * @return a legalIds for the partyId
+	 * @param  partyId the partyId to get legalIds for
+	 * @return         a legalIds for the partyId
 	 */
 	public String getLegalIdsFromParty(final String partyId, final String municipalityId) {
 

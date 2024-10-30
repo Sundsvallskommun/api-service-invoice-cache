@@ -15,24 +15,24 @@ import se.sundsvall.invoicecache.service.Scheduler;
 @Component
 class ActuatorService {
 
-    private final Scheduler scheduler;
+	private final Scheduler scheduler;
 
-    ActuatorService(Scheduler scheduler) {
-        this.scheduler = scheduler;
-    }
+	ActuatorService(Scheduler scheduler) {
+		this.scheduler = scheduler;
+	}
 
-    @Async
-    public void forceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        scheduler.fetchInvoices();
-    }
+	@Async
+	public void forceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+		scheduler.fetchInvoices();
+	}
 
-    @Async
-    public void forceCreateBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        scheduler.runBackup();
-    }
+	@Async
+	public void forceCreateBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+		scheduler.runBackup();
+	}
 
-    @Async
-    public void forceRestoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-        scheduler.restoreBackup();
-    }
+	@Async
+	public void forceRestoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+		scheduler.restoreBackup();
+	}
 }

@@ -17,33 +17,33 @@ import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
  */
 @Component
 public class RestoreBackupListener implements StepExecutionListener {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(RestoreBackupListener.class);
-    
-    private final InvoiceEntityRepository invoiceRepository;
-    private final BackupInvoiceRepository backupRepository;
-    
-    public RestoreBackupListener(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository) {
-        this.invoiceRepository = invoiceRepository;
-        this.backupRepository = backupRepository;
-    }
-    
-    @Override
-    @Transactional
-    public void beforeStep(final @NotNull StepExecution stepExecution) {
-        LOG.info("Starting to restore backup, cleaning invoices table");
-        //Clean the invoiceRespository before restoring the backup
-        invoiceRepository.deleteAllInBatch();
-        LOG.info("Done cleaning invoices table, starting to restore {} invoices from backup", backupRepository.count());
-    }
-    
-    @Override
-    public ExitStatus afterStep(final StepExecution stepExecution) {
-        if(stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
-            LOG.info("Successfully restored {} invoices from backup.", invoiceRepository.count());
-        } else {
-            LOG.info("Something went wrong while restoring backups{}", stepExecution.getSummary());
-        }
-        return null;
-    }
+
+	private static final Logger LOG = LoggerFactory.getLogger(RestoreBackupListener.class);
+
+	private final InvoiceEntityRepository invoiceRepository;
+	private final BackupInvoiceRepository backupRepository;
+
+	public RestoreBackupListener(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository) {
+		this.invoiceRepository = invoiceRepository;
+		this.backupRepository = backupRepository;
+	}
+
+	@Override
+	@Transactional
+	public void beforeStep(final @NotNull StepExecution stepExecution) {
+		LOG.info("Starting to restore backup, cleaning invoices table");
+		// Clean the invoiceRespository before restoring the backup
+		invoiceRepository.deleteAllInBatch();
+		LOG.info("Done cleaning invoices table, starting to restore {} invoices from backup", backupRepository.count());
+	}
+
+	@Override
+	public ExitStatus afterStep(final StepExecution stepExecution) {
+		if (stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
+			LOG.info("Successfully restored {} invoices from backup.", invoiceRepository.count());
+		} else {
+			LOG.info("Something went wrong while restoring backups{}", stepExecution.getSummary());
+		}
+		return null;
+	}
 }

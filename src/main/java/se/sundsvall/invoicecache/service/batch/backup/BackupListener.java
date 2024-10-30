@@ -13,29 +13,29 @@ import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
  */
 @Component
 public class BackupListener implements StepExecutionListener {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(BackupListener.class);
-    
-    private final BackupInvoiceRepository repository;
-    
-    public BackupListener(final BackupInvoiceRepository repository) {
-        this.repository = repository;
-    }
-    
-    @Override
-    public void beforeStep(final StepExecution stepExecution) {
-        LOG.info("Starting to remove old backups from backup table");
-        repository.deleteAllInBatch();
-        LOG.info("Deleted old backups");
-    }
-    
-    @Override
-    public ExitStatus afterStep(final StepExecution stepExecution) {
-        if(stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
-            LOG.info("Done writing invoices to backup table");
-        } else {
-            LOG.warn("Something went wrong while performing backup of invoices: {}", stepExecution.getSummary());
-        }
-        return null;
-    }
+
+	private static final Logger LOG = LoggerFactory.getLogger(BackupListener.class);
+
+	private final BackupInvoiceRepository repository;
+
+	public BackupListener(final BackupInvoiceRepository repository) {
+		this.repository = repository;
+	}
+
+	@Override
+	public void beforeStep(final StepExecution stepExecution) {
+		LOG.info("Starting to remove old backups from backup table");
+		repository.deleteAllInBatch();
+		LOG.info("Deleted old backups");
+	}
+
+	@Override
+	public ExitStatus afterStep(final StepExecution stepExecution) {
+		if (stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
+			LOG.info("Done writing invoices to backup table");
+		} else {
+			LOG.warn("Something went wrong while performing backup of invoices: {}", stepExecution.getSummary());
+		}
+		return null;
+	}
 }

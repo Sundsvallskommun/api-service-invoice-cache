@@ -18,27 +18,27 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString
 public class JobStatus {
-    
-    private String status;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
-    
-    @Builder.Default
-    private Map<String, StepStatus> stepStatusMap = new HashMap<>();
-    
-    public void addStepStatus(StepStatus stepStatus) {
-        this.stepStatusMap.put(stepStatus.stepName, stepStatus);
-    }
-    
-    @Getter
-    @Setter
-    @Builder(setterPrefix = "with")
-    @NoArgsConstructor
-    @AllArgsConstructor
-    @ToString
-    public static class StepStatus {
-        private String stepName;
-        private long stepReadCount;
-        private long stepWriteCount;
-    }
+
+	private String status;
+	private LocalDateTime startTime;
+	private LocalDateTime endTime;
+
+	@Builder.Default
+	private Map<String, StepStatus> stepStatusMap = new HashMap<>();
+
+	public void addStepStatus(StepStatus stepStatus) {
+		this.stepStatusMap.put(stepStatus.stepName, stepStatus);
+	}
+
+	@Getter
+	@Setter
+	@Builder(setterPrefix = "with")
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@ToString
+	public static class StepStatus {
+		private String stepName;
+		private long stepReadCount;
+		private long stepWriteCount;
+	}
 }
