@@ -153,7 +153,9 @@ class RaindanceToInvoiceMapperTest {
 	}
 
 	@ParameterizedTest
-	@ValueSource(strings = {"", "-02 50 OSLO", "NO-0250 Oslo", "SE-831 90 ÖSTERSUND", "SUNDSVALL", "SOMEWHERE 12345, BANGKOK THAILAND"})
+	@ValueSource(strings = {
+		"", "-02 50 OSLO", "NO-0250 Oslo", "SE-831 90 ÖSTERSUND", "SUNDSVALL", "SOMEWHERE 12345, BANGKOK THAILAND"
+	})
 	void testInvalidOrtShouldReturnOriginalValue(final String testString) {
 		final RaindanceQueryResultDto dto = TestObjectFactory.generateRaindanceQueryResultDto();
 		dto.setOrt(testString);

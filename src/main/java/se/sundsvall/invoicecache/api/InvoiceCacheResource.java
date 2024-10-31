@@ -92,7 +92,9 @@ class InvoiceCacheResource {
 
 	@Operation(summary = "Create/import an invoice")
 	@ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = ALL_VALUE), useReturnTypeSchema = true)
-	@PostMapping(consumes = APPLICATION_JSON_VALUE, produces = {ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE})
+	@PostMapping(consumes = APPLICATION_JSON_VALUE, produces = {
+		ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE
+	})
 	public ResponseEntity<Void> importInvoice(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Valid @RequestBody final InvoicePdfRequest request) {

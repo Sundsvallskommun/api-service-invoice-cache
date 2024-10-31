@@ -92,8 +92,8 @@ public class InvoiceCacheService {
 	 * To mimic the api for Invoices, a page starts with "1" and that is also the minimum value in the api.
 	 * The PageRequest originally has a 0-based page index, subtract 1 for which page to request.
 	 *
-	 * @param request - the request
-	 * @return Pageable
+	 * @param  request - the request
+	 * @return         Pageable
 	 */
 	private Pageable getPagingParameters(final InvoiceFilterRequest request) {
 		return PageRequest.of(request.getPage() - 1, request.getLimit());

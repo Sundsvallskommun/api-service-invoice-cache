@@ -16,21 +16,21 @@ import se.sundsvall.invoicecache.service.batch.JobHelper;
 @Component
 @Endpoint(id = "batchhealth")
 class BatchEndpoint {
-    
-    private final JobHelper jobHelper;
-    
-    BatchEndpoint(final JobHelper jobHelper) {
-        this.jobHelper = jobHelper;
-    }
-    
-    @ReadOperation
-    BatchHealth health() {
-        Map<String, List<JobStatus>> details = new LinkedHashMap<>();
-        final List<JobStatus> jobs = jobHelper.getJobs();
-    
-        details.put("batchHistory", jobs);
-        BatchHealth batchHealth = new BatchHealth();
-        batchHealth.setDetails(details);
-        return batchHealth;
-    }
+
+	private final JobHelper jobHelper;
+
+	BatchEndpoint(final JobHelper jobHelper) {
+		this.jobHelper = jobHelper;
+	}
+
+	@ReadOperation
+	BatchHealth health() {
+		Map<String, List<JobStatus>> details = new LinkedHashMap<>();
+		final List<JobStatus> jobs = jobHelper.getJobs();
+
+		details.put("batchHistory", jobs);
+		BatchHealth batchHealth = new BatchHealth();
+		batchHealth.setDetails(details);
+		return batchHealth;
+	}
 }

@@ -17,37 +17,37 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * since they must always be the same.
  */
 class EntityEqualsTest {
-    
-    @Test
-    void testAnnotationsAreTheSame() {
-        final Map<String, Annotation[]> invoiceEntityMap = Arrays.stream(InvoiceEntity.class.getDeclaredFields())
-                .collect(Collectors.toMap(Field::getName, Field::getDeclaredAnnotations));
-    
-        final Map<String, Annotation[]> backupInvoiceEntityMap = Arrays.stream(BackupInvoiceEntity.class.getDeclaredFields())
-                .collect(Collectors.toMap(Field::getName, Field::getDeclaredAnnotations));
-    
-        invoiceEntityMap.forEach((s, annotations) -> {
-            final List<Annotation> backupAnno = Arrays.stream(backupInvoiceEntityMap.get(s)).toList();
-            final List<Annotation> invoiceAnno = Arrays.stream(annotations).toList();
-            assertEquals(backupAnno, invoiceAnno);
-        });
-    }
-    
-    @Test
-    void testFieldNamesAreTheSame() {
-        
-        final List<String> backupFields = Arrays.stream(BackupInvoiceEntity.class.getDeclaredFields())
-                .toList()
-                .stream()
-                .map(Field::getName)
-                .toList();
-        final List<String> invoiceFields = Arrays.stream(InvoiceEntity.class.getDeclaredFields())
-                .toList()
-                .stream()
-                .map(Field::getName)
-                .toList();
-        
-        assertEquals(backupFields, invoiceFields);
-    }
+
+	@Test
+	void testAnnotationsAreTheSame() {
+		final Map<String, Annotation[]> invoiceEntityMap = Arrays.stream(InvoiceEntity.class.getDeclaredFields())
+			.collect(Collectors.toMap(Field::getName, Field::getDeclaredAnnotations));
+
+		final Map<String, Annotation[]> backupInvoiceEntityMap = Arrays.stream(BackupInvoiceEntity.class.getDeclaredFields())
+			.collect(Collectors.toMap(Field::getName, Field::getDeclaredAnnotations));
+
+		invoiceEntityMap.forEach((s, annotations) -> {
+			final List<Annotation> backupAnno = Arrays.stream(backupInvoiceEntityMap.get(s)).toList();
+			final List<Annotation> invoiceAnno = Arrays.stream(annotations).toList();
+			assertEquals(backupAnno, invoiceAnno);
+		});
+	}
+
+	@Test
+	void testFieldNamesAreTheSame() {
+
+		final List<String> backupFields = Arrays.stream(BackupInvoiceEntity.class.getDeclaredFields())
+			.toList()
+			.stream()
+			.map(Field::getName)
+			.toList();
+		final List<String> invoiceFields = Arrays.stream(InvoiceEntity.class.getDeclaredFields())
+			.toList()
+			.stream()
+			.map(Field::getName)
+			.toList();
+
+		assertEquals(backupFields, invoiceFields);
+	}
 
 }

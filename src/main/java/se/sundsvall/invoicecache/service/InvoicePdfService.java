@@ -52,7 +52,7 @@ public class InvoicePdfService {
 	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber,
 		final InvoicePdfFilterRequest request, final String municipalityId) {
 		return pdfRepository.findAll(invoicePdfSpecifications
-				.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
+			.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
 			.stream().findFirst()
 			.map(this::mapToResponse)
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND));

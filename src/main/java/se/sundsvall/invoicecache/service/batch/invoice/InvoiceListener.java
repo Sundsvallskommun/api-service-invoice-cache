@@ -15,32 +15,32 @@ import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
  */
 @Component
 public class InvoiceListener implements StepExecutionListener {
-    
-    private static final Logger LOG = LoggerFactory.getLogger(InvoiceListener.class);
-    
-    private final InvoiceEntityRepository invoiceEntityRepository;
-    
-    public InvoiceListener(final InvoiceEntityRepository invoiceEntityRepository) {
-        this.invoiceEntityRepository = invoiceEntityRepository;
-    }
-    
-    @Override
-    public void beforeStep(final @NotNull StepExecution stepExecution) {
-        LOG.info("Before job execution there are {} items in the backup table", invoiceEntityRepository.count());
-        LOG.info("Starting to clean local DB.");
-        invoiceEntityRepository.deleteAllInBatch();
-        LOG.info("Done cleaning backup table.");
 
-    }
-    
-    @Override
-    public ExitStatus afterStep(final StepExecution stepExecution) {
-        final long count = invoiceEntityRepository.count();
-        if(stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
-            LOG.info("After backup job execution there are {} items in the db", count);
-        } else {
-            LOG.info("Something went wrong while reading invoices{}", stepExecution.getSummary());
-        }
-        return null;
-    }
+	private static final Logger LOG = LoggerFactory.getLogger(InvoiceListener.class);
+
+	private final InvoiceEntityRepository invoiceEntityRepository;
+
+	public InvoiceListener(final InvoiceEntityRepository invoiceEntityRepository) {
+		this.invoiceEntityRepository = invoiceEntityRepository;
+	}
+
+	@Override
+	public void beforeStep(final @NotNull StepExecution stepExecution) {
+		LOG.info("Before job execution there are {} items in the backup table", invoiceEntityRepository.count());
+		LOG.info("Starting to clean local DB.");
+		invoiceEntityRepository.deleteAllInBatch();
+		LOG.info("Done cleaning backup table.");
+
+	}
+
+	@Override
+	public ExitStatus afterStep(final StepExecution stepExecution) {
+		final long count = invoiceEntityRepository.count();
+		if (stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
+			LOG.info("After backup job execution there are {} items in the db", count);
+		} else {
+			LOG.info("Something went wrong while reading invoices{}", stepExecution.getSummary());
+		}
+		return null;
+	}
 }

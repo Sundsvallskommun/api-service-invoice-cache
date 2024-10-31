@@ -14,20 +14,20 @@ import org.springframework.stereotype.Component;
 @Endpoint(id = "restorebackup")
 class RestoreBackupEndpoint {
 
-    private static final Logger LOG = LoggerFactory.getLogger(RestoreBackupEndpoint.class);
+	private static final Logger LOG = LoggerFactory.getLogger(RestoreBackupEndpoint.class);
 
-    private final ActuatorService actuatorService;
+	private final ActuatorService actuatorService;
 
-    RestoreBackupEndpoint(ActuatorService actuatorService) {
-        this.actuatorService = actuatorService;
-    }
+	RestoreBackupEndpoint(ActuatorService actuatorService) {
+		this.actuatorService = actuatorService;
+	}
 
-    @ReadOperation
-    void restoreBackup() {
-        try {
-            actuatorService.forceRestoreBackup();
-        } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {
-            LOG.warn("Couldn't restore backup", e);
-        }
-    }
+	@ReadOperation
+	void restoreBackup() {
+		try {
+			actuatorService.forceRestoreBackup();
+		} catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {
+			LOG.warn("Couldn't restore backup", e);
+		}
+	}
 }

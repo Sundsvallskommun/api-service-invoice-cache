@@ -45,19 +45,19 @@ class InvoiceListenerTest {
 	}
 
 	@Test
-    void testSuccessfulAfterStep() {
-        when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.COMPLETED);
-        final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
-        assertNull(exitStatus); //intended
-        verify(mockStepExecution, times(0)).getSummary();
-    }
+	void testSuccessfulAfterStep() {
+		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.COMPLETED);
+		final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
+		assertNull(exitStatus); // intended
+		verify(mockStepExecution, times(0)).getSummary();
+	}
 
 	@Test
-    void testFailedAfterStep() {
-        when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.FAILED);
-        final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
-        assertNull(exitStatus); //intended
-        verify(mockStepExecution, times(1)).getSummary();
-    }
+	void testFailedAfterStep() {
+		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.FAILED);
+		final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
+		assertNull(exitStatus); // intended
+		verify(mockStepExecution, times(1)).getSummary();
+	}
 
 }

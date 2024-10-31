@@ -91,50 +91,50 @@ class JobHelperTest {
 	}
 
 	@Test
-    void testGetJobsShouldReturnListOfLatestJobStatuses() throws NoSuchJobException {
-        when(mockJobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME)).thenReturn(100L);
+	void testGetJobsShouldReturnListOfLatestJobStatuses() throws NoSuchJobException {
+		when(mockJobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME)).thenReturn(100L);
 
-        final JobInstance jobInstance = new JobInstance(1L, RAINDANCE_JOB_NAME);
-        final List<JobInstance> jobList = List.of(jobInstance);
+		final JobInstance jobInstance = new JobInstance(1L, RAINDANCE_JOB_NAME);
+		final List<JobInstance> jobList = List.of(jobInstance);
 
-        final JobExecution jobExecution = new JobExecution(jobInstance, null);
-        jobExecution.setStatus(BatchStatus.COMPLETED);
-        jobExecution.setStartTime(LocalDateTime.of(2022, 8, 10, 1, 10 ,0));
-        jobExecution.setEndTime(LocalDateTime.of(2022, 8, 10, 1, 10 ,10));
-        jobExecution.setJobInstance(jobInstance);
+		final JobExecution jobExecution = new JobExecution(jobInstance, null);
+		jobExecution.setStatus(BatchStatus.COMPLETED);
+		jobExecution.setStartTime(LocalDateTime.of(2022, 8, 10, 1, 10, 0));
+		jobExecution.setEndTime(LocalDateTime.of(2022, 8, 10, 1, 10, 10));
+		jobExecution.setJobInstance(jobInstance);
 
-        final StepExecution step = new StepExecution("stepName", jobExecution);
-        step.setReadCount(15);
-        step.setWriteCount(20);
+		final StepExecution step = new StepExecution("stepName", jobExecution);
+		step.setReadCount(15);
+		step.setWriteCount(20);
 
-        jobExecution.addStepExecutions(List.of(step));
+		jobExecution.addStepExecutions(List.of(step));
 
-        when(mockJobExplorer.getJobInstances(RAINDANCE_JOB_NAME, 0, 50)).thenReturn(jobList);
-        when(mockJobExplorer.getJobExecutions(jobInstance)).thenReturn(List.of(jobExecution));
+		when(mockJobExplorer.getJobInstances(RAINDANCE_JOB_NAME, 0, 50)).thenReturn(jobList);
+		when(mockJobExplorer.getJobExecutions(jobInstance)).thenReturn(List.of(jobExecution));
 
-        final List<JobStatus> jobs = jobHelper.getJobs();
-        assertEquals(1, jobs.size());
-        assertEquals(LocalDateTime.of(2022, 8, 10, 1, 10 ,0), jobs.get(0).getStartTime());
-        assertEquals(LocalDateTime.of(2022, 8, 10, 1, 10 ,10), jobs.get(0).getEndTime());
-        assertEquals(BatchStatus.COMPLETED.toString(), jobs.get(0).getStatus());
-        assertEquals("stepName", jobs.get(0).getStepStatusMap().get("stepName").getStepName());
-        assertEquals(15L, jobs.get(0).getStepStatusMap().get("stepName").getStepReadCount());
-        assertEquals(20L, jobs.get(0).getStepStatusMap().get("stepName").getStepWriteCount());
-    }
-
-	@Test
-    void testInvoiceTableHasInvoices_shouldReturnTrueWhenMoreThanZero() {
-        when(mockInvoiceRepository.count()).thenReturn(123456L);
-        final boolean hasInvoices = jobHelper.invoiceTableHasInvoices();
-        assertTrue(hasInvoices);
-    }
+		final List<JobStatus> jobs = jobHelper.getJobs();
+		assertEquals(1, jobs.size());
+		assertEquals(LocalDateTime.of(2022, 8, 10, 1, 10, 0), jobs.get(0).getStartTime());
+		assertEquals(LocalDateTime.of(2022, 8, 10, 1, 10, 10), jobs.get(0).getEndTime());
+		assertEquals(BatchStatus.COMPLETED.toString(), jobs.get(0).getStatus());
+		assertEquals("stepName", jobs.get(0).getStepStatusMap().get("stepName").getStepName());
+		assertEquals(15L, jobs.get(0).getStepStatusMap().get("stepName").getStepReadCount());
+		assertEquals(20L, jobs.get(0).getStepStatusMap().get("stepName").getStepWriteCount());
+	}
 
 	@Test
-    void testInvoiceTableHasInvoices_shouldReturnFalseWhenZero() {
-        when(mockInvoiceRepository.count()).thenReturn(0L);
-        final boolean hasInvoices = jobHelper.invoiceTableHasInvoices();
-        assertFalse(hasInvoices);
-    }
+	void testInvoiceTableHasInvoices_shouldReturnTrueWhenMoreThanZero() {
+		when(mockInvoiceRepository.count()).thenReturn(123456L);
+		final boolean hasInvoices = jobHelper.invoiceTableHasInvoices();
+		assertTrue(hasInvoices);
+	}
+
+	@Test
+	void testInvoiceTableHasInvoices_shouldReturnFalseWhenZero() {
+		when(mockInvoiceRepository.count()).thenReturn(0L);
+		final boolean hasInvoices = jobHelper.invoiceTableHasInvoices();
+		assertFalse(hasInvoices);
+	}
 
 	/**
 	 * Set some boilerplate stuff and make the parameters that matters configurable

@@ -32,7 +32,9 @@ import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
 import jcifs.smb.SmbFileInputStream;
 
-@ExtendWith({MockitoExtension.class, OutputCaptureExtension.class})
+@ExtendWith({
+	MockitoExtension.class, OutputCaptureExtension.class
+})
 class SMBIntegrationTest {
 
 	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
@@ -82,7 +84,7 @@ class SMBIntegrationTest {
 		// Act
 		try (final MockedConstruction<SmbFileInputStream> myobjectMockedConstruction = Mockito.mockConstruction(SmbFileInputStream.class,
 			(mock, context) -> {
-				when(mock.readAllBytes()).thenReturn(new byte[]{});// any additional mocking
+				when(mock.readAllBytes()).thenReturn(new byte[] {});// any additional mocking
 			})) {
 
 			final var result = smbIntegration.findPdf(fileName, municipalityId);

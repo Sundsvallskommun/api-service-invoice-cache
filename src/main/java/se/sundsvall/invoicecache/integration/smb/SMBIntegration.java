@@ -99,7 +99,7 @@ public class SMBIntegration {
 			final var pdfEntity = pdfRepository.findByFilenameAndMunicipalityId(filename, municipalityId);
 
 			// Only save if entity exists and pdfEntity does not exist (indication that it has already been saved)
-			if (entity != null && pdfEntity.isEmpty() ) {
+			if (entity != null && pdfEntity.isEmpty()) {
 				return pdfRepository.save(PdfEntity.builder()
 					.withMunicipalityId(municipalityId)
 					.withFilename(filename)

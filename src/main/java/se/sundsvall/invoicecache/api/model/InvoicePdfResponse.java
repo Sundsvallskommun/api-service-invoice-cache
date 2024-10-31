@@ -10,17 +10,12 @@ import lombok.Generated;
 @Builder(setterPrefix = "with")
 public record InvoicePdfResponse(
 
-    @Schema(description = "Invoice issuer legal id")
-    String issuerLegalId,
+	@Schema(description = "Invoice issuer legal id") String issuerLegalId,
 
-    @Schema(description = "Invoice debtor legal id")
-    String debtorLegalId,
+	@Schema(description = "Invoice debtor legal id") String debtorLegalId,
 
-    @Schema(description = "Invoice number")
-    String invoiceNumber,
+	@Schema(description = "Invoice number") String invoiceNumber,
 
-    @Schema(description = "Invoice type", implementation = InvoiceType.class)
-    InvoiceType invoiceType,
+	@Schema(description = "Invoice type", implementation = InvoiceType.class) InvoiceType invoiceType,
 
-    @Schema(description = "Attachment", requiredMode = REQUIRED)
-    InvoicePdf attachment) { }
+	@Schema(description = "Attachment", requiredMode = REQUIRED) InvoicePdf attachment) {}

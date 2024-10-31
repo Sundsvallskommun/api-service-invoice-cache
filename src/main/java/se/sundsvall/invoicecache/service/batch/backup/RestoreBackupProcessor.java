@@ -9,15 +9,15 @@ import se.sundsvall.invoicecache.integration.db.mapper.EntityMapper;
 
 @Component
 public class RestoreBackupProcessor implements ItemProcessor<BackupInvoiceEntity, InvoiceEntity> {
-    
-    private final EntityMapper mapper;
-    
-    public RestoreBackupProcessor(final EntityMapper mapper) {
-        this.mapper = mapper;
-    }
-    
-    @Override
-    public InvoiceEntity process(final BackupInvoiceEntity backupEntity) {
-        return mapper.mapBackupEntityToInvoiceEntity(backupEntity);
-    }
+
+	private final EntityMapper mapper;
+
+	public RestoreBackupProcessor(final EntityMapper mapper) {
+		this.mapper = mapper;
+	}
+
+	@Override
+	public InvoiceEntity process(final BackupInvoiceEntity backupEntity) {
+		return mapper.mapBackupEntityToInvoiceEntity(backupEntity);
+	}
 }

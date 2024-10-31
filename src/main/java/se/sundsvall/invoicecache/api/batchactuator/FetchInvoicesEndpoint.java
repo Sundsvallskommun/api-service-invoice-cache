@@ -14,21 +14,21 @@ import org.springframework.stereotype.Component;
 @Endpoint(id = "fetchinvoices")
 class FetchInvoicesEndpoint {
 
-    private static final Logger LOG = LoggerFactory.getLogger(FetchInvoicesEndpoint.class);
+	private static final Logger LOG = LoggerFactory.getLogger(FetchInvoicesEndpoint.class);
 
-    private final ActuatorService actuatorService;
+	private final ActuatorService actuatorService;
 
-    FetchInvoicesEndpoint(ActuatorService actuatorService) {
-        this.actuatorService = actuatorService;
-    }
+	FetchInvoicesEndpoint(ActuatorService actuatorService) {
+		this.actuatorService = actuatorService;
+	}
 
-    @ReadOperation
-    void fetchInvoices() {
-        LOG.info("Manually fetching invoices");
-        try {
-            actuatorService.forceFetchInvoices();
-        } catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {
-            LOG.warn("Couldn't start job for fetching invoices", e);
-        }
-    }
+	@ReadOperation
+	void fetchInvoices() {
+		LOG.info("Manually fetching invoices");
+		try {
+			actuatorService.forceFetchInvoices();
+		} catch (JobInstanceAlreadyCompleteException | JobExecutionAlreadyRunningException | JobParametersInvalidException | JobRestartException e) {
+			LOG.warn("Couldn't start job for fetching invoices", e);
+		}
+	}
 }
