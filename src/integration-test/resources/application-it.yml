@@ -19,7 +19,7 @@ raindance:
     invoice:
         outdated: PT1H
     sql:
-        filename: local-query.sql
+        filename: local-query.esscueell
 spring:
     cache:
         type: none
