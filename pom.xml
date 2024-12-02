@@ -17,7 +17,7 @@
 		<jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
 		<jcifs-ng.version>2.1.10</jcifs-ng.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
-		<shedlock.version>6.0.1</shedlock.version>
+		<shedlock.version>6.0.2</shedlock.version>
 	</properties>
 	<dependencies>
 		<dependency>
