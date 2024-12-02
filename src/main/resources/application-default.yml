@@ -19,7 +19,7 @@ raindance:
   invoice:
     outdated: PT5M
   sql:
-    filename: local-query.sql
+    filename: local-query.esscueell
 spring:
   batch:
     jdbc:

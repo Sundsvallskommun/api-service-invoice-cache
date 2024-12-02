@@ -16,7 +16,7 @@ integration:
     userDomain: smb-user-domain
 raindance:
   sql:
-    filename: raindance-test.sql
+    filename: raindance-test.essqueell
 spring:
   datasource:
     driver-class-name: org.testcontainers.jdbc.ContainerDatabaseDriver
