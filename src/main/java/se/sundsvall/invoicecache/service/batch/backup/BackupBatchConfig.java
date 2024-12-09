@@ -2,7 +2,6 @@ package se.sundsvall.invoicecache.service.batch.backup;
 
 import java.util.HashMap;
 import java.util.Map;
-
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
@@ -17,7 +16,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
-
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;

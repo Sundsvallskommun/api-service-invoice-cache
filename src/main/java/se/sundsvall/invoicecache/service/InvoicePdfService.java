@@ -2,13 +2,10 @@ package se.sundsvall.invoicecache.service;
 
 import java.sql.SQLException;
 import java.util.Base64;
-
 import javax.sql.rowset.serial.SerialBlob;
-
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
-
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;

@@ -8,7 +8,6 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
 

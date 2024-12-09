@@ -6,7 +6,6 @@ import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteExcep
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.invoicecache.service.Scheduler;
 
 /**

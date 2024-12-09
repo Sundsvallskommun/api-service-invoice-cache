@@ -6,10 +6,8 @@ import static se.sundsvall.invoicecache.util.OCR.IN_PATTERN;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Optional;
-
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.invoicecache.api.model.InvoiceStatus;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;

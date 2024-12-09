@@ -4,7 +4,9 @@
 		"url": "/party/2281/ENTERPRISE/5591628136/partyId"
 	},
 	"response": {
-		"headers": {"Content-Type": "text/plain"},
+		"headers": {
+			"Content-Type": "text/plain"
+		},
 		"body": "fb2f0290-3820-11ed-a261-0242ac120005",
 		"status": "200"
 	}

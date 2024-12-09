@@ -3,11 +3,9 @@ package se.sundsvall.invoicecache.api.batchactuator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.invoicecache.service.batch.JobHelper;
 
 /**

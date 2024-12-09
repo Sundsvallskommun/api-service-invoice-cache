@@ -1,8 +1,7 @@
 package se.sundsvall.invoicecache.integration.raindance;
 
-import javax.sql.DataSource;
-
 import com.zaxxer.hikari.HikariDataSource;
+import javax.sql.DataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;

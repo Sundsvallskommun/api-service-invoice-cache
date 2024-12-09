@@ -2,7 +2,6 @@ package se.sundsvall.invoicecache.integration.raindance;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
 import org.springframework.jdbc.core.RowMapper;
 
 public class RaindanceRowMapper implements RowMapper<RaindanceQueryResultDto> {

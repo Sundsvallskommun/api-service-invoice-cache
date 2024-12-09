@@ -7,11 +7,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.JobExecution;
-
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
 import se.sundsvall.invoicecache.api.model.Address;
 import se.sundsvall.invoicecache.api.model.Invoice;
