@@ -1,9 +1,12 @@
-package se.sundsvall.supportmanagement.apptest;
+package apptest;
 
 import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
 import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -89,10 +92,15 @@ class OpenApiSpecificationIT {
 	void compareOpenApiSpecifications() {
 		final String existingOpenApiSpecification = ResourceUtils.asString(openApiResource);
 		final String currentOpenApiSpecification = getCurrentOpenApiSpecification();
-		assertThatJson(toJson(existingOpenApiSpecification))
+try {
+	Files.writeString(Paths.get("/tmp/openapi.yml"), currentOpenApiSpecification);
+} catch (IOException e) {
+	throw new RuntimeException(e);
+}
+		assertThatJson(toJson(currentOpenApiSpecification))
 			.withOptions(List.of(Option.IGNORING_ARRAY_ORDER))
 			.whenIgnoringPaths("servers")
-			.isEqualTo(toJson(currentOpenApiSpecification));
+			.isEqualTo(toJson(existingOpenApiSpecification));
 	}
 
 	/**
@@ -121,5 +129,4 @@ class OpenApiSpecificationIT {
 			throw new IllegalStateException("Unable to convert YAML to JSON", e);
 		}
 	}
-
 }

@@ -44,14 +44,14 @@ class InvoiceCacheResource {
 
 	private final InvoicePdfService invoicePdfService;
 
-	InvoiceCacheResource(final InvoiceCacheService invoiceCacheService,
-		final InvoicePdfService invoicePdfService) {
+	InvoiceCacheResource(final InvoiceCacheService invoiceCacheService, final InvoicePdfService invoicePdfService) {
 		this.invoiceCacheService = invoiceCacheService;
 		this.invoicePdfService = invoicePdfService;
 	}
 
-	@Operation(summary = "Search for and fetch invoices")
-	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	@Operation(
+		summary = "Search for and fetch invoices",
+		responses = @ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true))
 	@GetMapping(produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<InvoicesResponse> getInvoices(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
@@ -61,45 +61,49 @@ class InvoiceCacheResource {
 		return ok(invoiceCacheService.getInvoices(request, municipalityId));
 	}
 
-	@Operation(summary = "Fetch an invoice PDF via filename")
-	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
-	@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+	@Operation(
+		summary = "Fetch an invoice PDF via filename",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+		})
 	@GetMapping("/{filename}")
 	public ResponseEntity<InvoicePdf> getInvoicePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable @NotBlank final String filename) {
-		final var invoicePdf = invoicePdfService.getInvoicePdf(filename, municipalityId);
+		var invoicePdf = invoicePdfService.getInvoicePdf(filename, municipalityId);
 
 		return ok(invoicePdf);
 	}
 
 	@GetMapping("/{issuerlegalid}/{invoicenumber}/pdf")
-	@Operation(summary = "Fetch an invoice PDF via issuer legal id and invoice number")
-	@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true)
+	@Operation(
+		summary = "Fetch an invoice PDF via issuer legal id and invoice number",
+		responses = @ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true))
 	public ResponseEntity<InvoicePdf> getInvoicePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable final String issuerlegalid,
 		@PathVariable final String invoicenumber,
 		@ParameterObject @Valid final InvoicePdfFilterRequest request) {
-		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
+		var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
 			invoicenumber, request, municipalityId);
 
 		return ok(invoicePdf);
 	}
 
-	@Operation(summary = "Create/import an invoice")
-	@ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = ALL_VALUE), useReturnTypeSchema = true)
+	@Operation(
+		summary = "Create/import an invoice",
+		responses = @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = ALL_VALUE), useReturnTypeSchema = true))
 	@PostMapping(consumes = APPLICATION_JSON_VALUE, produces = {
 		ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
 	public ResponseEntity<Void> importInvoice(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Valid @RequestBody final InvoicePdfRequest request) {
-		final var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request, municipalityId);
+		var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request, municipalityId);
 
 		return ResponseEntity.created(fromPath("/" + municipalityId + "/invoices/{filename}").buildAndExpand(invoiceFilename).toUri())
 			.header(HttpHeaders.CONTENT_TYPE, ALL_VALUE)
 			.build();
 	}
-
 }
