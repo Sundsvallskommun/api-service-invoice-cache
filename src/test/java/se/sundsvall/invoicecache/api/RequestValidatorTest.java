@@ -4,12 +4,10 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 import java.time.LocalDate;
 import java.util.List;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.zalando.problem.ThrowableProblem;
-
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 
 class RequestValidatorTest {

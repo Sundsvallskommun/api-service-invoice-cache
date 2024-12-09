@@ -5,9 +5,6 @@ import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.MILLIS;
 import static org.hibernate.annotations.TimeZoneStorageType.NORMALIZE;
 
-import java.sql.Blob;
-import java.time.OffsetDateTime;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -19,16 +16,15 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-
-import org.hibernate.annotations.TimeZoneStorage;
-
-import se.sundsvall.invoicecache.api.model.InvoiceType;
-
+import java.sql.Blob;
+import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.TimeZoneStorage;
+import se.sundsvall.invoicecache.api.model.InvoiceType;
 
 @Entity
 @Table(name = "invoice_pdf",

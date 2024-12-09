@@ -21,7 +21,6 @@ import org.springframework.batch.core.launch.JobLauncher;
 import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
-
 import se.sundsvall.invoicecache.service.batch.JobHelper;
 
 @ExtendWith(MockitoExtension.class)

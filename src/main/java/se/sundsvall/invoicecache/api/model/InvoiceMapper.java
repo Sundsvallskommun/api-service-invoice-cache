@@ -4,9 +4,7 @@ import static java.time.LocalDate.now;
 import static java.util.Objects.nonNull;
 
 import java.math.RoundingMode;
-
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 
 @Component

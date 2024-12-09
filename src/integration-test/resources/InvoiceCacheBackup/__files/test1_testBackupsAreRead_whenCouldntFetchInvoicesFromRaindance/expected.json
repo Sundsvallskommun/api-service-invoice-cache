@@ -1,25 +1,27 @@
 {
-	"invoices": [{
-		"ocrNumber": "2300122208180015699",
-		"invoiceDescription": "Something Else",
-		"vat": 0,
-		"invoiceAddress": {
-			"city": "ANKEBORG",
-			"street": "Ankeborgsv 1A",
-			"postcode": "987 52"
-		},
-		"invoiceDate": "2022-08-16",
-		"customerName": "Jalle Jallesson",
-		"invoiceDueDate": "2022-09-16",
-		"totalAmount": 1740,
-		"customerType": "KA",
-		"invoiceNumber": "53626810",
-		"invoiceType": "INVOICE",
-		"invoiceStatus": "UNPAID",
-		"partyId": "fb2f0290-3820-11ed-a261-0242ac120002",
-		"paidAmount": 0,
-		"amountVatExcluded": 1740
-	}],
+	"invoices": [
+		{
+			"ocrNumber": "2300122208180015699",
+			"invoiceDescription": "Something Else",
+			"vat": 0,
+			"invoiceAddress": {
+				"city": "ANKEBORG",
+				"street": "Ankeborgsv 1A",
+				"postcode": "987 52"
+			},
+			"invoiceDate": "2022-08-16",
+			"customerName": "Jalle Jallesson",
+			"invoiceDueDate": "2022-09-16",
+			"totalAmount": 1740,
+			"customerType": "KA",
+			"invoiceNumber": "53626810",
+			"invoiceType": "INVOICE",
+			"invoiceStatus": "UNPAID",
+			"partyId": "fb2f0290-3820-11ed-a261-0242ac120002",
+			"paidAmount": 0,
+			"amountVatExcluded": 1740
+		}
+	],
 	"_meta": {
 		"totalRecords": 1,
 		"limit": 100,

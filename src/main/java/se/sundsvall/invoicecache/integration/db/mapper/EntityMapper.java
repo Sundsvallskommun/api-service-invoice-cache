@@ -1,7 +1,6 @@
 package se.sundsvall.invoicecache.integration.db.mapper;
 
 import org.springframework.stereotype.Component;
-
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 

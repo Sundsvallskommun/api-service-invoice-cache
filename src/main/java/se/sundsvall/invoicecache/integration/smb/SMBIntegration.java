@@ -7,24 +7,21 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.TimeZone;
-
-import org.hibernate.engine.jdbc.BlobProxy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
-
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
-import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
-import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
-
 import jcifs.CIFSException;
 import jcifs.context.SingletonContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
+import org.hibernate.engine.jdbc.BlobProxy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.stereotype.Component;
+import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
+import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
 @Component
 @EnableScheduling

@@ -1,27 +1,29 @@
 {
-	"invoices": [{
-		"ocrNumber": "34563464",
-		"invoiceDescription": "",
-		"vat": 300,
-		"invoiceAddress": {
-			"careOf": "",
-			"city": "ANKEBORG",
-			"street": "Ankeborgsvägen 5 B LGH 1111",
-			"postcode": "987 62"
-		},
-		"invoiceDate": "${json-unit.any-string}",
-		"customerName": "Kalle Kallesson",
-		"invoiceDueDate": "${json-unit.any-string}",
-		"totalAmount": 1500,
-		"customerType": "BO",
-		"invoiceNumber": "53626804",
-		"invoiceType": "INVOICE",
-		"invoiceStatus": "UNPAID",
-		"partyId": "fb2f0290-3820-11ed-a261-0242ac120002",
-		"paidAmount": 0,
-		"invoiceFileName": "Faktura_53626804_to_9512245031.pdf",
-		"amountVatExcluded": 1200
-	}],
+	"invoices": [
+		{
+			"ocrNumber": "34563464",
+			"invoiceDescription": "",
+			"vat": 300,
+			"invoiceAddress": {
+				"careOf": "",
+				"city": "ANKEBORG",
+				"street": "Ankeborgsvägen 5 B LGH 1111",
+				"postcode": "987 62"
+			},
+			"invoiceDate": "${json-unit.any-string}",
+			"customerName": "Kalle Kallesson",
+			"invoiceDueDate": "${json-unit.any-string}",
+			"totalAmount": 1500,
+			"customerType": "BO",
+			"invoiceNumber": "53626804",
+			"invoiceType": "INVOICE",
+			"invoiceStatus": "UNPAID",
+			"partyId": "fb2f0290-3820-11ed-a261-0242ac120002",
+			"paidAmount": 0,
+			"invoiceFileName": "Faktura_53626804_to_9512245031.pdf",
+			"amountVatExcluded": 1200
+		}
+	],
 	"_meta": {
 		"totalRecords": 1,
 		"limit": 100,

@@ -2,10 +2,8 @@ package se.sundsvall.invoicecache.util;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-
 import org.apache.commons.validator.routines.checkdigit.CheckDigitException;
 import org.apache.commons.validator.routines.checkdigit.LuhnCheckDigit;
-
 import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
 
 public final class OCR {
