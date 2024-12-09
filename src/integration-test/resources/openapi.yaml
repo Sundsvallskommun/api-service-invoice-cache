@@ -1,35 +1,41 @@
 openapi: 3.0.1
 info:
   title: api-invoicecache
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "3.0"
 servers:
-  - url: http://localhost:55694
-    description: Generated server url
+- url: http://localhost:8080
+  description: Generated server url
 paths:
   /{municipalityId}/invoices:
     get:
       tags:
-        - Invoice Cache
+      - Invoice Cache
       summary: Search for and fetch invoices
       operationId: getInvoices
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: request
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/InvoiceFilterRequest"
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: request
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/InvoiceFilterRequest"
       responses:
+        "200":
+          description: Successful Operation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InvoicesResponse"
         "400":
           description: Bad Request
           content:
@@ -42,25 +48,19 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/Problem"
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvoicesResponse"
     post:
       tags:
-        - Invoice Cache
+      - Invoice Cache
       summary: Create/import an invoice
       operationId: importInvoice
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
       requestBody:
         content:
           application/json:
@@ -68,154 +68,154 @@ paths:
               $ref: "#/components/schemas/InvoicePdfRequest"
         required: true
       responses:
-        "400":
-          description: Bad Request
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/Problem"
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
         "201":
           description: Created
           content:
-            '*/*': { }
-  /{municipalityId}/invoices/{issuerlegalid}/{invoicenumber}/pdf:
-    get:
-      tags:
-        - Invoice Cache
-      summary: Fetch an invoice PDF via issuer legal id and invoice number
-      operationId: getInvoicePdf
-      parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: issuerlegalid
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: invoicenumber
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: debtorLegalId
-          in: query
-          description: Invoice debtor legal id
-          required: false
-          schema:
-            type: string
-            description: Invoice debtor legal id
-        - name: invoiceId
-          in: query
-          description: Invoice id
-          required: false
-          schema:
-            type: string
-            description: Invoice id
-        - name: invoiceFileName
-          in: query
-          description: Invoice file name
-          required: false
-          schema:
-            type: string
-            description: Invoice file name
-        - name: invoiceType
-          in: query
-          description: Invoice type
-          required: false
-          schema:
-            type: string
-            enum:
-              - INVOICE
-              - CREDIT_INVOICE
-              - DIRECT_DEBIT
-              - SELF_INVOICE
-              - REMINDER
-              - FINAL_INVOICE
-              - CONSOLIDATED_INVOICE
-      responses:
+            '*/*': {}
         "400":
           description: Bad Request
           content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server Error
           content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/invoices/{issuerlegalid}/{invoicenumber}/pdf:
+    get:
+      tags:
+      - Invoice Cache
+      summary: Fetch an invoice PDF via issuer legal id and invoice number
+      operationId: getInvoicePdf
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: issuerlegalid
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: invoicenumber
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: debtorLegalId
+        in: query
+        description: Invoice debtor legal id
+        required: false
+        schema:
+          type: string
+          description: Invoice debtor legal id
+      - name: invoiceId
+        in: query
+        description: Invoice id
+        required: false
+        schema:
+          type: string
+          description: Invoice id
+      - name: invoiceFileName
+        in: query
+        description: Invoice file name
+        required: false
+        schema:
+          type: string
+          description: Invoice file name
+      - name: invoiceType
+        in: query
+        description: Invoice type
+        required: false
+        schema:
+          type: string
+          enum:
+          - INVOICE
+          - CREDIT_INVOICE
+          - DIRECT_DEBIT
+          - SELF_INVOICE
+          - REMINDER
+          - FINAL_INVOICE
+          - CONSOLIDATED_INVOICE
+      responses:
         "200":
           description: Successful Operation
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/InvoicePdf"
-  /{municipalityId}/invoices/{filename}:
-    get:
-      tags:
-        - Invoice Cache
-      summary: Fetch an invoice PDF via filename
-      operationId: getInvoicePdf_1
-      parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: filename
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
         "400":
           description: Bad Request
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/invoices/{filename}:
+    get:
+      tags:
+      - Invoice Cache
+      summary: Fetch an invoice PDF via filename
+      operationId: getInvoicePdf_1
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: filename
+        in: path
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful Operation
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/InvoicePdf"
         "404":
           description: Not Found
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad Request
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/Problem"
         "500":
           description: Internal Server Error
           content:
             '*/*':
               schema:
                 $ref: "#/components/schemas/Problem"
-        "200":
-          description: Successful Operation
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/InvoicePdf"
   /api-docs:
     get:
       tags:
-        - API
+      - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -232,8 +232,8 @@ components:
   schemas:
     InvoicePdf:
       required:
-        - content
-        - name
+      - content
+      - name
       type: object
       properties:
         content:
@@ -247,7 +247,7 @@ components:
       description: Model for the InvoicePdf
     InvoicePdfRequest:
       required:
-        - attachment
+      - attachment
       type: object
       properties:
         issuerLegalId:
@@ -266,13 +266,13 @@ components:
           type: string
           description: Invoice type
           enum:
-            - INVOICE
-            - CREDIT_INVOICE
-            - DIRECT_DEBIT
-            - SELF_INVOICE
-            - REMINDER
-            - FINAL_INVOICE
-            - CONSOLIDATED_INVOICE
+          - INVOICE
+          - CREDIT_INVOICE
+          - DIRECT_DEBIT
+          - SELF_INVOICE
+          - REMINDER
+          - FINAL_INVOICE
+          - CONSOLIDATED_INVOICE
         attachment:
           $ref: "#/components/schemas/InvoicePdf"
     Problem:
@@ -345,8 +345,8 @@ components:
           type: array
           description: List of partyIds for organizations or private firms
           example:
-            - fb2f0290-3820-11ed-a261-0242ac120002
-            - fb2f0290-3820-11ed-a261-0242ac120003
+          - fb2f0290-3820-11ed-a261-0242ac120002
+          - fb2f0290-3820-11ed-a261-0242ac120003
           items:
             type: string
             description: List of partyIds for organizations or private firms
@@ -360,8 +360,8 @@ components:
           type: array
           description: Invoice numbers to fetch
           example:
-            - "1234567"
-            - "2345678"
+          - "1234567"
+          - "2345678"
           items:
             type: string
             description: Invoice numbers to fetch
@@ -407,15 +407,15 @@ components:
           description: Invoice status
           example: PAID
           enum:
-            - PAID
-            - UNPAID
-            - PARTIALLY_PAID
-            - DEBT_COLLECTION
-            - PAID_TOO_MUCH
-            - REMINDER
-            - SENT
-            - VOID
-            - UNKNOWN
+          - PAID
+          - UNPAID
+          - PARTIALLY_PAID
+          - DEBT_COLLECTION
+          - PAID_TOO_MUCH
+          - REMINDER
+          - SENT
+          - VOID
+          - UNKNOWN
         ocrNumber:
           type: string
           description: OCR Number
@@ -468,13 +468,13 @@ components:
           description: Invoice type
           example: NORMAL or CREDIT
           enum:
-            - INVOICE
-            - CREDIT_INVOICE
-            - DIRECT_DEBIT
-            - SELF_INVOICE
-            - REMINDER
-            - FINAL_INVOICE
-            - CONSOLIDATED_INVOICE
+          - INVOICE
+          - CREDIT_INVOICE
+          - DIRECT_DEBIT
+          - SELF_INVOICE
+          - REMINDER
+          - FINAL_INVOICE
+          - CONSOLIDATED_INVOICE
         invoiceAddress:
           $ref: "#/components/schemas/Address"
       description: Model for the Invoice
@@ -523,4 +523,4 @@ components:
           example: 23
       description: Metadata model
       readOnly: true
-  securitySchemes: { }
+  securitySchemes: {}
