@@ -21,6 +21,8 @@ class InvoiceListenerTest {
 
 	@Mock
 	private InvoiceEntityRepository mockRepository;
+	@Mock
+	private FetchInvoicesJobHealthIndicator mockHealthIndicator;
 
 	@Mock
 	private StepExecution mockStepExecution;
@@ -35,8 +37,8 @@ class InvoiceListenerTest {
 
 	@Test
 	void testBeforeStep() {
-
 		doNothing().when(mockRepository).deleteAllInBatch();
+
 		invoiceListener.beforeStep(mockStepExecution);
 
 		verify(mockRepository, times(1)).count();
@@ -46,17 +48,22 @@ class InvoiceListenerTest {
 	@Test
 	void testSuccessfulAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.COMPLETED);
-		final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
+
+		var exitStatus = invoiceListener.afterStep(mockStepExecution);
 		assertNull(exitStatus); // intended
+
 		verify(mockStepExecution, times(0)).getSummary();
+		verify(mockHealthIndicator).setHealthy();
 	}
 
 	@Test
 	void testFailedAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.FAILED);
-		final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
-		assertNull(exitStatus); // intended
-		verify(mockStepExecution, times(1)).getSummary();
-	}
 
+		var exitStatus = invoiceListener.afterStep(mockStepExecution);
+		assertNull(exitStatus); // intended
+
+		verify(mockStepExecution, times(1)).getSummary();
+		verify(mockHealthIndicator).setUnhealthy();
+	}
 }

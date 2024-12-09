@@ -21,10 +21,13 @@ public class RestoreBackupListener implements StepExecutionListener {
 
 	private final InvoiceEntityRepository invoiceRepository;
 	private final BackupInvoiceRepository backupRepository;
+	private final RestoreBackupJobHealthIndicator healthIndicator;
 
-	public RestoreBackupListener(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository) {
+	RestoreBackupListener(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
+		final RestoreBackupJobHealthIndicator healthIndicator) {
 		this.invoiceRepository = invoiceRepository;
 		this.backupRepository = backupRepository;
+		this.healthIndicator = healthIndicator;
 	}
 
 	@Override
@@ -40,8 +43,10 @@ public class RestoreBackupListener implements StepExecutionListener {
 	public ExitStatus afterStep(final StepExecution stepExecution) {
 		if (stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
 			LOG.info("Successfully restored {} invoices from backup.", invoiceRepository.count());
+			healthIndicator.setHealthy();
 		} else {
 			LOG.info("Something went wrong while restoring backups{}", stepExecution.getSummary());
+			healthIndicator.setUnhealthy();
 		}
 		return null;
 	}
