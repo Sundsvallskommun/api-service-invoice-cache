@@ -17,7 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.actuate.health.Health;
 
 @ExtendWith(MockitoExtension.class)
-public class FetchInvoicesJobHealthIndicatorTest {
+class FetchInvoicesJobHealthIndicatorTest {
 
 	@Mock
 	private Health.Builder mockHealthBuilder;

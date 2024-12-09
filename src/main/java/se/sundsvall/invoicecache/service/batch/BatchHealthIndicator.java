@@ -14,7 +14,7 @@ public abstract class BatchHealthIndicator implements HealthIndicator {
 	private final String name;
 	private Health health;
 
-	public BatchHealthIndicator(final String name) {
+	protected BatchHealthIndicator(final String name) {
 		this.name = name;
 
 		health = Health.unknown()
