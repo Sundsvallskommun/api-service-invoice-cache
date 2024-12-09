@@ -26,6 +26,9 @@ class RestoreBackupListenerTest {
 	private BackupInvoiceRepository mockBackupInvoiceRepository;
 
 	@Mock
+	private RestoreBackupJobHealthIndicator mockHealthIndicator;
+
+	@Mock
 	private StepExecution mockStepExecution;
 
 	@InjectMocks
@@ -35,6 +38,7 @@ class RestoreBackupListenerTest {
 	void testBeforeStep() {
 		doNothing().when(mockInvoiceRepository).deleteAllInBatch();
 		when(mockBackupInvoiceRepository.count()).thenReturn(10L);
+
 		invoiceListener.beforeStep(mockStepExecution);
 
 		verify(mockInvoiceRepository, times(1)).deleteAllInBatch();
@@ -44,17 +48,22 @@ class RestoreBackupListenerTest {
 	@Test
 	void testSuccessfulAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.COMPLETED);
-		final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
+
+		var exitStatus = invoiceListener.afterStep(mockStepExecution);
 		assertNull(exitStatus); // intended
+
 		verify(mockStepExecution, times(0)).getSummary();
+		verify(mockHealthIndicator).setHealthy();
 	}
 
 	@Test
 	void testFailedAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.FAILED);
-		final ExitStatus exitStatus = invoiceListener.afterStep(mockStepExecution);
-		assertNull(exitStatus); // intended
-		verify(mockStepExecution, times(1)).getSummary();
-	}
 
+		var exitStatus = invoiceListener.afterStep(mockStepExecution);
+		assertNull(exitStatus); // intended
+
+		verify(mockStepExecution, times(1)).getSummary();
+		verify(mockHealthIndicator).setUnhealthy();
+	}
 }

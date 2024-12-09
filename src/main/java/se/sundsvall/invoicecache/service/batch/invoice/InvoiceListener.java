@@ -18,9 +18,12 @@ public class InvoiceListener implements StepExecutionListener {
 	private static final Logger LOG = LoggerFactory.getLogger(InvoiceListener.class);
 
 	private final InvoiceEntityRepository invoiceEntityRepository;
+	private final FetchInvoicesJobHealthIndicator healthIndicator;
 
-	public InvoiceListener(final InvoiceEntityRepository invoiceEntityRepository) {
+	InvoiceListener(final InvoiceEntityRepository invoiceEntityRepository,
+		final FetchInvoicesJobHealthIndicator healthIndicator) {
 		this.invoiceEntityRepository = invoiceEntityRepository;
+		this.healthIndicator = healthIndicator;
 	}
 
 	@Override
@@ -37,8 +40,10 @@ public class InvoiceListener implements StepExecutionListener {
 		final long count = invoiceEntityRepository.count();
 		if (stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
 			LOG.info("After backup job execution there are {} items in the db", count);
+			healthIndicator.setHealthy();
 		} else {
 			LOG.info("Something went wrong while reading invoices{}", stepExecution.getSummary());
+			healthIndicator.setUnhealthy();
 		}
 		return null;
 	}
