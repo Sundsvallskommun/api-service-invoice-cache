@@ -73,43 +73,43 @@ create table invoice_pdf (
                              primary key (id)
 ) engine=InnoDB;
 
-create index idx_backupinvoice_invoice_number
+create index idx_invoice_number
     on backupinvoice (invoice_number);
 
-create index idx_invoice_invoice_number
+create index idx_invoice_number
     on invoice (invoice_number);
 
-create index idx_invoice_organization_number
+create index idx_organization_number
     on invoice (organization_number);
 
-create index idx_invoice_ocr_number
+create index idx_ocr_number
     on invoice (ocr_number);
 
-create index idx_invoice_customer_id
+create index idx_customer_id
     on invoice (customer_id);
 
-create index idx_invoice_municipality_id
+create index idx_municipality_id
     on invoice (municipality_id);
 
-create index idx_invoice_pdf_invoice_debtor_legal_id
+create index idx_invoice_debtor_legal_id
     on invoice_pdf (invoice_debtor_legal_id);
 
-create index idx_invoice_pdf_invoice_issuer_legal_id
+create index idx_invoice_issuer_legal_id
     on invoice_pdf (invoice_issuer_legal_id);
 
-create index idx_invoice_pdf_invoice_id
+create index idx_invoice_id
     on invoice_pdf (invoice_id);
 
-create index idx_invoice_pdf_invoice_number
+create index idx_invoice_number
     on invoice_pdf (invoice_number);
 
-create index idx_invoice_pdf_invoice_type
+create index idx_invoice_type
     on invoice_pdf (invoice_type);
 
-create index idx_invoice_pdf_municipality_id
+create index idx_municipality_id
     on invoice_pdf (municipality_id);
 
-create index idx_invoice_pdf_filename
+create index idx_filename
     on invoice_pdf (filename);
 
 alter table if exists invoice_pdf

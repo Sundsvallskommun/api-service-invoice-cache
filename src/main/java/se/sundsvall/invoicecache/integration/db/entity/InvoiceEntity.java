@@ -18,11 +18,11 @@ import lombok.Setter;
 @Entity
 @Table(name = "invoice",
 	indexes = {
-		@Index(name = "idx_invoice_invoice_number", columnList = "invoice_number"),
-		@Index(name = "idx_invoice_organization_number", columnList = "organization_number"),
-		@Index(name = "idx_invoice_ocr_number", columnList = "ocr_number"),
-		@Index(name = "idx_invoice_customer_id", columnList = "customer_id"),
-		@Index(name = "idx_invoice_municipality_id", columnList = "municipality_id"),
+		@Index(name = "idx_invoice_number", columnList = "invoice_number"),
+		@Index(name = "idx_organization_number", columnList = "organization_number"),
+		@Index(name = "idx_ocr_number", columnList = "ocr_number"),
+		@Index(name = "idx_customer_id", columnList = "customer_id"),
+		@Index(name = "idx_municipality_id", columnList = "municipality_id"),
 
 	})
 @Getter
