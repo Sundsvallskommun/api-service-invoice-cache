@@ -29,7 +29,13 @@ import se.sundsvall.invoicecache.api.model.InvoiceType;
 @Entity
 @Table(name = "invoice_pdf",
 	indexes = {
-		@Index(name = "invoice_pdf_municipality_id_index", columnList = "municipality_id")
+		@Index(name = "idx_invoice_pdf_invoice_debtor_legal_id", columnList = "invoice_debtor_legal_id"),
+		@Index(name = "idx_invoice_pdf_invoice_issuer_legal_id", columnList = "invoice_issuer_legal_id"),
+		@Index(name = "idx_invoice_pdf_invoice_id", columnList = "invoice_id"),
+		@Index(name = "idx_invoice_pdf_invoice_number", columnList = "invoice_number"),
+		@Index(name = "idx_invoice_pdf_invoice_type", columnList = "invoice_type"),
+		@Index(name = "idx_invoice_pdf_municipality_id", columnList = "municipality_id"),
+		@Index(name = "idx_invoice_pdf_filename", columnList = "filename")
 	})
 @Getter
 @Setter

@@ -24,9 +24,9 @@ public class BackupListener implements StepExecutionListener {
 
 	@Override
 	public void beforeStep(final StepExecution stepExecution) {
-		LOG.info("Starting to remove old backups from backup table");
-		repository.deleteAllInBatch();
-		LOG.info("Deleted old backups");
+		LOG.info("Starting to truncate backupinvoice table");
+		repository.truncateTable();
+		LOG.info("Truncated backupinvoice table");
 	}
 
 	@Override

@@ -33,10 +33,10 @@ public class RestoreBackupListener implements StepExecutionListener {
 	@Override
 	@Transactional
 	public void beforeStep(final @NotNull StepExecution stepExecution) {
-		LOG.info("Starting to restore backup, cleaning invoices table");
+		LOG.info("Starting to restore backup, truncating invoices table");
 		// Clean the invoiceRespository before restoring the backup
-		invoiceRepository.deleteAllInBatch();
-		LOG.info("Done cleaning invoices table, starting to restore {} invoices from backup", backupRepository.count());
+		invoiceRepository.truncateTable();
+		LOG.info("Done truncating invoices table, starting to restore {} invoices from backup", backupRepository.count());
 	}
 
 	@Override

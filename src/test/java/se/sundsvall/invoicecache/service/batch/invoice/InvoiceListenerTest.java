@@ -37,12 +37,12 @@ class InvoiceListenerTest {
 
 	@Test
 	void testBeforeStep() {
-		doNothing().when(mockRepository).deleteAllInBatch();
 
+		doNothing().when(mockRepository).truncateTable();
 		invoiceListener.beforeStep(mockStepExecution);
 
 		verify(mockRepository, times(1)).count();
-		verify(mockRepository, times(1)).deleteAllInBatch();
+		verify(mockRepository, times(1)).truncateTable();
 	}
 
 	@Test

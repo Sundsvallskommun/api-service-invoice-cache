@@ -29,9 +29,9 @@ public class InvoiceListener implements StepExecutionListener {
 	@Override
 	public void beforeStep(final @NotNull StepExecution stepExecution) {
 		LOG.info("Before job execution there are {} items in the backup table", invoiceEntityRepository.count());
-		LOG.info("Starting to clean local DB.");
-		invoiceEntityRepository.deleteAllInBatch();
-		LOG.info("Done cleaning backup table.");
+		LOG.info("Starting to truncate invoice table.");
+		invoiceEntityRepository.truncateTable();
+		LOG.info("Done truncating invoice table.");
 
 	}
 

@@ -28,10 +28,10 @@ import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 @EnableBatchProcessing(dataSourceRef = "batchDataSource", transactionManagerRef = "transactionManager")
 public class BackupBatchConfig {
 
-	private static final int CHUNK_SIZE = 2000;
 	public static final String BACKUP_JOB_NAME = "backupJob";
 	public static final String RESTORE_BACKUP_JOB_NAME = "restoreBackupJob";
-
+	private static final int CHUNK_SIZE = 2000;
+	private static final String SORT_ON = "invoiceNumber";
 	private final InvoiceEntityRepository invoiceRepository;
 	private final BackupInvoiceRepository backupRepository;
 	private final BackupProcessor backupProcessor;
@@ -87,7 +87,8 @@ public class BackupBatchConfig {
 
 	/////////////////////////////////////
 	// Restore backup bacth config below
-	/////////////////////////////////////
+
+	/// //////////////////////////////////
 
 	public RepositoryItemReader<BackupInvoiceEntity> invoiceBackupReader() {
 		return new RepositoryItemReaderBuilder<BackupInvoiceEntity>()
@@ -129,7 +130,7 @@ public class BackupBatchConfig {
 	 */
 	private Map<String, Sort.Direction> getSorting() {
 		final Map<String, Sort.Direction> sorting = new HashMap<>();
-		sorting.put("invoiceNumber", Sort.Direction.ASC);
+		sorting.put(SORT_ON, Sort.Direction.ASC);
 
 		return sorting;
 	}

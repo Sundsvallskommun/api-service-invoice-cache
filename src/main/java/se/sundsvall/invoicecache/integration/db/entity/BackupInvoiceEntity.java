@@ -21,7 +21,7 @@ import lombok.Setter;
 @Entity
 @Table(name = "backupinvoice",
 	indexes = {
-		@Index(name = "backup_municipality_id_index", columnList = "municipality_id")
+		@Index(name = "idx_backupinvoice_invoice_number", columnList = "invoice_number")
 	})
 @Getter
 @Setter
