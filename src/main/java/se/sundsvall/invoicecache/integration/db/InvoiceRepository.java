@@ -9,8 +9,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 
-@CircuitBreaker(name = "invoiceEntityRepository")
-public interface InvoiceEntityRepository extends JpaRepository<InvoiceEntity, Long>, JpaSpecificationExecutor<InvoiceEntity> {
+@CircuitBreaker(name = "invoiceRepository")
+public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Long>, JpaSpecificationExecutor<InvoiceEntity> {
 
 	Optional<InvoiceEntity> findByFileNameAndMunicipalityId(String fileName, String municipalityId);
 

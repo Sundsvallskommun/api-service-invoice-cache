@@ -20,13 +20,13 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
 import org.springframework.transaction.PlatformTransactionManager;
 import se.sundsvall.dept44.util.ResourceUtils;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceRowMapper;
 
 @Configuration
-@EnableBatchProcessing(dataSourceRef = "raindanceDataSource", transactionManagerRef = "transactionManager")
+@EnableBatchProcessing(dataSourceRef = "raindanceDataSource")
 public class BatchConfig {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BatchConfig.class);
@@ -38,12 +38,12 @@ public class BatchConfig {
 	private final String sqlString;
 
 	private final RaindanceEntityProcessor raindanceEntityProcessor;
-	private final InvoiceEntityRepository invoiceRepository;
+	private final InvoiceRepository invoiceRepository;
 	private final InvoiceListener invoiceListener;
 
 	public BatchConfig(@Value("classpath:${raindance.sql.filename}") Resource sqlResource,
 		final RaindanceEntityProcessor raindanceEntityProcessor,
-		final InvoiceEntityRepository invoiceRepository,
+		final InvoiceRepository invoiceRepository,
 		final InvoiceListener invoiceListener) {
 		this.raindanceEntityProcessor = raindanceEntityProcessor;
 		this.invoiceRepository = invoiceRepository;

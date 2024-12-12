@@ -26,7 +26,7 @@ public class PartyConfiguration {
 	}
 
 	@Bean
-	public FeignBuilderCustomizer feignBuilderCustomizer() {
+	FeignBuilderCustomizer feignBuilderCustomizer() {
 		return FeignMultiCustomizer.create()
 			.withErrorDecoder(errorDecoder())
 			.withRequestOptions(feignOptions())

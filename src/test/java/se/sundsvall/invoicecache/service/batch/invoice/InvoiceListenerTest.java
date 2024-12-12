@@ -14,13 +14,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
 @ExtendWith(MockitoExtension.class)
 class InvoiceListenerTest {
 
 	@Mock
-	private InvoiceEntityRepository mockRepository;
+	private InvoiceRepository mockRepository;
 	@Mock
 	private FetchInvoicesJobHealthIndicator mockHealthIndicator;
 

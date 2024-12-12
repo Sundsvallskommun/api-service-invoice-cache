@@ -17,7 +17,7 @@ import org.springframework.batch.core.launch.NoSuchJobException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
 /**
  * Helper class for everything related to fetching statuses for batches and determining whether to run or not.
@@ -30,9 +30,9 @@ public class JobHelper {
 	private final Duration successfulWithin;  // Check for successful jobs withing this Duration
 
 	private final JobExplorer jobExplorer;
-	private final InvoiceEntityRepository invoiceRepository;
+	private final InvoiceRepository invoiceRepository;
 
-	public JobHelper(final JobExplorer jobExplorer, final InvoiceEntityRepository invoiceRepository,
+	public JobHelper(final JobExplorer jobExplorer, final InvoiceRepository invoiceRepository,
 		@Value("${raindance.invoice.outdated}") Duration timeToWait) {
 		this.jobExplorer = jobExplorer;
 		this.invoiceRepository = invoiceRepository;

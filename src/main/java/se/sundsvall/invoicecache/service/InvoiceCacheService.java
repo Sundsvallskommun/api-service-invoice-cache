@@ -14,7 +14,7 @@ import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoiceMapper;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.api.model.MetaData;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoiceSpecifications;
 import se.sundsvall.invoicecache.integration.party.PartyClient;
@@ -24,7 +24,7 @@ public class InvoiceCacheService {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InvoiceCacheService.class);
 
-	private final InvoiceEntityRepository invoiceRepository;
+	private final InvoiceRepository invoiceRepository;
 
 	private final InvoiceMapper mapper;
 
@@ -32,7 +32,7 @@ public class InvoiceCacheService {
 
 	private final PartyClient partyClient;
 
-	public InvoiceCacheService(final InvoiceEntityRepository invoiceRepository,
+	public InvoiceCacheService(final InvoiceRepository invoiceRepository,
 		final InvoiceMapper mapper, final InvoiceSpecifications invoiceSpecifications,
 		final PartyClient partyClient) {
 		this.invoiceRepository = invoiceRepository;

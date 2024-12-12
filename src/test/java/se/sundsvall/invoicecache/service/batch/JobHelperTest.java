@@ -25,7 +25,7 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
 @ExtendWith(MockitoExtension.class)
 class JobHelperTest {
@@ -34,7 +34,7 @@ class JobHelperTest {
 	private JobExplorer mockJobExplorer;
 
 	@Mock
-	private InvoiceEntityRepository mockInvoiceRepository;
+	private InvoiceRepository mockInvoiceRepository;
 
 	private JobHelper jobHelper;
 

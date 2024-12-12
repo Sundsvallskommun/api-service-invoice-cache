@@ -6,8 +6,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
-@CircuitBreaker(name = "pdfEntityRepository")
-public interface PdfEntityRepository extends JpaRepository<PdfEntity, Long>, JpaSpecificationExecutor<PdfEntity> {
+@CircuitBreaker(name = "pdfRepository")
+public interface PdfRepository extends JpaRepository<PdfEntity, Long>, JpaSpecificationExecutor<PdfEntity> {
 
 	Optional<PdfEntity> findByFilenameAndMunicipalityId(String filename, String municipalityId);
 
