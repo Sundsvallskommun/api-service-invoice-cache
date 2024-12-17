@@ -17,11 +17,11 @@ import se.sundsvall.dept44.configuration.feign.decoder.ProblemErrorDecoder;
 @Import(FeignConfiguration.class)
 public class PartyConfiguration {
 
-	private static final String REGISTRATION_ID = "party";
+	static final String REGISTRATION_ID = "party";
 
 	private final PartyProperties partyProperties;
 
-	public PartyConfiguration(PartyProperties partyProperties) {
+	public PartyConfiguration(final PartyProperties partyProperties) {
 		this.partyProperties = partyProperties;
 	}
 
