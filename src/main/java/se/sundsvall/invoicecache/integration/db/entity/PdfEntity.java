@@ -16,6 +16,7 @@ import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.sql.Blob;
 import java.time.OffsetDateTime;
 import lombok.AllArgsConstructor;
@@ -36,6 +37,9 @@ import se.sundsvall.invoicecache.api.model.InvoiceType;
 		@Index(name = "idx_invoice_type", columnList = "invoice_type"),
 		@Index(name = "idx_municipality_id", columnList = "municipality_id"),
 		@Index(name = "idx_filename", columnList = "filename")
+	},
+	uniqueConstraints = {
+		@UniqueConstraint(name = "uk_filename", columnNames = "filename")
 	})
 @Getter
 @Setter
@@ -51,7 +55,7 @@ public class PdfEntity {
 	@Column(name = "municipality_id")
 	private String municipalityId;
 
-	@Column(name = "filename", unique = true)
+	@Column(name = "filename", nullable = false)
 	private String filename;
 
 	@Lob

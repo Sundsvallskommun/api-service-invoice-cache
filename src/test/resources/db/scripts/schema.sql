@@ -62,7 +62,7 @@ create table invoice (
 create table invoice_pdf (
                              id integer not null auto_increment,
                              created datetime(6) not null,
-                             filename varchar(255),
+                             filename varchar(255) not null,
                              invoice_debtor_legal_id varchar(255),
                              invoice_id varchar(255),
                              invoice_issuer_legal_id varchar(255),
@@ -113,4 +113,4 @@ create index idx_filename
     on invoice_pdf (filename);
 
 alter table if exists invoice_pdf
-    add constraint UK97gdx5bau45snxx119ad6givd unique (filename);
+    add constraint uk_filename unique (filename);
