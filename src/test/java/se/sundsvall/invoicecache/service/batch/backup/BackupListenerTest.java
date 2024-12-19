@@ -29,10 +29,10 @@ class BackupListenerTest {
 
 	@Test
 	void testBeforeStep() {
-		doNothing().when(mockRepository).deleteAllInBatch();
+		doNothing().when(mockRepository).truncateTable();
 		backupListener.beforeStep(mockStepExecution);
 
-		verify(mockRepository, times(1)).deleteAllInBatch();
+		verify(mockRepository, times(1)).truncateTable();
 	}
 
 	@Test

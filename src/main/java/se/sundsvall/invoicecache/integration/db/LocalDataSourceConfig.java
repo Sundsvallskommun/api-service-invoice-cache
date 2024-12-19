@@ -20,20 +20,20 @@ public class LocalDataSourceConfig {
 
 	@Bean(name = "localDataSourceProperties")
 	@ConfigurationProperties(prefix = "spring.datasource")
-	public DataSourceProperties localDataSourceProperties() {
+	DataSourceProperties localDataSourceProperties() {
 		return new DataSourceProperties();
 	}
 
 	@Primary
 	@Bean(name = "batchDataSource")
 	@ConfigurationProperties(prefix = "spring.datasource.configuration")
-	public DataSource localDataSource(@Qualifier("localDataSourceProperties") DataSourceProperties dataSourceProperties) {
+	DataSource localDataSource(@Qualifier("localDataSourceProperties") DataSourceProperties dataSourceProperties) {
 		return dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
 	}
 
 	@Primary
 	@Bean(name = "transactionManager")
-	public JpaTransactionManager jpaTransactionManager(@Qualifier("batchDataSource") DataSource dataSource) {
+	JpaTransactionManager jpaTransactionManager(@Qualifier("batchDataSource") DataSource dataSource) {
 		final JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setDataSource(dataSource);
 		return transactionManager;

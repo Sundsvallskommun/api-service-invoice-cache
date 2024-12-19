@@ -9,7 +9,7 @@ import org.zalando.problem.Status;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
-import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
+import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifications;
 import se.sundsvall.invoicecache.integration.smb.SMBIntegration;
@@ -18,13 +18,13 @@ import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
 @Service
 public class InvoicePdfService {
 
-	private final PdfEntityRepository pdfRepository;
+	private final PdfRepository pdfRepository;
 
 	private final SMBIntegration smbIntegration;
 
 	private final InvoicePdfSpecifications invoicePdfSpecifications;
 
-	public InvoicePdfService(final PdfEntityRepository pdfRepository,
+	public InvoicePdfService(final PdfRepository pdfRepository,
 		final SMBIntegration smbIntegration, final InvoicePdfSpecifications invoicePdfSpecifications) {
 		this.pdfRepository = pdfRepository;
 		this.smbIntegration = smbIntegration;

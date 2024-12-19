@@ -19,8 +19,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
-import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
+import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
 @Component
@@ -33,15 +33,15 @@ public class SMBIntegration {
 
 	private static final Logger logger = LoggerFactory.getLogger(SMBIntegration.class);
 
-	private final PdfEntityRepository pdfRepository;
+	private final PdfRepository pdfRepository;
 
-	private final InvoiceEntityRepository invoiceRepository;
+	private final InvoiceRepository invoiceRepository;
 
 	private final SMBProperties properties;
 
 	private final String sourceUrl;
 
-	SMBIntegration(final PdfEntityRepository pdfRepository, final InvoiceEntityRepository invoiceRepository, final SMBProperties properties) {
+	SMBIntegration(final PdfRepository pdfRepository, final InvoiceRepository invoiceRepository, final SMBProperties properties) {
 		this.pdfRepository = pdfRepository;
 		this.invoiceRepository = invoiceRepository;
 		this.properties = properties;
