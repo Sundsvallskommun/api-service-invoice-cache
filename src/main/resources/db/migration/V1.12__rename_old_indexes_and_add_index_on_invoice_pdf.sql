@@ -38,7 +38,9 @@ create index if not exists idx_municipality_id on invoice_pdf (municipality_id);
 
 -- Add new index on file_name in table "invoice_pdf"
 create index if not exists idx_filename on invoice_pdf (filename);
+alter table invoice_pdf modify filename varchar(255) not null;
 
 --  Drop constraint in table "invoice_pdf"
 alter table invoice_pdf drop constraint if exists UK_efwb3ex96plme92eseluwks26;
 alter table invoice_pdf add constraint uk_filename unique (filename);
+

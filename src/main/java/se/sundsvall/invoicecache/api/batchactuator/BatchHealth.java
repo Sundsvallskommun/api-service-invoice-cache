@@ -2,11 +2,9 @@ package se.sundsvall.invoicecache.api.batchactuator;
 
 import java.util.List;
 import java.util.Map;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 
-@Setter
-@Getter
+@Data
 public class BatchHealth {
 
 	private Map<String, List<JobStatus>> details;
