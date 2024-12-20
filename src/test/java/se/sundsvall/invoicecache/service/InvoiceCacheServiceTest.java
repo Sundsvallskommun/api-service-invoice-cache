@@ -26,7 +26,7 @@ import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoiceMapper;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.api.model.MetaData;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoiceSpecifications;
 import se.sundsvall.invoicecache.integration.party.PartyClient;
@@ -37,7 +37,7 @@ class InvoiceCacheServiceTest {
 	private final Page<InvoiceEntity> invoicePage = new PageImpl<>(Arrays.asList(generateMinimalInvoiceEntity("7001011234"), generateMinimalInvoiceEntity("7001011235")));
 
 	@Mock
-	private InvoiceEntityRepository mockRepository;
+	private InvoiceRepository mockRepository;
 
 	@Mock
 	private InvoiceMapper mockMapper;

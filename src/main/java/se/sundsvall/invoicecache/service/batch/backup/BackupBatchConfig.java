@@ -17,7 +17,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.Sort;
 import org.springframework.transaction.PlatformTransactionManager;
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 
@@ -25,14 +25,14 @@ import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
  * All configuration for backup and restore of backups.
  */
 @Configuration
-@EnableBatchProcessing(dataSourceRef = "batchDataSource", transactionManagerRef = "transactionManager")
+@EnableBatchProcessing(dataSourceRef = "batchDataSource")
 public class BackupBatchConfig {
 
-	private static final int CHUNK_SIZE = 2000;
 	public static final String BACKUP_JOB_NAME = "backupJob";
 	public static final String RESTORE_BACKUP_JOB_NAME = "restoreBackupJob";
-
-	private final InvoiceEntityRepository invoiceRepository;
+	private static final int CHUNK_SIZE = 2000;
+	private static final String SORT_ON = "invoiceNumber";
+	private final InvoiceRepository invoiceRepository;
 	private final BackupInvoiceRepository backupRepository;
 	private final BackupProcessor backupProcessor;
 
@@ -40,7 +40,7 @@ public class BackupBatchConfig {
 	private final BackupListener backupListener;
 	private final RestoreBackupListener restoreBackupListener;
 
-	public BackupBatchConfig(final InvoiceEntityRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
+	public BackupBatchConfig(final InvoiceRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
 		final BackupProcessor backupProcessor, final RestoreBackupProcessor restoreBackupProcessor, final BackupListener backupListener,
 		final RestoreBackupListener restoreBackupListener) {
 		this.invoiceRepository = invoiceRepository;
@@ -87,7 +87,8 @@ public class BackupBatchConfig {
 
 	/////////////////////////////////////
 	// Restore backup bacth config below
-	/////////////////////////////////////
+
+	/// //////////////////////////////////
 
 	public RepositoryItemReader<BackupInvoiceEntity> invoiceBackupReader() {
 		return new RepositoryItemReaderBuilder<BackupInvoiceEntity>()
@@ -129,7 +130,7 @@ public class BackupBatchConfig {
 	 */
 	private Map<String, Sort.Direction> getSorting() {
 		final Map<String, Sort.Direction> sorting = new HashMap<>();
-		sorting.put("invoiceNumber", Sort.Direction.ASC);
+		sorting.put(SORT_ON, Sort.Direction.ASC);
 
 		return sorting;
 	}

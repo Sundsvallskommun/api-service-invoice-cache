@@ -17,10 +17,10 @@ import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
  */
 @SpringBootTest
 @ActiveProfiles("junit")
-class PdfEntityRepositoryTest {
+class PdfRepositoryTest {
 
 	@Autowired
-	private PdfEntityRepository repository;
+	private PdfRepository repository;
 
 	@Test
 	void create() {

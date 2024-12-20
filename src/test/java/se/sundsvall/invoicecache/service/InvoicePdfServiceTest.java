@@ -25,7 +25,7 @@ import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
 import se.sundsvall.invoicecache.api.model.InvoiceType;
-import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
+import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifications;
 
@@ -36,7 +36,7 @@ class InvoicePdfServiceTest {
 	private InvoicePdfSpecifications specifications;
 
 	@Mock
-	private PdfEntityRepository mockRepository;
+	private PdfRepository mockRepository;
 
 	@InjectMocks
 	private InvoicePdfService pdfService;

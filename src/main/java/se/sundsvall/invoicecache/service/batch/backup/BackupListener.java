@@ -1,5 +1,6 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
+import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -23,10 +24,10 @@ public class BackupListener implements StepExecutionListener {
 	}
 
 	@Override
-	public void beforeStep(final StepExecution stepExecution) {
-		LOG.info("Starting to remove old backups from backup table");
-		repository.deleteAllInBatch();
-		LOG.info("Deleted old backups");
+	public void beforeStep(final @NotNull StepExecution stepExecution) {
+		LOG.info("Starting to truncate backupinvoice table");
+		repository.truncateTable();
+		LOG.info("Truncated backupinvoice table");
 	}
 
 	@Override

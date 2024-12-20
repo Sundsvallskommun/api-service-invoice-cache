@@ -14,13 +14,13 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
 @ExtendWith(MockitoExtension.class)
 class RestoreBackupListenerTest {
 
 	@Mock
-	private InvoiceEntityRepository mockInvoiceRepository;
+	private InvoiceRepository mockInvoiceRepository;
 
 	@Mock
 	private BackupInvoiceRepository mockBackupInvoiceRepository;
@@ -36,12 +36,12 @@ class RestoreBackupListenerTest {
 
 	@Test
 	void testBeforeStep() {
-		doNothing().when(mockInvoiceRepository).deleteAllInBatch();
+		doNothing().when(mockInvoiceRepository).truncateTable();
 		when(mockBackupInvoiceRepository.count()).thenReturn(10L);
 
 		invoiceListener.beforeStep(mockStepExecution);
 
-		verify(mockInvoiceRepository, times(1)).deleteAllInBatch();
+		verify(mockInvoiceRepository, times(1)).truncateTable();
 		verify(mockBackupInvoiceRepository, times(1)).count();
 	}
 

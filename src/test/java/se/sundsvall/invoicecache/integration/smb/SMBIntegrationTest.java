@@ -24,8 +24,8 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
-import se.sundsvall.invoicecache.integration.db.InvoiceEntityRepository;
-import se.sundsvall.invoicecache.integration.db.PdfEntityRepository;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
+import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
@@ -40,10 +40,10 @@ class SMBIntegrationTest {
 	private SMBProperties smbProperties;
 
 	@Mock
-	private PdfEntityRepository pdfRepository;
+	private PdfRepository pdfRepository;
 
 	@Mock
-	private InvoiceEntityRepository invoiceEntityRepository;
+	private InvoiceRepository invoiceRepository;
 
 	@InjectMocks
 	private SMBIntegration smbIntegration;
@@ -60,7 +60,7 @@ class SMBIntegrationTest {
 
 		when(smbProperties.getRemoteDir()).thenReturn("TEST");
 
-		when(invoiceEntityRepository.findByFileNameAndMunicipalityId(fileName, municipalityId))
+		when(invoiceRepository.findByFileNameAndMunicipalityId(fileName, municipalityId))
 			.thenReturn(Optional.ofNullable(InvoiceEntity.builder()
 				.withMunicipalityId(municipalityId)
 				.withOrganizationNumber(orgNr)

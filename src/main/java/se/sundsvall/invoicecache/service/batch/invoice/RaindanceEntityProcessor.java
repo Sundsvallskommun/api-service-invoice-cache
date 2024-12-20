@@ -1,5 +1,6 @@
 package se.sundsvall.invoicecache.service.batch.invoice;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.integration.RaindanceToInvoiceMapper;
@@ -16,7 +17,7 @@ public class RaindanceEntityProcessor implements ItemProcessor<RaindanceQueryRes
 	}
 
 	@Override
-	public InvoiceEntity process(final RaindanceQueryResultDto dto) {
+	public InvoiceEntity process(final @NotNull RaindanceQueryResultDto dto) {
 		return mapper.mapRaindanceDtoToInvoice(dto);
 	}
 }

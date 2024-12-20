@@ -1,5 +1,6 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
+import jakarta.validation.constraints.NotNull;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;
@@ -16,7 +17,7 @@ public class BackupProcessor implements ItemProcessor<InvoiceEntity, BackupInvoi
 	}
 
 	@Override
-	public BackupInvoiceEntity process(final InvoiceEntity invoiceEntity) {
+	public BackupInvoiceEntity process(final @NotNull InvoiceEntity invoiceEntity) {
 		return entityMapper.mapInvoiceEntityToBackupEntity(invoiceEntity);
 	}
 }
