@@ -12,13 +12,12 @@ import jcifs.context.SingletonContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import se.sundsvall.dept44.scheduling.Dept44Scheduled;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
@@ -62,8 +61,10 @@ public class SMBIntegration {
 		}
 	}
 
-	@Scheduled(cron = "${integration.smb.cron}")
-	@SchedulerLock(name = "cacheInvoicePdfs", lockAtMostFor = "${integration.smb.shedlock-lock-at-most-for}")
+	@Dept44Scheduled(cron = "${integration.smb.cron}",
+		name = "${integration.smb.name}",
+		lockAtMostFor = "${integration.smb.shedlock-lock-at-most-for}",
+		maximumExecutionTime = "${integration.smb.maximum-execution-time}")
 	void cacheInvoicePdfs() {
 
 		final long start = System.currentTimeMillis();

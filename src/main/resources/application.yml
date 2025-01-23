@@ -3,12 +3,16 @@ integration:
     connect-timeout: PT5S
     read-timeout: PT10S
   smb:
+    cron: 0 5 * * * MON-FRI
+    name: cacheInvoicePdfs
     shedlock-lock-at-most-for: PT10M
+    maximum-execution-time: PT10M
 invoice:
   scheduled:
-    fixedrate: PT10M
-    initialdelay: PT5S
+    name: invoiceLaunchJob
+    cron: 0 */10 * * * *
     shedlock-lock-at-most-for: PT10M
+    maximum-execution-time: PT10M
 logbook:
   body-filters:
     json-path:

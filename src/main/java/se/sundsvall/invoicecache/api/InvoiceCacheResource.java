@@ -36,8 +36,8 @@ import se.sundsvall.invoicecache.service.InvoicePdfService;
 @RestController
 @RequestMapping(value = "/{municipalityId}/invoices")
 @Tag(name = "Invoice Cache")
-@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(schema = @Schema(implementation = Problem.class)))
-@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(schema = @Schema(implementation = Problem.class)))
+@ApiResponse(responseCode = "400", description = "Bad Request", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
+@ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class InvoiceCacheResource {
 
 	private final InvoiceCacheService invoiceCacheService;
@@ -65,18 +65,18 @@ class InvoiceCacheResource {
 		summary = "Fetch an invoice PDF via filename",
 		responses = {
 			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class)))
+			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class), mediaType = APPLICATION_PROBLEM_JSON_VALUE))
 		})
-	@GetMapping("/{filename}")
+	@GetMapping(value = "/{filename}", produces = APPLICATION_JSON_VALUE)
 	public ResponseEntity<InvoicePdf> getInvoicePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable @NotBlank final String filename) {
-		var invoicePdf = invoicePdfService.getInvoicePdf(filename, municipalityId);
+		final var invoicePdf = invoicePdfService.getInvoicePdf(filename, municipalityId);
 
 		return ok(invoicePdf);
 	}
 
-	@GetMapping("/{issuerlegalid}/{invoicenumber}/pdf")
+	@GetMapping(value = "/{issuerlegalid}/{invoicenumber}/pdf", produces = APPLICATION_JSON_VALUE)
 	@Operation(
 		summary = "Fetch an invoice PDF via issuer legal id and invoice number",
 		responses = @ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true))
@@ -85,7 +85,7 @@ class InvoiceCacheResource {
 		@PathVariable final String issuerlegalid,
 		@PathVariable final String invoicenumber,
 		@ParameterObject @Valid final InvoicePdfFilterRequest request) {
-		var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
+		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
 			invoicenumber, request, municipalityId);
 
 		return ok(invoicePdf);
@@ -94,13 +94,11 @@ class InvoiceCacheResource {
 	@Operation(
 		summary = "Create/import an invoice",
 		responses = @ApiResponse(responseCode = "201", description = "Created", content = @Content(mediaType = ALL_VALUE), useReturnTypeSchema = true))
-	@PostMapping(consumes = APPLICATION_JSON_VALUE, produces = {
-		ALL_VALUE, APPLICATION_PROBLEM_JSON_VALUE
-	})
+	@PostMapping(consumes = APPLICATION_JSON_VALUE, produces = ALL_VALUE)
 	public ResponseEntity<Void> importInvoice(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@Valid @RequestBody final InvoicePdfRequest request) {
-		var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request, municipalityId);
+		final var invoiceFilename = invoicePdfService.createOrUpdateInvoice(request, municipalityId);
 
 		return ResponseEntity.created(fromPath("/" + municipalityId + "/invoices/{filename}").buildAndExpand(invoiceFilename).toUri())
 			.header(HttpHeaders.CONTENT_TYPE, ALL_VALUE)
