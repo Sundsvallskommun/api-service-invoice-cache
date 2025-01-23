@@ -10,7 +10,7 @@ integration:
 invoice:
   scheduled:
     name: invoiceLaunchJob
-    cron: 0 */10 * * * *
+    cron: "* * * * * *"
     shedlock-lock-at-most-for: PT10M
     maximum-execution-time: PT10M
 logbook:

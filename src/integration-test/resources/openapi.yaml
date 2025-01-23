@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "3.0"
 servers:
-  - url: http://localhost:8080
+  - url: http://localhost:53429
     description: Generated server url
 paths:
   /{municipalityId}/invoices:
