@@ -9,11 +9,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Optional;
 import jcifs.smb.SmbFileInputStream;
 import org.hibernate.engine.jdbc.BlobProxy;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Answers;
@@ -24,6 +26,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
+import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
@@ -36,6 +39,9 @@ class SMBIntegrationTest {
 
 	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
 
+	@Mock
+	private Dept44HealthUtility dept44HealthUtilityMock;
+
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
 	private SMBProperties smbProperties;
 
@@ -47,6 +53,14 @@ class SMBIntegrationTest {
 
 	@InjectMocks
 	private SMBIntegration smbIntegration;
+
+	@BeforeEach
+	void setup() throws NoSuchFieldException, IllegalAccessException {
+
+		final Field field = SMBIntegration.class.getDeclaredField("jobName");
+		field.setAccessible(true);
+		field.set(smbIntegration, "jobName");
+	}
 
 	@Test
 	void findPdf_successfully() throws IOException {
@@ -103,6 +117,7 @@ class SMBIntegrationTest {
 			verify(pdfRepository).findByFilenameAndMunicipalityId(fileName, municipalityId);
 			verify(pdfRepository, times(1)).save(any());
 			verifyNoMoreInteractions(pdfRepository);
+			verifyNoInteractions(dept44HealthUtilityMock);
 		}
 	}
 
@@ -115,6 +130,7 @@ class SMBIntegrationTest {
 		smbIntegration.findPdf(file, municipalityId);
 		// Assert
 		assertThat(output).contains("Something went wrong when trying to save file");
+		verify(dept44HealthUtilityMock).setHealthIndicatorUnhealthy("jobName", "Unable to save file when trying to cache pdfs.");
 		verifyNoInteractions(pdfRepository);
 	}
 
@@ -122,6 +138,8 @@ class SMBIntegrationTest {
 	void tryCache_ThrowsError(final CapturedOutput output) {
 		smbIntegration.cacheInvoicePdfs();
 		assertThat(output).contains("Something went wrong when trying to cache pdf");
+		verify(dept44HealthUtilityMock).setHealthIndicatorUnhealthy("jobName", "Something went wrong when trying to cache pdfs");
+
 	}
 
 	@Test

@@ -15,9 +15,11 @@ import jcifs.smb.SmbFileInputStream;
 import org.hibernate.engine.jdbc.BlobProxy;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.scheduling.Dept44Scheduled;
+import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
@@ -27,25 +29,23 @@ import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 public class SMBIntegration {
 
 	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
-
 	private static final String MUNICIPALITY_ID = "2281";
-
 	private static final Logger logger = LoggerFactory.getLogger(SMBIntegration.class);
-
 	private final PdfRepository pdfRepository;
-
 	private final InvoiceRepository invoiceRepository;
-
 	private final SMBProperties properties;
-
+	private final Dept44HealthUtility dept44HealthUtility;
 	private final String sourceUrl;
+	@Value("${integration.smb.name}")
+	private String jobName;
 
-	SMBIntegration(final PdfRepository pdfRepository, final InvoiceRepository invoiceRepository, final SMBProperties properties) {
+	SMBIntegration(final PdfRepository pdfRepository, final InvoiceRepository invoiceRepository, final SMBProperties properties, final Dept44HealthUtility dept44HealthUtility) {
 		this.pdfRepository = pdfRepository;
 		this.invoiceRepository = invoiceRepository;
 		this.properties = properties;
 		sourceUrl = "smb://" + properties.getDomain() +
 			properties.getShareAndDir() + properties.getRemoteDir();
+		this.dept44HealthUtility = dept44HealthUtility;
 	}
 
 	static boolean isAfterYesterday(final long lastModified) {
@@ -76,6 +76,7 @@ public class SMBIntegration {
 
 		} catch (final CIFSException | MalformedURLException e) {
 			logger.warn("Something went wrong when trying to cache pdf", e);
+			dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, "Something went wrong when trying to cache pdfs");
 		}
 		final long end = System.currentTimeMillis();
 		logger.info("Caching of invoice pdfs completed in {} seconds", (end - start) / 1000);
@@ -109,6 +110,8 @@ public class SMBIntegration {
 			}
 		} catch (final IOException e) {
 			logger.warn("Something went wrong when trying to save file", e);
+			dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, "Unable to save file when trying to cache pdfs.");
+
 		}
 		return null;
 	}
