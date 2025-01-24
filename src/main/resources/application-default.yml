@@ -13,8 +13,10 @@ integration:
     user: ${env.INTEGRATION_SMB_USER}
 invoice:
   scheduled:
-    fixedrate: PT25M
-    initialdelay: PT5S
+    cron: "0 */10 * * * *"
+    name: invoiceLaunchJob
+    shedlock-lock-at-most-for: PT10M
+    maximum-execution-time: PT10M
 raindance:
   invoice:
     outdated: PT5M

@@ -5,7 +5,6 @@ import static se.sundsvall.invoicecache.service.batch.backup.BackupBatchConfig.R
 import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 import java.util.Date;
-import net.javacrumbs.shedlock.spring.annotation.SchedulerLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -21,7 +20,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
-import org.springframework.scheduling.annotation.Scheduled;
+import se.sundsvall.dept44.scheduling.Dept44Scheduled;
 import se.sundsvall.invoicecache.service.batch.JobHelper;
 
 @Configuration
@@ -38,11 +37,11 @@ public class Scheduler {
 	private final boolean schedulingIsEnabled;
 
 	public Scheduler(final JobLauncher jobLauncher,
-		@Qualifier(RAINDANCE_JOB_NAME) Job invoiceJob,
-		@Qualifier(BACKUP_JOB_NAME) Job backupJob,
-		@Qualifier(RESTORE_BACKUP_JOB_NAME) Job restoreBackupJob,
+		@Qualifier(RAINDANCE_JOB_NAME) final Job invoiceJob,
+		@Qualifier(BACKUP_JOB_NAME) final Job backupJob,
+		@Qualifier(RESTORE_BACKUP_JOB_NAME) final Job restoreBackupJob,
 		final JobHelper jobHelper,
-		@Value("${invoices.scheduling.enabled:true}") boolean schedulingIsEnabled) {
+		@Value("${invoices.scheduling.enabled:true}") final boolean schedulingIsEnabled) {
 		this.jobLauncher = jobLauncher;
 		this.backupJob = backupJob;
 		this.invoiceJob = invoiceJob;
@@ -52,16 +51,18 @@ public class Scheduler {
 	}
 
 	/**
-	 * Run with an initial delay of 5 seconds when the application starts.
-	 * Then run every 10 minutes.
+	 * Run with an initial delay of 5 seconds when the application starts. Then run every 10 minutes.
 	 *
 	 * @throws JobInstanceAlreadyCompleteException
 	 * @throws JobExecutionAlreadyRunningException
 	 * @throws JobParametersInvalidException
 	 * @throws JobRestartException
 	 */
-	@Scheduled(initialDelayString = "${invoice.scheduled.initialdelay}", fixedRateString = "${invoice.scheduled.fixedrate}")
-	@SchedulerLock(name = "invoiceLaunchJob", lockAtMostFor = "${invoice.scheduled.shedlock-lock-at-most-for}")
+	@Dept44Scheduled(
+		cron = "${invoice.scheduled.cron}",
+		name = "${invoice.scheduled.name}",
+		lockAtMostFor = "${invoice.scheduled.shedlock-lock-at-most-for}",
+		maximumExecutionTime = "${invoice.scheduled.maximum-execution-time}")
 	public void launchJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 		// Only run if scheduling is enabled
 		if (schedulingIsEnabled) {
@@ -92,9 +93,7 @@ public class Scheduler {
 	}
 
 	/**
-	 * Uses a StepListener to handle the steps.
-	 * "before" step will clean the DB.
-	 * "after" step will only print some info.
+	 * Uses a StepListener to handle the steps. "before" step will clean the DB. "after" step will only print some info.
 	 *
 	 * @return
 	 * @throws JobInstanceAlreadyCompleteException
@@ -122,8 +121,8 @@ public class Scheduler {
 	}
 
 	/**
-	 * Restores a backup and replaces the invoices in case reading of invoices was not successful
-	 * Uses a StepListener to delete old invoices before restoring them from a backup.
+	 * Restores a backup and replaces the invoices in case reading of invoices was not successful Uses a StepListener to
+	 * delete old invoices before restoring them from a backup.
 	 *
 	 * @throws JobInstanceAlreadyCompleteException
 	 * @throws JobExecutionAlreadyRunningException
