@@ -1,4 +1,4 @@
-# TemplateSpringBoot
+# InvoiceCache
 
 A service for caching invoice information from Raindance and storing them in a local database.
 It also serves as a storage for invoices in pdf format.
@@ -52,6 +52,7 @@ This microservice depends on the following services:
   - **Purpose:** Used for translating between party id and legal id.
   - **Repository:** [https://github.com/Sundsvallskommun/api-service-party](https://github.com/Sundsvallskommun/api-service-party)
   - **Setup Instructions:** See documentation in repository above for installation and configuration steps.
+  - **Configuration**: See [Key Configuration Parameters](#key-configuration-parameters) for configuration regarding the Party service.
 
 Ensure that these services are running and properly configured before starting this microservice.
 
@@ -67,8 +68,10 @@ Refer to the [API Documentation](#api-documentation) for detailed information on
 
 ### Example Request
 
+Example request for fetching an invoice in PDF format:
+
 ```bash
-curl -X GET http://localhost:8080/api/resource
+curl -X 'GET' 'http://localhost:8080/2281/invoices/filename.pdf' -H 'accept: application/json'
 ```
 
 ## Configuration
@@ -111,14 +114,24 @@ instance of the Raindance database to create tables and insert test data into it
   spring:
     datasource:
       driver-class-name: org.mariadb.jdbc.Driver
-      url: jdbc:mysql://localhost:3306/your_database
+      url: jdbc:mysql://database_url:3306/your_database
       username: your_db_username
       password: your_db_password
     raindance-datasource:
       driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
       username: sa
       password: raindance_password
-      url: jdbc:sqlserver://localhost:1433;databaseName=master;encrypt=false
+      url: jdbc:sqlserver://raindance_url:1433;databaseName=master;encrypt=false
+  ```
+- **Party Service Configuration:**
+
+  ```yaml
+  integration:
+    party:
+      url: http://party_service_url
+      oauth2-token-url: http://token_service_url
+      oauth2-client-id: some-client-id
+      oauth2-client-secret: some-client-secret
   ```
 
 ### Additional Notes
