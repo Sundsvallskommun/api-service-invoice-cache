@@ -5,7 +5,7 @@ integration:
         oauth2-token-url: http://localhost:${wiremock.server.port}/token
         url: http://localhost:${wiremock.server.port}/party
     smb:
-        cron: 0 30 5 * * MON-FRI
+        cron: '0 30 5 * * MON-FRI'
         domain: domain.local
         password: password
         remoteDir: /
@@ -13,6 +13,7 @@ integration:
         user: user
 invoice:
     scheduled:
+        cron: '* * * * * *'
         fixedrate: PT1H
         initialdelay: PT0S
 raindance:
