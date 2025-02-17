@@ -13,7 +13,7 @@ integration:
     user: ${env.INTEGRATION_SMB_USER}
 invoice:
   scheduled:
-    cron: "0 */10 * * * *"
+    cron: '0 */10 * * * *'
     name: invoiceLaunchJob
     shedlock-lock-at-most-for: PT10M
     maximum-execution-time: PT10M

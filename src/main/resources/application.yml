@@ -3,14 +3,14 @@ integration:
     connect-timeout: PT5S
     read-timeout: PT10S
   smb:
-    cron: 0 5 * * * MON-FRI
+    cron: '0 0 5 * * MON-FRI' # 05:00 on weekdays
     name: cacheInvoicePdfs
-    shedlock-lock-at-most-for: PT10M
-    maximum-execution-time: PT10M
+    shedlock-lock-at-most-for: PT1H
+    maximum-execution-time: PT1H
 invoice:
   scheduled:
     name: invoiceLaunchJob
-    cron: "* * * * * *"
+    cron: '0 0 * * * *' # every hour
     shedlock-lock-at-most-for: PT10M
     maximum-execution-time: PT10M
 logbook:
