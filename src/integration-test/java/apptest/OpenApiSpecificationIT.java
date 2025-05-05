@@ -4,13 +4,10 @@ import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
 import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
 import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.List;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.dataformat.yaml.YAMLMapper;
+import java.util.List;
+import net.javacrumbs.jsonunit.core.Option;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -27,11 +24,8 @@ import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-
 import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.invoicecache.Application;
-
-import net.javacrumbs.jsonunit.core.Option;
 
 @ActiveProfiles("it")
 @SpringBootTest(
@@ -41,8 +35,7 @@ import net.javacrumbs.jsonunit.core.Option;
 		"spring.main.banner-mode=off",
 		"logging.level.se.sundsvall.dept44.payload=OFF",
 		"wiremock.server.port=10101"
-	}
-)
+	})
 @Testcontainers
 class OpenApiSpecificationIT {
 
@@ -92,11 +85,7 @@ class OpenApiSpecificationIT {
 	void compareOpenApiSpecifications() {
 		final String existingOpenApiSpecification = ResourceUtils.asString(openApiResource);
 		final String currentOpenApiSpecification = getCurrentOpenApiSpecification();
-try {
-	Files.writeString(Paths.get("/tmp/openapi.yml"), currentOpenApiSpecification);
-} catch (IOException e) {
-	throw new RuntimeException(e);
-}
+
 		assertThatJson(toJson(currentOpenApiSpecification))
 			.withOptions(List.of(Option.IGNORING_ARRAY_ORDER))
 			.whenIgnoringPaths("servers")
@@ -119,8 +108,8 @@ try {
 	/**
 	 * Attempts to convert the given YAML (no YAML-check...) to JSON.
 	 *
-	 * @param yaml the YAML to convert
-	 * @return a JSON string
+	 * @param  yaml the YAML to convert
+	 * @return      a JSON string
 	 */
 	private String toJson(final String yaml) {
 		try {
