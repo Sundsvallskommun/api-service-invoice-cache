@@ -13,7 +13,7 @@
 	<version>3.0</version>
 	<name>api-service-invoice-cache</name>
 	<properties>
-		<commons-validator.version>1.9.0</commons-validator.version>
+		<commons-validator.version>1.10.0</commons-validator.version>
 		<jackson-databind-nullable.version>0.2.6</jackson-databind-nullable.version>
 		<jcifs-ng.version>2.1.10</jcifs-ng.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
