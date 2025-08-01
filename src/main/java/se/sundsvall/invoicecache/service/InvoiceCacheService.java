@@ -1,5 +1,7 @@
 package se.sundsvall.invoicecache.service;
 
+import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
+
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import se.sundsvall.dept44.util.LogUtils;
 import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoiceMapper;
@@ -58,7 +61,7 @@ public class InvoiceCacheService {
 
 			// Set the fetched legalIds in the request.
 			request.setLegalIds(legalIdPartyIdMap.keySet().stream().toList());
-			LOG.info("legalIds to look for: {}", request.getLegalIds());
+			LOG.info("legalIds to look for: {}", request.getLegalIds().stream().map(LogUtils::sanitizeForLogging).toList());
 		}
 
 		// Find all invoices matching the request, map them and add them to the response.
