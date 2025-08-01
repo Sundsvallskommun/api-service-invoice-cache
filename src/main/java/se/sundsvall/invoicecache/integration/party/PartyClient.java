@@ -4,6 +4,7 @@ import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 /**
@@ -24,6 +25,7 @@ public class PartyClient {
 	 * @param  partyId the partyId to get legalIds for
 	 * @return         a legalIds for the partyId
 	 */
+	@Cacheable("legalIds")
 	public String getLegalIdsFromParty(final String partyId, final String municipalityId) {
 
 		return partyIntegration.getLegalId(municipalityId, PRIVATE, partyId)
