@@ -57,7 +57,7 @@ class JobHelperTest {
 		final var jobName = setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.COMPLETED);
 
 		final var successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
-		assertThat(successfulJobWithinTimePeriod.isPresent()).isTrue();
+		assertThat(successfulJobWithinTimePeriod).isPresent();
 	}
 
 	@Test
@@ -65,7 +65,7 @@ class JobHelperTest {
 		final var jobName = setupGetSuccessfulJobMethod(LocalDateTime.now().minusDays(7L), ExitStatus.COMPLETED);
 
 		final var successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
-		assertThat(successfulJobWithinTimePeriod.isPresent()).isFalse();
+		assertThat(successfulJobWithinTimePeriod).isEmpty();
 	}
 
 	@Test
@@ -73,7 +73,7 @@ class JobHelperTest {
 		final var jobName = setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.FAILED);
 
 		final var successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
-		assertThat(successfulJobWithinTimePeriod.isPresent()).isFalse();
+		assertThat(successfulJobWithinTimePeriod).isEmpty();
 	}
 
 	@Test
@@ -81,7 +81,7 @@ class JobHelperTest {
 		final var jobName = setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.FAILED);// Ignore job name, we want to get a job that doesn't exist.
 		when(mockJobExplorer.getJobInstanceCount(jobName)).thenThrow(new NoSuchJobException("missing job"));
 		final var successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
-		assertThat(successfulJobWithinTimePeriod.isPresent()).isFalse();
+		assertThat(successfulJobWithinTimePeriod).isEmpty();
 	}
 
 	@Test
