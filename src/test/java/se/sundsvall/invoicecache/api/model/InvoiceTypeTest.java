@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.api.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,14 +8,14 @@ class InvoiceTypeTest {
 
 	@Test
 	void testValuesHaveNotChanged() {
-		assertEquals(7, InvoiceType.values().length);
+		assertThat(InvoiceType.values()).hasSize(7);
 
-		assertEquals("Faktura", InvoiceType.INVOICE.getType());
-		assertEquals("Kreditfaktura", InvoiceType.CREDIT_INVOICE.getType());
-		assertEquals("Autogiro", InvoiceType.DIRECT_DEBIT.getType());
-		assertEquals("Självfaktura", InvoiceType.SELF_INVOICE.getType());
-		assertEquals("Påminnelse", InvoiceType.REMINDER.getType());
-		assertEquals("Samlingsfaktura", InvoiceType.CONSOLIDATED_INVOICE.getType());
-		assertEquals("Slutfaktura", InvoiceType.FINAL_INVOICE.getType());
+		assertThat(InvoiceType.INVOICE.getType()).isEqualTo("Faktura");
+		assertThat(InvoiceType.CREDIT_INVOICE.getType()).isEqualTo("Kreditfaktura");
+		assertThat(InvoiceType.DIRECT_DEBIT.getType()).isEqualTo("Autogiro");
+		assertThat(InvoiceType.SELF_INVOICE.getType()).isEqualTo("Självfaktura");
+		assertThat(InvoiceType.REMINDER.getType()).isEqualTo("Påminnelse");
+		assertThat(InvoiceType.CONSOLIDATED_INVOICE.getType()).isEqualTo("Samlingsfaktura");
+		assertThat(InvoiceType.FINAL_INVOICE.getType()).isEqualTo("Slutfaktura");
 	}
 }

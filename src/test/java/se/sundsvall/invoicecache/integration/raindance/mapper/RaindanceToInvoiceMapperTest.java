@@ -1,4 +1,4 @@
-package se.sundsvall.invoicecache.integration;
+package se.sundsvall.invoicecache.integration.raindance.mapper;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;

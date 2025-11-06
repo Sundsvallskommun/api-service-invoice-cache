@@ -1,21 +1,22 @@
-package se.sundsvall.invoicecache.api.model;
+package se.sundsvall.invoicecache.service;
 
 import static java.time.LocalDate.now;
 import static java.util.Objects.nonNull;
 
 import java.math.RoundingMode;
 import org.springframework.stereotype.Component;
+import se.sundsvall.invoicecache.api.model.Address;
+import se.sundsvall.invoicecache.api.model.Invoice;
+import se.sundsvall.invoicecache.api.model.InvoiceStatus;
+import se.sundsvall.invoicecache.api.model.InvoiceType;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 
 @Component
 public class InvoiceMapper {
 
 	/**
-	 * Map entity to response. Since we don't want to expose legalId, it will be fetched from
-	 * the service layer and inserted here.
-	 *
-	 * @param  entity
-	 * @return
+	 * Map entity to response. Since we don't want to expose legalId, it will be fetched from the service layer and inserted
+	 * here.
 	 */
 	public Invoice entityToInvoice(final InvoiceEntity entity) {
 		// Don't map legalId!
@@ -57,10 +58,8 @@ public class InvoiceMapper {
 	}
 
 	/**
-	 * Calculates the amount without VAT, calculation is done on the invoice object since the entity
-	 * probably contains negative values for totalAmount.
-	 *
-	 * @param invoice
+	 * Calculates the amount without VAT, calculation is done on the invoice object since the entity probably contains
+	 * negative values for totalAmount.
 	 */
 	private void calculateAmountExcludingVat(Invoice invoice) {
 		// Subtract the vat amount from total amount.
@@ -89,10 +88,8 @@ public class InvoiceMapper {
 	}
 
 	/**
-	 * If an invoice has a reminder date after its invoice due date, and
-	 * it has a valid status for e reminder, it's a reminder.
-	 *
-	 * @param invoice
+	 * If an invoice has a reminder date after its invoice due date, and it has a valid status for e reminder, it's a
+	 * reminder.
 	 */
 	void determineIfReminder(Invoice invoice) {
 		if (invoiceReminderDateIsAfterInvoiceDueDate(invoice) && invoiceHasStatusValidForReminder(invoice)) {
@@ -102,9 +99,6 @@ public class InvoiceMapper {
 
 	/**
 	 * If reminder date is after invoice due date, it's a reminder
-	 *
-	 * @param  invoice
-	 * @return
 	 */
 	boolean invoiceReminderDateIsAfterInvoiceDueDate(Invoice invoice) {
 		if (invoice.getInvoiceReminderDate() == null) {
@@ -114,12 +108,8 @@ public class InvoiceMapper {
 	}
 
 	/**
-	 * Determine if the invoice has a status that is valid for a reminder.
-	 * If it's not paid in full, it's valid for the "REMINDER" status.
-	 * E.g if it's a debt collection etc it's not ok to set it as a reminder.
-	 *
-	 * @param  invoice
-	 * @return
+	 * Determine if the invoice has a status that is valid for a reminder. If it's not paid in full, it's valid for the
+	 * "REMINDER" status. E.g if it's a debt collection etc it's not ok to set it as a reminder.
 	 */
 	boolean invoiceHasStatusValidForReminder(Invoice invoice) {
 		return (invoice.getInvoiceStatus() == InvoiceStatus.UNPAID)
@@ -127,8 +117,8 @@ public class InvoiceMapper {
 	}
 
 	/**
-	 * Check if we should set the "SENT" status on the invoice.
-	 * It is sent only if the invoice has a print date that's before the invoice date, and the invoice date haven't passed.
+	 * Check if we should set the "SENT" status on the invoice. It is sent only if the invoice has a print date that's
+	 * before the invoice date, and the invoice date haven't passed.
 	 *
 	 * @param invoice to compare against the invoice date
 	 * @param entity  to get hold of the print date for the invoice

@@ -10,7 +10,6 @@ import static org.springframework.http.HttpStatus.OK;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -19,7 +18,6 @@ import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.invoicecache.Application;
 
@@ -28,6 +26,8 @@ import se.sundsvall.invoicecache.Application;
 class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 
 	private static final String PATH = "/2281/invoices";
+	private static final String REQUEST = "request.json";
+	private static final String EXPECTED = "expected.json";
 
 	@Container
 	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
@@ -43,9 +43,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 	}
 
 	/**
-	 * get the url, user and password from the container and set them in the context.
-	 *
-	 * @param registry
+	 * gGet the url, user and password from the container and set them in the context.
 	 */
 	@DynamicPropertySource
 	static void registerProperties(final DynamicPropertyRegistry registry) {
@@ -70,7 +68,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 			.withServicePath(PATH + "?page=1&limit=100&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&partyIds=fb2f0290-3820-11ed-a261-0242ac120003")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("expected.json")
+			.withExpectedResponse(EXPECTED)
 			.sendRequestAndVerifyResponse();
 	}
 
@@ -82,12 +80,12 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 			.withServicePath(PATH + "?page=1&limit=10&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("expected.json")
+			.withExpectedResponse(EXPECTED)
 			.sendRequestAndVerifyResponse();
 	}
 
 	@Test
-	void test3_findSingleInvoiceUsingAllFields_shouldFindByCriterias() {
+	void test3_findSingleInvoiceUsingAllFields_shouldFindByCriteria() {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
@@ -95,7 +93,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 				"&dueDateTo=" + now().minusMonths(10) + "&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumbers=53626804")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("expected.json")
+			.withExpectedResponse(EXPECTED)
 			.sendRequestAndVerifyResponse();
 	}
 
@@ -107,7 +105,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 			.withServicePath(PATH + "?page=1&limit=100&invoiceDateFrom=2022-08-09&invoiceDateTo=2022-08-09&partyIds=fb2f0290-3820-11ed-a261-0242ac120002&ocrNumber=34563464&invoiceNumber=53626804")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("expected.json")
+			.withExpectedResponse(EXPECTED)
 			.sendRequestAndVerifyResponse();
 	}
 
@@ -119,7 +117,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 			.withServicePath(PATH + "?page=1&limit=100&invoiceDateFrom=" + now().minusMonths(12) + "&invoiceDateTo=" + now().minusMonths(11) + "&invoiceNumbers=53626800")
 			.withHttpMethod(GET)
 			.withExpectedResponseStatus(OK)
-			.withExpectedResponse("expected.json")
+			.withExpectedResponse(EXPECTED)
 			.sendRequestAndVerifyResponse();
 	}
 
@@ -128,7 +126,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 		setupCall()
 			.withServicePath(PATH)
 			.withHttpMethod(POST)
-			.withRequest("request.json")
+			.withRequest(REQUEST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader("Location", List.of("^" + PATH + "/(.*)$"))
 			.sendRequestAndVerifyResponse();

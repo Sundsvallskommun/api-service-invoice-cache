@@ -23,14 +23,13 @@ import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;
-import se.sundsvall.invoicecache.integration.raindance.RaindanceRowMapper;
+import se.sundsvall.invoicecache.integration.raindance.mapper.RaindanceRowMapper;
 
 @Configuration
 @EnableBatchProcessing(dataSourceRef = "raindanceDataSource")
 public class BatchConfig {
 
 	private static final Logger LOG = LoggerFactory.getLogger(BatchConfig.class);
-
 	private static final int CHUNK_SIZE = 2000;
 
 	public static final String RAINDANCE_JOB_NAME = "raindanceInvoiceJob";
@@ -41,7 +40,7 @@ public class BatchConfig {
 	private final InvoiceRepository invoiceRepository;
 	private final InvoiceListener invoiceListener;
 
-	public BatchConfig(@Value("classpath:${raindance.sql.filename}") Resource sqlResource,
+	public BatchConfig(@Value("classpath:${raindance.sql.filename}") final Resource sqlResource,
 		final RaindanceEntityProcessor raindanceEntityProcessor,
 		final InvoiceRepository invoiceRepository,
 		final InvoiceListener invoiceListener) {
@@ -53,11 +52,8 @@ public class BatchConfig {
 
 	/**
 	 * Read invoices from the raindance-DB
-	 *
-	 * @param  dataSource
-	 * @return
 	 */
-	public JdbcCursorItemReader<RaindanceQueryResultDto> raindanceReader(DataSource dataSource) {
+	public JdbcCursorItemReader<RaindanceQueryResultDto> raindanceReader(final DataSource dataSource) {
 		return new JdbcCursorItemReaderBuilder<RaindanceQueryResultDto>()
 			.dataSource(dataSource)
 			.name("raindanceItemReader")
@@ -65,20 +61,15 @@ public class BatchConfig {
 			.saveState(false)   // No need to restart the job
 			.fetchSize(CHUNK_SIZE)
 			.verifyCursorPosition(false)    // For some reason it fails without this, even with a "clean" database.
-			.rowMapper(new RaindanceRowMapper())
+			.rowMapper(new RaindanceRowMapper())  // Calls mapRow(ResultSet resultSet, int rowNum) for each row which maps each row to a RaindanceQueryResultDto
 			.build();
 	}
 
 	/**
-	 * Defines which steps to use, they are:
-	 * - Read from raindance
-	 * - "Process" the received data, basically turn them into entities
-	 * - Write it to our own database.
-	 *
-	 * @param  dataSource
-	 * @return
+	 * Defines which steps to use, they are: - Read from raindance - "Process" the received data, basically turn them into
+	 * entities - Write it to our own database.
 	 */
-	public Step step1(DataSource dataSource, JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+	public Step step1(final DataSource dataSource, final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		LOG.info("Creating step1 for reading, processing and writing invoices.");
 		return new StepBuilder("invoiceStep", jobRepository)
 			.<RaindanceQueryResultDto, InvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
@@ -91,10 +82,7 @@ public class BatchConfig {
 	}
 
 	/**
-	 * Writes items to our DB.
-	 * No save method specified which implies to use "saveAll"-method
-	 *
-	 * @return
+	 * Writes items to our DB. No save method specified which implies to use "saveAll"-method
 	 */
 	public RepositoryItemWriter<InvoiceEntity> invoiceEntityWriter() {
 		return new RepositoryItemWriterBuilder<InvoiceEntity>()
@@ -109,7 +97,7 @@ public class BatchConfig {
 	 * @return            the job
 	 */
 	@Bean(name = RAINDANCE_JOB_NAME)
-	Job startJob(@Qualifier("raindanceDataSource") DataSource dataSource, JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+	Job startJob(@Qualifier("raindanceDataSource") final DataSource dataSource, final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		return new JobBuilder(RAINDANCE_JOB_NAME, jobRepository)
 			.start(step1(dataSource, jobRepository, transactionManager))
 			.build();

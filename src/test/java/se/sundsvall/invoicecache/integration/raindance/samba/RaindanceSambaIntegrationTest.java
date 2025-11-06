@@ -1,4 +1,4 @@
-package se.sundsvall.invoicecache.integration.smb;
+package se.sundsvall.invoicecache.integration.raindance.samba;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -35,7 +35,7 @@ import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 @ExtendWith({
 	MockitoExtension.class, OutputCaptureExtension.class
 })
-class SMBIntegrationTest {
+class RaindanceSambaIntegrationTest {
 
 	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
 
@@ -43,7 +43,7 @@ class SMBIntegrationTest {
 	private Dept44HealthUtility dept44HealthUtilityMock;
 
 	@Mock(answer = Answers.CALLS_REAL_METHODS)
-	private SMBProperties smbProperties;
+	private RaindanceSambaProperties raindanceSambaProperties;
 
 	@Mock
 	private PdfRepository pdfRepository;
@@ -52,14 +52,14 @@ class SMBIntegrationTest {
 	private InvoiceRepository invoiceRepository;
 
 	@InjectMocks
-	private SMBIntegration smbIntegration;
+	private RaindanceSambaIntegration raindanceSambaIntegration;
 
 	@BeforeEach
 	void setup() throws NoSuchFieldException, IllegalAccessException {
 
-		final Field field = SMBIntegration.class.getDeclaredField("jobName");
+		final Field field = RaindanceSambaIntegration.class.getDeclaredField("jobName");
 		field.setAccessible(true);
-		field.set(smbIntegration, "jobName");
+		field.set(raindanceSambaIntegration, "jobName");
 	}
 
 	@Test
@@ -72,7 +72,7 @@ class SMBIntegrationTest {
 		final var invoiceNumber = "someInvoiceNumber";
 		final var municipalityId = "2281";
 
-		when(smbProperties.getRemoteDir()).thenReturn("TEST");
+		when(raindanceSambaProperties.remoteDir()).thenReturn("TEST");
 
 		when(invoiceRepository.findByFileNameAndMunicipalityId(fileName, municipalityId))
 			.thenReturn(Optional.ofNullable(InvoiceEntity.builder()
@@ -98,7 +98,7 @@ class SMBIntegrationTest {
 				when(mock.readAllBytes()).thenReturn(new byte[] {});// any additional mocking
 			})) {
 
-			final var result = smbIntegration.findPdf(fileName, municipalityId);
+			final var result = raindanceSambaIntegration.findPdf(fileName, municipalityId);
 
 			// Assert
 			assertThat(result).isNotNull();
@@ -127,7 +127,7 @@ class SMBIntegrationTest {
 		final var file = "";
 		final var municipalityId = "2281";
 		// Act
-		smbIntegration.findPdf(file, municipalityId);
+		raindanceSambaIntegration.findPdf(file, municipalityId);
 		// Assert
 		assertThat(output).contains("Something went wrong when trying to save file");
 		verify(dept44HealthUtilityMock).setHealthIndicatorUnhealthy("jobName", "Unable to save file when trying to cache pdfs.");
@@ -136,7 +136,7 @@ class SMBIntegrationTest {
 
 	@Test
 	void tryCache_ThrowsError(final CapturedOutput output) {
-		smbIntegration.cacheInvoicePdfs();
+		raindanceSambaIntegration.cacheInvoicePdfs();
 		assertThat(output).contains("Something went wrong when trying to cache pdf");
 		verify(dept44HealthUtilityMock).setHealthIndicatorUnhealthy("jobName", "Something went wrong when trying to cache pdfs");
 
@@ -144,14 +144,14 @@ class SMBIntegrationTest {
 
 	@Test
 	void isDateAfterYesterday_true() {
-		final var result = SMBIntegration.isAfterYesterday(System.currentTimeMillis());
+		final var result = RaindanceSambaIntegration.isAfterYesterday(System.currentTimeMillis());
 		assertThat(result).isTrue();
 	}
 
 	@Test
 	void isDateAfterYesterday_False() {
 		final var testValue = LocalDateTime.now().minusDays(2).atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-		final var result = SMBIntegration.isAfterYesterday(testValue);
+		final var result = RaindanceSambaIntegration.isAfterYesterday(testValue);
 		assertThat(result).isFalse();
 	}
 

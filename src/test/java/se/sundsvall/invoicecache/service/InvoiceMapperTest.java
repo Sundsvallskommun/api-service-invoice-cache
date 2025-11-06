@@ -1,4 +1,4 @@
-package se.sundsvall.invoicecache.api.model;
+package se.sundsvall.invoicecache.service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -8,6 +8,9 @@ import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import se.sundsvall.invoicecache.TestObjectFactory;
+import se.sundsvall.invoicecache.api.model.Invoice;
+import se.sundsvall.invoicecache.api.model.InvoiceStatus;
+import se.sundsvall.invoicecache.api.model.InvoiceType;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 
 @ExtendWith(SoftAssertionsExtension.class)
@@ -17,8 +20,8 @@ class InvoiceMapperTest {
 
 	@Test
 	void testEntityToInvoice(final SoftAssertions softly) {
-		InvoiceEntity entity = TestObjectFactory.generateInvoiceEntity();
-		final Invoice invoice = mapper.entityToInvoice(entity);
+		final var entity = TestObjectFactory.generateInvoiceEntity();
+		final var invoice = mapper.entityToInvoice(entity);
 
 		softly.assertThat(invoice.getAmountVatExcluded()).isEqualByComparingTo(BigDecimal.valueOf(80).setScale(2, RoundingMode.HALF_EVEN));
 		softly.assertThat(invoice.getCustomerName()).isEqualTo("Kalle Anka");
@@ -41,19 +44,19 @@ class InvoiceMapperTest {
 
 	@Test
 	void testEntityWithNegativeAmount_shouldHaveInvoiceTypeCredit(final SoftAssertions softly) {
-		InvoiceEntity entity = TestObjectFactory.generateInvoiceEntity();
+		final var entity = TestObjectFactory.generateInvoiceEntity();
 
 		entity.setInvoiceAmount(BigDecimal.valueOf(-1).setScale(2, RoundingMode.HALF_EVEN));
-		final Invoice invoice = mapper.entityToInvoice(entity);
+		final var invoice = mapper.entityToInvoice(entity);
 		softly.assertThat(invoice.getInvoiceType()).isEqualTo(InvoiceType.CREDIT_INVOICE);
 	}
 
 	@Test
 	void testPaidNormalInvoice_shouldHavePositiveAmounts(final SoftAssertions softly) {
-		InvoiceEntity entity = TestObjectFactory.generateInvoiceEntity();
+		final var entity = TestObjectFactory.generateInvoiceEntity();
 		entity.setInvoiceAmount(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		entity.setPaidAmount(BigDecimal.valueOf(-100).setScale(2, RoundingMode.HALF_EVEN));
-		final Invoice invoice = mapper.entityToInvoice(entity);
+		final var invoice = mapper.entityToInvoice(entity);
 
 		softly.assertThat(invoice.getTotalAmount()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		softly.assertThat(invoice.getPaidAmount()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
@@ -61,10 +64,10 @@ class InvoiceMapperTest {
 
 	@Test
 	void testPartiallyPaidNormalInvoice_shouldHavePositiveAmounts(final SoftAssertions softly) {
-		InvoiceEntity entity = TestObjectFactory.generateInvoiceEntity();
+		final var entity = TestObjectFactory.generateInvoiceEntity();
 		entity.setInvoiceAmount(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		entity.setPaidAmount(BigDecimal.valueOf(-50).setScale(2, RoundingMode.HALF_EVEN));
-		final Invoice invoice = mapper.entityToInvoice(entity);
+		final var invoice = mapper.entityToInvoice(entity);
 
 		softly.assertThat(invoice.getTotalAmount()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		softly.assertThat(invoice.getPaidAmount()).isEqualByComparingTo(BigDecimal.valueOf(50).setScale(2, RoundingMode.HALF_EVEN));
@@ -72,10 +75,10 @@ class InvoiceMapperTest {
 
 	@Test
 	void testNotPaidNormalInvoice_shouldHavePositiveAmount(final SoftAssertions softly) {
-		InvoiceEntity entity = TestObjectFactory.generateInvoiceEntity();
+		final var entity = TestObjectFactory.generateInvoiceEntity();
 		entity.setInvoiceAmount(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		entity.setPaidAmount(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN));
-		final Invoice invoice = mapper.entityToInvoice(entity);
+		final var invoice = mapper.entityToInvoice(entity);
 
 		softly.assertThat(invoice.getTotalAmount()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		softly.assertThat(invoice.getPaidAmount()).isEqualByComparingTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN));
@@ -83,10 +86,10 @@ class InvoiceMapperTest {
 
 	@Test
 	void testPaidCreditedInvoice_shouldHavePositiveAmounts(final SoftAssertions softly) {
-		InvoiceEntity entity = TestObjectFactory.generateInvoiceEntity();
+		final var entity = TestObjectFactory.generateInvoiceEntity();
 		entity.setInvoiceAmount(BigDecimal.valueOf(-100).setScale(2, RoundingMode.HALF_EVEN));
 		entity.setPaidAmount(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
-		final Invoice invoice = mapper.entityToInvoice(entity);
+		final var invoice = mapper.entityToInvoice(entity);
 
 		softly.assertThat(invoice.getTotalAmount()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		softly.assertThat(invoice.getPaidAmount()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
@@ -94,10 +97,10 @@ class InvoiceMapperTest {
 
 	@Test
 	void testNotPaidCreditedInvoice_shouldHavePositiveAmount(final SoftAssertions softly) {
-		InvoiceEntity entity = TestObjectFactory.generateInvoiceEntity();
+		final var entity = TestObjectFactory.generateInvoiceEntity();
 		entity.setInvoiceAmount(BigDecimal.valueOf(-100).setScale(2, RoundingMode.HALF_EVEN));
 		entity.setPaidAmount(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN));
-		final Invoice invoice = mapper.entityToInvoice(entity);
+		final var invoice = mapper.entityToInvoice(entity);
 
 		softly.assertThat(invoice.getTotalAmount()).isEqualByComparingTo(BigDecimal.valueOf(100).setScale(2, RoundingMode.HALF_EVEN));
 		softly.assertThat(invoice.getPaidAmount()).isEqualByComparingTo(BigDecimal.ZERO.setScale(2, RoundingMode.HALF_EVEN));
@@ -105,11 +108,10 @@ class InvoiceMapperTest {
 
 	@Test
 	void testDetermineIfValidForReminder(final SoftAssertions softly) {
-		for (InvoiceStatus value : InvoiceStatus.values()) {
-			Invoice invoice = Invoice.builder().withInvoiceStatus(value).build();
+		for (final var value : InvoiceStatus.values()) {
+			final var invoice = Invoice.builder().withInvoiceStatus(value).build();
 			// Only UNPAID and PARTIALLY_PAID are valid for reminder status
-			if (invoice.getInvoiceStatus() == InvoiceStatus.UNPAID
-				|| invoice.getInvoiceStatus() == InvoiceStatus.PARTIALLY_PAID) {
+			if (invoice.getInvoiceStatus() == InvoiceStatus.UNPAID || invoice.getInvoiceStatus() == InvoiceStatus.PARTIALLY_PAID) {
 				softly.assertThat(mapper.invoiceHasStatusValidForReminder(invoice)).isTrue();
 			} else {
 				softly.assertThat(mapper.invoiceHasStatusValidForReminder(invoice)).isFalse();
@@ -120,7 +122,7 @@ class InvoiceMapperTest {
 	@Test
 	void testStatusShouldBeReminder_whenUnpaid_andReminderDateIsAfterInvoiceDueDate(final SoftAssertions softly) {
 		// Create an invoice that will match the criteria for a reminder
-		Invoice invoice = Invoice.builder()
+		final var invoice = Invoice.builder()
 			.withInvoiceStatus(InvoiceStatus.UNPAID)
 			.withInvoiceReminderDate(LocalDate.now())
 			.withInvoiceDate(LocalDate.now().minusDays(10L))
@@ -133,11 +135,11 @@ class InvoiceMapperTest {
 	@Test
 	void testStatusShouldBeSent_ifTodayIsBetweenInvoiceDateAndPrintDate(final SoftAssertions softly) {
 		// Create an invoice that will match the criteria for a reminder
-		Invoice invoice = Invoice.builder()
+		final var invoice = Invoice.builder()
 			.withInvoiceDate(LocalDate.now().plusDays(1L))
 			.build();
 
-		InvoiceEntity entity = InvoiceEntity.builder()
+		final var entity = InvoiceEntity.builder()
 			.withInvoiceCreatedDate(LocalDate.now().minusDays(1L))
 			.build();
 
@@ -148,12 +150,12 @@ class InvoiceMapperTest {
 	@Test
 	void testStatusShouldNotBeSent_ifTodayIsNotBetweenInvoiceDateAndPrintDate(final SoftAssertions softly) {
 		// Create an invoice that will match the criteria for a reminder
-		Invoice invoice = Invoice.builder()
+		final var invoice = Invoice.builder()
 			.withInvoiceDate(LocalDate.now().plusDays(1L))
 			.withInvoiceStatus(InvoiceStatus.UNPAID)    // Set to UNPAID to ensure it is not changed
 			.build();
 
-		InvoiceEntity entity = InvoiceEntity.builder()
+		final var entity = InvoiceEntity.builder()
 			.withInvoiceCreatedDate(LocalDate.now().plusDays(2L))
 			.build();
 

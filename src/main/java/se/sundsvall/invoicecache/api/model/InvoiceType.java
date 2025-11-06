@@ -1,7 +1,9 @@
 package se.sundsvall.invoicecache.api.model;
 
 import java.math.BigDecimal;
+import lombok.Getter;
 
+@Getter
 public enum InvoiceType {
 
 	INVOICE("Faktura"),
@@ -17,10 +19,6 @@ public enum InvoiceType {
 	}
 
 	private final String type;
-
-	public String getType() {
-		return type;
-	}
 
 	public static InvoiceType fromInvoiceAmount(BigDecimal amount) {
 		if (amount.signum() == 1) {

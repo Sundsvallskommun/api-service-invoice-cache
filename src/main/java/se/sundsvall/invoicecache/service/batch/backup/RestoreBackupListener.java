@@ -1,11 +1,11 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
-import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
@@ -23,7 +23,9 @@ public class RestoreBackupListener implements StepExecutionListener {
 	private final BackupInvoiceRepository backupRepository;
 	private final RestoreBackupJobHealthIndicator healthIndicator;
 
-	RestoreBackupListener(final InvoiceRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
+	RestoreBackupListener(
+		final InvoiceRepository invoiceRepository,
+		final BackupInvoiceRepository backupRepository,
 		final RestoreBackupJobHealthIndicator healthIndicator) {
 		this.invoiceRepository = invoiceRepository;
 		this.backupRepository = backupRepository;
@@ -32,9 +34,9 @@ public class RestoreBackupListener implements StepExecutionListener {
 
 	@Override
 	@Transactional
-	public void beforeStep(final @NotNull StepExecution stepExecution) {
+	public void beforeStep(final @NonNull StepExecution stepExecution) {
 		LOG.info("Starting to restore backup, truncating invoices table");
-		// Clean the invoiceRespository before restoring the backup
+		// Clean the invoiceRepository before restoring the backup
 		invoiceRepository.truncateTable();
 		LOG.info("Done truncating invoices table, starting to restore {} invoices from backup", backupRepository.count());
 	}

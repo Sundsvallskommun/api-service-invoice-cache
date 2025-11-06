@@ -25,7 +25,7 @@ import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;
 public class TestObjectFactory {
 
 	public static JobStatus generateCompletedJobStatus() {
-		final JobStatus jobStatus = JobStatus
+		return JobStatus
 			.builder()
 			.withStatus(ExitStatus.COMPLETED.toString())
 			.withStartTime(LocalDateTime.of(2022, 1, 1, 1, 1, 1))
@@ -36,8 +36,6 @@ public class TestObjectFactory {
 				.withStepReadCount(6)
 				.build()))
 			.build();
-
-		return jobStatus;
 	}
 
 	public static RaindanceQueryResultDto generateRaindanceQueryResultDto() {

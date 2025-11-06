@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -25,7 +25,7 @@ class BackupProcessorTest {
 	@Test
 	void testProcess() {
 		when(mockEntityMapper.mapInvoiceEntityToBackupEntity(any(InvoiceEntity.class))).thenReturn(new BackupInvoiceEntity());
-		final BackupInvoiceEntity backupEntity = backupProcessor.process(new InvoiceEntity());
-		assertNotNull(backupEntity);
+		final var backupEntity = backupProcessor.process(new InvoiceEntity());
+		assertThat(backupEntity).isNotNull();
 	}
 }

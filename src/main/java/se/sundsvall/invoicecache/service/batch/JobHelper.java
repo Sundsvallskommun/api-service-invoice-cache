@@ -68,18 +68,14 @@ public class JobHelper {
 	/**
 	 * Check if there are any successful job within the last 24 hrs.
 	 *
-	 * @param  jobName name of the job to check
-	 * @return
+	 * @param jobName name of the job to check
 	 */
 	Optional<JobExecution> getSuccessfulJobWithinTimePeriod(String jobName) {
-
-		Optional<JobExecution> possibleJob = Optional.empty();
-
 		try {
 			final int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(jobName);
 
 			// See of there are any successful jobs done within the last 24 hours.
-			possibleJob = jobExplorer.getJobInstances(jobName, 0, jobInstanceCount).stream()
+			return jobExplorer.getJobInstances(jobName, 0, jobInstanceCount).stream()
 				.map(jobExplorer::getJobExecutions)
 				.flatMap(List<JobExecution>::stream)
 				.filter(jobExecution -> jobExecution.getExitStatus().equals(ExitStatus.COMPLETED))
@@ -90,9 +86,8 @@ public class JobHelper {
 		} catch (final NoSuchJobException e) {
 			// If we can't find any job, we don't care, run a new one.
 			LOG.info("Couldn't find any job with name: {}", jobName);
+			return Optional.empty();
 		}
-
-		return possibleJob;
 	}
 
 	/**
@@ -113,7 +108,7 @@ public class JobHelper {
 
 			// The latest job has index 0. If there are a total of 20 execution, fetching #20 will get the first, which is why we
 			// get from 0.
-			listOfJobs = jobExplorer.getJobInstances(RAINDANCE_JOB_NAME, 0, mostRecentInstances)
+			return jobExplorer.getJobInstances(RAINDANCE_JOB_NAME, 0, mostRecentInstances)
 				.stream()
 				.map(jobExplorer::getJobExecutions)
 				.flatMap(List<JobExecution>::stream)

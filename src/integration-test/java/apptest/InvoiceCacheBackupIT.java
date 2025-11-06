@@ -1,13 +1,12 @@
 package apptest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.OK;
 
 import java.time.Duration;
 import java.util.Optional;
-
 import org.junit.jupiter.api.Test;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -16,14 +15,12 @@ import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
-
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.invoicecache.Application;
 
 /**
- * Test for checking that backup invoices are read when we fail to read invoices from raindance.
- * Only initializes the DB from raindance, no data is inserted which fakes that we couldn't fetch anything.
- * The "local" DB only has the backup table populated, which should be transferred to the invoice table and then read by the test.
+ * Test for checking that backup invoices are read when we fail to read invoices from raindance. Only initializes the DB from raindance, no data is inserted which fakes that we couldn't fetch anything. The "local" DB only has the backup table populated,
+ * which should be transferred to the invoice table and then read by the test.
  */
 @WireMockAppTestSuite(files = "classpath:/InvoiceCacheBackup/",
 	classes = Application.class)
@@ -49,9 +46,7 @@ public class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 	}
 
 	/**
-	 * get the url, user and password from the container and set them in the context.
-	 *
-	 * @param registry
+	 * Get the url, user and password from the container and set them in the context.
 	 */
 	@DynamicPropertySource
 	static void registerProperties(final DynamicPropertyRegistry registry) {
@@ -69,13 +64,13 @@ public class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 	}
 
 	@Test
-	void test1_testBackupsAreRead_whenCouldntFetchInvoicesFromRaindance() {
+	void test1_testBackupsAreRead_whenCouldNotFetchInvoicesFromRaindance() {
 		assertThat(raindanceDb.isRunning()).isTrue();
 		assertThat(invoiceDb.isRunning()).isTrue();
 		setupCall()
 			.withServicePath(PATH + "?page=1&limit=100&partyIds=fb2f0290-3820-11ed-a261-0242ac120002")
-			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
 			.withExpectedResponse("expected.json")
 			.sendRequestAndVerifyResponse();
 	}
