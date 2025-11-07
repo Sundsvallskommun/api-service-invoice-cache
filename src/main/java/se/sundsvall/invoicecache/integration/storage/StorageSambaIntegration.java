@@ -33,13 +33,13 @@ public class StorageSambaIntegration {
 	 */
 	public String verifyBlobIntegrity(final String blobKey) {
 		var directory = extractDirectory(blobKey);
-		// Takes the sourceUrl and appends the directory and blobKey to form the full file path.
+		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + File.separator + directory + File.separator + blobKey + ".pdf";
 
 		try (final var file = new SmbFile(filePath, properties.cifsContext())) {
 			return HashUtil.SHA256(file.getInputStream());
 		} catch (IOException e) {
-			LOGGER.error("Failed to verify blob integrity for key '{}', path '{}'", blobKey, filePath, e);
+			LOGGER.error("Failed to verify blob integrity for key '{}', path '{}'", blobKey, filePath);
 			throw new BlobIntegrityException("Could not verify blob integrity for " + blobKey, e);
 		}
 	}
@@ -75,7 +75,7 @@ public class StorageSambaIntegration {
 
 			return blobKey;
 		} catch (Exception e) {
-			LOGGER.error("Failed to write PDF file to Samba storage", e);
+			LOGGER.error("Failed to write PDF file to Samba storage");
 			throw new BlobWriteException("Could not write file to Samba", e);
 		}
 	}
@@ -88,13 +88,13 @@ public class StorageSambaIntegration {
 	 */
 	public InputStream readFile(final String blobKey) {
 		var directory = extractDirectory(blobKey);
-		// Takes the sourceUrl and appends the directory and blobKey to form the full file path.
+		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + File.separator + directory + File.separator + blobKey + ".pdf";
 
 		try (final var file = new SmbFile(filePath, properties.cifsContext())) {
 			return file.getInputStream();
 		} catch (IOException e) {
-			LOGGER.error("Failed to read blob for key '{}', path '{}'", blobKey, filePath, e);
+			LOGGER.error("Failed to read blob for key '{}', path '{}'", blobKey, filePath);
 			throw new BlobIntegrityException("Could not read blob for " + blobKey, e);
 		}
 	}
