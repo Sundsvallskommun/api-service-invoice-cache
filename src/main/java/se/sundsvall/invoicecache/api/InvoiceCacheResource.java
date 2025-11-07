@@ -85,9 +85,7 @@ class InvoiceCacheResource {
 		@PathVariable final String issuerlegalid,
 		@PathVariable final String invoicenumber,
 		@ParameterObject @Valid final InvoicePdfFilterRequest request) {
-		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid,
-			invoicenumber, request, municipalityId);
-
+		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerlegalid, invoicenumber, request, municipalityId);
 		return ok(invoicePdf);
 	}
 

@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.integration.db.entity;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -13,7 +13,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Test class that asserts that the {@link se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity} and
  * {@link se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity} has the same fields and annotations,
- * since they must always be the same.
+ * since they must always be the
+ * same.
  */
 class EntityEqualsTest {
 
@@ -28,7 +29,7 @@ class EntityEqualsTest {
 		invoiceEntityMap.forEach((s, annotations) -> {
 			final List<Annotation> backupAnno = Arrays.stream(backupInvoiceEntityMap.get(s)).toList();
 			final List<Annotation> invoiceAnno = Arrays.stream(annotations).toList();
-			assertEquals(backupAnno, invoiceAnno);
+			assertThat(backupAnno).isEqualTo(invoiceAnno);
 		});
 	}
 
@@ -46,7 +47,7 @@ class EntityEqualsTest {
 			.map(Field::getName)
 			.toList();
 
-		assertEquals(backupFields, invoiceFields);
+		assertThat(backupFields).isEqualTo(invoiceFields);
 	}
 
 }

@@ -2,7 +2,7 @@ package se.sundsvall.invoicecache.integration.party;
 
 import static generated.se.sundsvall.party.PartyType.ENTERPRISE;
 import static generated.se.sundsvall.party.PartyType.PRIVATE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
@@ -43,7 +43,7 @@ class PartyClientTest {
 		// Assert
 		verify(mockPartyIntegration, times(1)).getLegalId(eq(municipalityId), eq(PRIVATE), any(String.class));
 		verify(mockPartyIntegration, times(0)).getLegalId(eq(municipalityId), eq(ENTERPRISE), any(String.class));
-		assertEquals("8001011234", legalId);
+		assertThat(legalId).isEqualTo("8001011234");
 	}
 
 	@Test
@@ -62,7 +62,7 @@ class PartyClientTest {
 		// Assert
 		verify(mockPartyIntegration, times(1)).getLegalId(eq(municipalityId), eq(PRIVATE), any(String.class));
 		verify(mockPartyIntegration, times(1)).getLegalId(eq(municipalityId), eq(ENTERPRISE), any(String.class));
-		assertEquals("5591621234", legalId);
+		assertThat(legalId).isEqualTo("5591621234");
 	}
 
 }

@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.api.model;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
@@ -8,20 +8,20 @@ class InvoiceStatusTest {
 
 	@Test
 	void testValuesHaveNotChanged() {
-		assertEquals("Betald", InvoiceStatus.PAID.getStatus());
-		assertEquals("Obetald", InvoiceStatus.UNPAID.getStatus());
-		assertEquals("Delvis betald", InvoiceStatus.PARTIALLY_PAID.getStatus());
-		assertEquals("Gått till inkasso", InvoiceStatus.DEBT_COLLECTION.getStatus());
-		assertEquals("För mycket betalt", InvoiceStatus.PAID_TOO_MUCH.getStatus());
-		assertEquals("Påminnelse", InvoiceStatus.REMINDER.getStatus());
-		assertEquals("Skickad", InvoiceStatus.SENT.getStatus());
-		assertEquals("Makulerad", InvoiceStatus.VOID.getStatus());
-		assertEquals("Okänd", InvoiceStatus.UNKNOWN.getStatus());
-		assertEquals(9, InvoiceStatus.values().length);
+		assertThat(InvoiceStatus.PAID.getStatus()).isEqualTo("Betald");
+		assertThat(InvoiceStatus.UNPAID.getStatus()).isEqualTo("Obetald");
+		assertThat(InvoiceStatus.PARTIALLY_PAID.getStatus()).isEqualTo("Delvis betald");
+		assertThat(InvoiceStatus.DEBT_COLLECTION.getStatus()).isEqualTo("Gått till inkasso");
+		assertThat(InvoiceStatus.PAID_TOO_MUCH.getStatus()).isEqualTo("För mycket betalt");
+		assertThat(InvoiceStatus.REMINDER.getStatus()).isEqualTo("Påminnelse");
+		assertThat(InvoiceStatus.SENT.getStatus()).isEqualTo("Skickad");
+		assertThat(InvoiceStatus.VOID.getStatus()).isEqualTo("Makulerad");
+		assertThat(InvoiceStatus.UNKNOWN.getStatus()).isEqualTo("Okänd");
+		assertThat(InvoiceStatus.values()).hasSize(9);
 	}
 
 	@Test
 	void testUnknownStatusShouldReturnUnknown() {
-		assertEquals(InvoiceStatus.UNKNOWN, InvoiceStatus.fromValue("something Else"));
+		assertThat(InvoiceStatus.fromValue("something Else")).isEqualTo(InvoiceStatus.UNKNOWN);
 	}
 }

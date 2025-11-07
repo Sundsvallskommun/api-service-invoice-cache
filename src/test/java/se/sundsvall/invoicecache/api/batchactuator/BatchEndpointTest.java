@@ -25,12 +25,12 @@ class BatchEndpointTest {
 
 	@Test
 	void health() {
-		final JobStatus jobStatus = TestObjectFactory.generateCompletedJobStatus();
+		final var jobStatus = TestObjectFactory.generateCompletedJobStatus();
 
 		when(mockJobHelper.getJobs()).thenReturn(List.of(jobStatus, jobStatus));
 
-		final BatchHealth health = batchEndpoint.health();
-		final List<JobStatus> statuses = health.getDetails().get("batchHistory");
+		final var health = batchEndpoint.health();
+		final var statuses = health.getDetails().get("batchHistory");
 
 		assertThat(statuses).hasSize(2)
 			.allMatch(status -> "invoiceStep".equals(status.getStepStatusMap().get("invoiceStep").getStepName()))

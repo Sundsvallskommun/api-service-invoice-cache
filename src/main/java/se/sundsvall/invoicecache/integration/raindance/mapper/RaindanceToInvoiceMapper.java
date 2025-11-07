@@ -1,4 +1,4 @@
-package se.sundsvall.invoicecache.integration;
+package se.sundsvall.invoicecache.integration.raindance.mapper;
 
 import static org.apache.commons.lang3.StringUtils.trim;
 import static se.sundsvall.invoicecache.util.OCR.IN_PATTERN;
@@ -84,14 +84,14 @@ public class RaindanceToInvoiceMapper {
 	}
 
 	/**
-	 * Check if the OCR-number is present. If not, also check that the customerType is "KA".
-	 * If that's the case, generate an OCR number.
+	 * Check if the OCR-number is present. If not, also check that the customerType is "KA". If that's the case, generate an
+	 * OCR number.
 	 *
 	 * @param  dto - raindance dto
 	 * @return     the OCR-number
 	 */
 	String getOrCalculateOcr(final RaindanceQueryResultDto dto) {
-		// Check if the OCR-number is missing and we have the correct customer type, then calculate it.
+		// Check if the OCR-number is missing, and we have the correct customer type, then calculate it.
 		if (isOcrBlankAndCustomerTypeKA(dto) && blopnrAndBeadatIsPresent(dto)) {
 			// Also check that we have blopnr and beadat
 			return OCR.generate(dto.getZ11_blopnr(), dto.getZ11_beadat()
@@ -111,8 +111,8 @@ public class RaindanceToInvoiceMapper {
 	}
 
 	/**
-	 * Chcl if the zip and city is on a format we expect.
-	 * e.g. "876 23 SOMECITY" will validate while e.g. "NO-0251 Oslo" will not.
+	 * Check if the zip and city is on a format we expect. e.g. "876 23 SOME_CITY" will validate while e.g. "NO-0251 Oslo"
+	 * will not.
 	 *
 	 * @return true/false
 	 */

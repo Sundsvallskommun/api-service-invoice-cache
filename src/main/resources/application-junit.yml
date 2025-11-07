@@ -6,14 +6,15 @@ integration:
     oauth2-token-url: api-gateway-url
     readTimeout: PT20S
     url: api-party-url
-  smb:
-    cron: '-'
-    domain: smb-domain
-    password: smb-password
-    remoteDir: smb-remote-dir
-    shareAndDir: smb-share-and-dir
-    user: smb-user
-    userDomain: smb-user-domain
+  raindance:
+    samba:
+      cron: '-'
+      domain: samba-domain
+      password: samba-password
+      remoteDir: samba-remote-dir
+      shareAndDir: samba-share-and-dir
+      user: samba-user
+      userDomain: samba-user-domain
 raindance:
   sql:
     filename: raindance-test.esscueell

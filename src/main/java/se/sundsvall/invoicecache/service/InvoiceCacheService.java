@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.service;
 
-import static se.sundsvall.dept44.util.LogUtils.sanitizeForLogging;
-
 import java.util.HashMap;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -14,7 +12,6 @@ import org.springframework.util.CollectionUtils;
 import se.sundsvall.dept44.util.LogUtils;
 import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
-import se.sundsvall.invoicecache.api.model.InvoiceMapper;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.api.model.MetaData;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
@@ -28,11 +25,8 @@ public class InvoiceCacheService {
 	private static final Logger LOG = LoggerFactory.getLogger(InvoiceCacheService.class);
 
 	private final InvoiceRepository invoiceRepository;
-
 	private final InvoiceMapper mapper;
-
 	private final InvoiceSpecifications invoiceSpecifications;
-
 	private final PartyClient partyClient;
 
 	public InvoiceCacheService(final InvoiceRepository invoiceRepository,
@@ -90,8 +84,8 @@ public class InvoiceCacheService {
 	}
 
 	/**
-	 * To mimic the api for Invoices, a page starts with "1" and that is also the minimum value in the api.
-	 * The PageRequest originally has a 0-based page index, subtract 1 for which page to request.
+	 * To mimic the api for Invoices, a page starts with "1" and that is also the minimum value in the api. The PageRequest
+	 * originally has a 0-based page index, subtract 1 for which page to request.
 	 *
 	 * @param  request - the request
 	 * @return         Pageable

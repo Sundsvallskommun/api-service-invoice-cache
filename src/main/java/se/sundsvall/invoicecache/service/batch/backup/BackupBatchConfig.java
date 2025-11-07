@@ -40,8 +40,12 @@ public class BackupBatchConfig {
 	private final BackupListener backupListener;
 	private final RestoreBackupListener restoreBackupListener;
 
-	public BackupBatchConfig(final InvoiceRepository invoiceRepository, final BackupInvoiceRepository backupRepository,
-		final BackupProcessor backupProcessor, final RestoreBackupProcessor restoreBackupProcessor, final BackupListener backupListener,
+	public BackupBatchConfig(
+		final InvoiceRepository invoiceRepository,
+		final BackupInvoiceRepository backupRepository,
+		final BackupProcessor backupProcessor,
+		final RestoreBackupProcessor restoreBackupProcessor,
+		final BackupListener backupListener,
 		final RestoreBackupListener restoreBackupListener) {
 		this.invoiceRepository = invoiceRepository;
 		this.backupRepository = backupRepository;
@@ -86,7 +90,7 @@ public class BackupBatchConfig {
 	}
 
 	/////////////////////////////////////
-	// Restore backup bacth config below
+	// Restore backup batch config below
 
 	/// //////////////////////////////////
 
@@ -124,7 +128,7 @@ public class BackupBatchConfig {
 	}
 
 	/**
-	 * Sort by invoicenumber when reading from our own database.
+	 * Sort by invoice number when reading from our own database.
 	 *
 	 * @return sorting strategy
 	 */

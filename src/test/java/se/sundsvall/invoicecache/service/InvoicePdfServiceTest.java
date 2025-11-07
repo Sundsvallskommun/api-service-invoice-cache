@@ -185,7 +185,7 @@ class InvoicePdfServiceTest {
 	void test_mapOntoExistingEntity() {
 
 		// Arrange
-		var pdfEntity = generatePdfEntity();
+		final var pdfEntity = generatePdfEntity();
 		final var request = InvoicePdfRequest.builder()
 			.withIssuerLegalId("someIssuerLegalId")
 			.withDebtorLegalId("someDebtorLegalId")
@@ -198,7 +198,7 @@ class InvoicePdfServiceTest {
 			.build();
 
 		// Act
-		pdfEntity = pdfService.mapOntoExistingEntity(pdfEntity, request);
+		pdfService.mapOntoExistingEntity(pdfEntity, request);
 
 		// Assert
 		assertThat(pdfEntity.getInvoiceIssuerLegalId()).isEqualTo(request.issuerLegalId());

@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -38,16 +38,16 @@ class BackupListenerTest {
 	@Test
 	void testSuccessfulAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.COMPLETED);
-		final ExitStatus exitStatus = backupListener.afterStep(mockStepExecution);
-		assertNull(exitStatus); // intended
+		final var exitStatus = backupListener.afterStep(mockStepExecution);
+		assertThat(exitStatus).isNull(); // intended
 		verify(mockStepExecution, times(0)).getSummary();
 	}
 
 	@Test
 	void testFailedAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.FAILED);
-		final ExitStatus exitStatus = backupListener.afterStep(mockStepExecution);
-		assertNull(exitStatus); // intended
+		final var exitStatus = backupListener.afterStep(mockStepExecution);
+		assertThat(exitStatus).isNull(); // intended
 		verify(mockStepExecution, times(1)).getSummary();
 	}
 }

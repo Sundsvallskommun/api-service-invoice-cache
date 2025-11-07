@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.orm.jpa.JpaTransactionManager;
 
 /**
- * Explicitly configure JPA to only pickup our "local" database and not anything related to raindance.
+ * Explicitly configure JPA to only pick up our "local" database and not anything related to raindance.
  */
 @Configuration
 @EntityScan(basePackages = "se.sundsvall.invoicecache.integration.db")  // Prevent Entities for raindance to be scanned.
@@ -27,13 +27,15 @@ public class LocalDataSourceConfig {
 	@Primary
 	@Bean(name = "batchDataSource")
 	@ConfigurationProperties(prefix = "spring.datasource.configuration")
-	DataSource localDataSource(@Qualifier("localDataSourceProperties") DataSourceProperties dataSourceProperties) {
-		return dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+	DataSource localDataSource(@Qualifier("localDataSourceProperties") final DataSourceProperties dataSourceProperties) {
+		return dataSourceProperties.initializeDataSourceBuilder()
+			.type(HikariDataSource.class)
+			.build();
 	}
 
 	@Primary
 	@Bean(name = "transactionManager")
-	JpaTransactionManager jpaTransactionManager(@Qualifier("batchDataSource") DataSource dataSource) {
+	JpaTransactionManager jpaTransactionManager(@Qualifier("batchDataSource") final DataSource dataSource) {
 		final JpaTransactionManager transactionManager = new JpaTransactionManager();
 		transactionManager.setDataSource(dataSource);
 		return transactionManager;

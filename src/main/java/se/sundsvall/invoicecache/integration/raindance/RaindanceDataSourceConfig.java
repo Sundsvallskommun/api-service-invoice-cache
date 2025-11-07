@@ -20,12 +20,14 @@ public class RaindanceDataSourceConfig {
 
 	@Bean(name = "raindanceDataSource")
 	@ConfigurationProperties(prefix = "spring.raindance-datasource.configuration")
-	DataSource raindanceDataSource(@Qualifier("raindanceDataSourceProperties") DataSourceProperties dataSourceProperties) {
-		return dataSourceProperties.initializeDataSourceBuilder().type(HikariDataSource.class).build();
+	DataSource raindanceDataSource(@Qualifier("raindanceDataSourceProperties") final DataSourceProperties dataSourceProperties) {
+		return dataSourceProperties.initializeDataSourceBuilder()
+			.type(HikariDataSource.class)
+			.build();
 	}
 
-	@Bean(name = "randinceJdbcTemplate")
-	JdbcTemplate raindanceJdbcTemplate(@Qualifier("raindanceDataSource") DataSource dataSource) {
+	@Bean(name = "raindanceJdbcTemplate")
+	JdbcTemplate raindanceJdbcTemplate(@Qualifier("raindanceDataSource") final DataSource dataSource) {
 		return new JdbcTemplate(dataSource);
 	}
 }

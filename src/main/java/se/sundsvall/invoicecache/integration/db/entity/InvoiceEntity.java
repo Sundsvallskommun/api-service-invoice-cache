@@ -22,8 +22,7 @@ import lombok.Setter;
 		@Index(name = "idx_organization_number", columnList = "organization_number"),
 		@Index(name = "idx_ocr_number", columnList = "ocr_number"),
 		@Index(name = "idx_customer_id", columnList = "customer_id"),
-		@Index(name = "idx_municipality_id", columnList = "municipality_id"),
-
+		@Index(name = "idx_municipality_id", columnList = "municipality_id")
 	})
 @Getter
 @Setter

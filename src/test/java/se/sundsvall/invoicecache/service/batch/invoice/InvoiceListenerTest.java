@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.service.batch.invoice;
 
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -21,6 +21,7 @@ class InvoiceListenerTest {
 
 	@Mock
 	private InvoiceRepository mockRepository;
+
 	@Mock
 	private FetchInvoicesJobHealthIndicator mockHealthIndicator;
 
@@ -49,8 +50,8 @@ class InvoiceListenerTest {
 	void testSuccessfulAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.COMPLETED);
 
-		var exitStatus = invoiceListener.afterStep(mockStepExecution);
-		assertNull(exitStatus); // intended
+		final var exitStatus = invoiceListener.afterStep(mockStepExecution);
+		assertThat(exitStatus).isNull(); // intended
 
 		verify(mockStepExecution, times(0)).getSummary();
 		verify(mockHealthIndicator).setHealthy();
@@ -60,8 +61,8 @@ class InvoiceListenerTest {
 	void testFailedAfterStep() {
 		when(mockStepExecution.getExitStatus()).thenReturn(ExitStatus.FAILED);
 
-		var exitStatus = invoiceListener.afterStep(mockStepExecution);
-		assertNull(exitStatus); // intended
+		final var exitStatus = invoiceListener.afterStep(mockStepExecution);
+		assertThat(exitStatus).isNull(); // intended
 
 		verify(mockStepExecution, times(1)).getSummary();
 		verify(mockHealthIndicator).setUnhealthy();

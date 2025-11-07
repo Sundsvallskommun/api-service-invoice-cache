@@ -23,7 +23,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
-import se.sundsvall.invoicecache.api.model.InvoiceMapper;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.api.model.MetaData;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;

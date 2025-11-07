@@ -12,22 +12,20 @@ import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifications;
-import se.sundsvall.invoicecache.integration.smb.SMBIntegration;
+import se.sundsvall.invoicecache.integration.raindance.samba.RaindanceSambaIntegration;
 import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
 
 @Service
 public class InvoicePdfService {
 
 	private final PdfRepository pdfRepository;
-
-	private final SMBIntegration smbIntegration;
-
+	private final RaindanceSambaIntegration raindanceSambaIntegration;
 	private final InvoicePdfSpecifications invoicePdfSpecifications;
 
 	public InvoicePdfService(final PdfRepository pdfRepository,
-		final SMBIntegration smbIntegration, final InvoicePdfSpecifications invoicePdfSpecifications) {
+		final RaindanceSambaIntegration raindanceSambaIntegration, final InvoicePdfSpecifications invoicePdfSpecifications) {
 		this.pdfRepository = pdfRepository;
-		this.smbIntegration = smbIntegration;
+		this.raindanceSambaIntegration = raindanceSambaIntegration;
 		this.invoicePdfSpecifications = invoicePdfSpecifications;
 	}
 
@@ -36,7 +34,7 @@ public class InvoicePdfService {
 		try {
 			final var result = pdfRepository.findByFilenameAndMunicipalityId(filename, municipalityId)
 				.map(this::mapToResponse)
-				.orElseGet(() -> mapToResponse(smbIntegration.findPdf(filename, municipalityId)));
+				.orElseGet(() -> mapToResponse(raindanceSambaIntegration.findPdf(filename, municipalityId)));
 			if (result == null) {
 				throw Problem.valueOf(Status.NOT_FOUND);
 			}

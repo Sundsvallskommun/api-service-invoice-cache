@@ -1,11 +1,11 @@
 package se.sundsvall.invoicecache.service.batch.invoice;
 
-import jakarta.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.StepExecutionListener;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
@@ -27,7 +27,7 @@ public class InvoiceListener implements StepExecutionListener {
 	}
 
 	@Override
-	public void beforeStep(final @NotNull StepExecution stepExecution) {
+	public void beforeStep(final @NonNull StepExecution stepExecution) {
 		LOG.info("Before job execution there are {} items in the backup table", invoiceRepository.count());
 		LOG.info("Starting to truncate invoice table.");
 		invoiceRepository.truncateTable();
