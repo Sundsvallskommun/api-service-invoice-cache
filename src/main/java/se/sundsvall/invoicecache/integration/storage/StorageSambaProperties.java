@@ -13,7 +13,8 @@ public record StorageSambaProperties(
 	String password,
 	// Domain in AD (Active Directory).
 	String userDomain,
-	String hostname,
+	String host,
+	String share,
 
 	// Base directory on the Samba server where service directories are located.
 	String baseDirectory,
@@ -26,7 +27,7 @@ public record StorageSambaProperties(
 	@DefaultValue("test") String environment) {
 
 	public String targetUrl() {
-		return "smb://%s/%s/%s/%s".formatted(hostname, baseDirectory, serviceDirectory, environment);
+		return "smb://%s/%s/%s/%s/%s".formatted(host, share, baseDirectory, serviceDirectory, environment);
 	}
 
 	public CIFSContext cifsContext() {

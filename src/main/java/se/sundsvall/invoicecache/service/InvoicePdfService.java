@@ -23,7 +23,8 @@ public class InvoicePdfService {
 	private final InvoicePdfSpecifications invoicePdfSpecifications;
 
 	public InvoicePdfService(final PdfRepository pdfRepository,
-		final RaindanceSambaIntegration raindanceSambaIntegration, final InvoicePdfSpecifications invoicePdfSpecifications) {
+		final RaindanceSambaIntegration raindanceSambaIntegration,
+		final InvoicePdfSpecifications invoicePdfSpecifications) {
 		this.pdfRepository = pdfRepository;
 		this.raindanceSambaIntegration = raindanceSambaIntegration;
 		this.invoicePdfSpecifications = invoicePdfSpecifications;

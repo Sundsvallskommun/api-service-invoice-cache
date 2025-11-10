@@ -20,7 +20,8 @@ integration:
       user: user
       password: password
       user-domain: user-domain
-      hostname: samba-hostname
+      host: samba-host
+      share: samba-share
       base-directory: abc
       service-directory: invoice-cache
       environment: test

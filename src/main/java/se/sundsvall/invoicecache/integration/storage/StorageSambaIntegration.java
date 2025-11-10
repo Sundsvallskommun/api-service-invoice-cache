@@ -1,8 +1,6 @@
 package se.sundsvall.invoicecache.integration.storage;
 
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Blob;
 import jcifs.smb.SmbFile;
 import org.apache.commons.io.IOUtils;
@@ -34,7 +32,7 @@ public class StorageSambaIntegration {
 	public String verifyBlobIntegrity(final String blobKey) {
 		var directory = extractDirectory(blobKey);
 		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
-		var filePath = properties.targetUrl() + File.separator + directory + File.separator + blobKey + ".pdf";
+		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
 
 		try (final var file = new SmbFile(filePath, properties.cifsContext())) {
 			return HashUtil.SHA256(file.getInputStream());
@@ -56,8 +54,8 @@ public class StorageSambaIntegration {
 			var blobKey = HashUtil.SHA256(blob.getBinaryStream());
 			var directory = extractDirectory(blobKey);
 
-			var directoryPath = properties.targetUrl() + File.separator + directory;
-			var filePath = directoryPath + File.separator + blobKey + ".pdf";
+			var directoryPath = properties.targetUrl() + "/" + directory;
+			var filePath = directoryPath + "/" + blobKey + ".pdf";
 
 			// Ensure the directory exists, if not, creates it.
 			try (final var sambaDirectory = new SmbFile(directoryPath, properties.cifsContext())) {
@@ -86,13 +84,13 @@ public class StorageSambaIntegration {
 	 * @param  blobKey the blob key used to identify the file
 	 * @return         InputStream of the file content
 	 */
-	public InputStream readFile(final String blobKey) {
+	public SmbFile readFile(final String blobKey) {
 		var directory = extractDirectory(blobKey);
 		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
-		var filePath = properties.targetUrl() + File.separator + directory + File.separator + blobKey + ".pdf";
+		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
 
-		try (final var file = new SmbFile(filePath, properties.cifsContext())) {
-			return file.getInputStream();
+		try {
+			return new SmbFile(filePath, properties.cifsContext());
 		} catch (IOException e) {
 			LOGGER.error("Failed to read blob for key '{}', path '{}'", blobKey, filePath);
 			throw new BlobIntegrityException("Could not read blob for " + blobKey, e);

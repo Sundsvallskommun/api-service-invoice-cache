@@ -25,6 +25,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import se.sundsvall.invoicecache.integration.storage.util.HashUtil;
 import se.sundsvall.invoicecache.util.exception.BlobIntegrityException;
 import se.sundsvall.invoicecache.util.exception.BlobWriteException;
 
@@ -44,39 +45,17 @@ class StorageSambaIntegrationTest {
 
 		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
 		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
-		var inputStream = new ByteArrayInputStream(content.getBytes());
 
-		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> when(mock.getInputStream()).thenReturn(inputStream))) {
+		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> when(mock.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes())))) {
 
-			var resultStream = storageSambaIntegration.readFile(blobKey);
+			var result = storageSambaIntegration.readFile(blobKey);
 
-			assertThat(resultStream).isNotNull();
-			assertThat(resultStream.readAllBytes()).isEqualTo(content.getBytes());
+			assertThat(result).isNotNull().isInstanceOf(SmbFile.class);
+			assertThat(HashUtil.SHA256(result.getInputStream())).isEqualTo(blobKey);
 
-			var constructed = constructor.constructed();
-			assertThat(constructed).hasSize(1);
-			var fileMock = constructed.getFirst();
-			verify(fileMock).getInputStream();
+			var smbFile = constructor.constructed().getFirst();
+			verify(smbFile).getInputStream();
 		}
-
-		verify(storageSambaProperties).targetUrl();
-		verify(storageSambaProperties).cifsContext();
-	}
-
-	@Test
-	void readFile_throws() {
-		var blobKey = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
-
-		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
-		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
-
-		try (var ignored = mockConstruction(SmbFile.class, (mock, context) -> when(mock.getInputStream()).thenThrow(new IOException("Random error")))) {
-
-			assertThatThrownBy(() -> storageSambaIntegration.readFile(blobKey))
-				.isInstanceOf(BlobIntegrityException.class)
-				.hasMessageContaining("Could not read blob for %s".formatted(blobKey));
-		}
-
 		verify(storageSambaProperties).targetUrl();
 		verify(storageSambaProperties).cifsContext();
 	}
