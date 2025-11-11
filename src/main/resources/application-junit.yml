@@ -15,6 +15,16 @@ integration:
       shareAndDir: samba-share-and-dir
       user: samba-user
       userDomain: samba-user-domain
+  storage:
+    samba:
+      user: user
+      password: password
+      user-domain: user-domain
+      host: samba-host
+      share: samba-share
+      base-directory: abc
+      service-directory: invoice-cache
+      environment: test
 raindance:
   sql:
     filename: raindance-test.esscueell

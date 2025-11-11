@@ -4,13 +4,24 @@ integration:
     oauth2-client-secret: ${env.INTEGRATION_PARTY_OAUTH2_CLIENT_SECRET}
     oauth2-token-url: ${env.INTEGRATION_PARTY_OAUTH2_TOKEN}
     url: ${env.INTEGRATION_PARTY_URL}
-  smb:
-    cron: ${env.INTEGRATION_SMB_CRON}
-    domain: ${env.INTEGRATION_SMB_DOMAIN}
-    password: ${env.INTEGRATION_SMB_PASSWORD}
-    remoteDir: ${env.INTEGRATION_SMB_REMOTE_DIR}
-    shareAndDir: ${env.INTEGRATION_SMB_SHARE_AND_DIR}
-    user: ${env.INTEGRATION_SMB_USER}
+  raindance:
+    samba:
+      domain: ${env.INTEGRATION_RAINDANCE_SMB_DOMAIN}
+      user-domain: ${env.INTEGRATION_RAINDANCE_SMB_USER_DOMAIN}
+      user: ${env.INTEGRATION_RAINDANCE_SMB_USER}
+      password: ${env.INTEGRATION_RAINDANCE_SMB_PASSWORD}
+      shareAndDir: ${env.INTEGRATION_RAINDANCE_SMB_SHARE_AND_DIR}
+      remoteDir: ${env.INTEGRATION_RAINDANCE_SMB_REMOTE_DIR}
+  storage:
+    samba:
+      user: ${env.INTEGRATION_STORAGE_SAMBA_USER}
+      password: ${env.INTEGRATION_STORAGE_SAMBA_PASSWORD}
+      user-domain: ${env.INTEGRATION_STORAGE_SAMBA_USER_DOMAIN}
+      host: ${env.INTEGRATION_STORAGE_SAMBA_HOST}
+      share: ${env.INTEGRATION_STORAGE_SAMBA_SHARE}
+      base-directory: ${env.INTEGRATION_STORAGE_SAMBA_BASE_DIRECTORY}
+      service-directory: ${env.INTEGRATION_STORAGE_SAMBA_SERVICE_DIRECTORY}
+      environment: ${env.INTEGRATION_STORAGE_SAMBA_ENVIRONMENT}
 invoice:
   scheduled:
     cron: '0 */10 * * * *'
