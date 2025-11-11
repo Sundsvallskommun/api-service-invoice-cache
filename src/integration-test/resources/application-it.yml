@@ -4,13 +4,25 @@ integration:
     oauth2-client-secret: override
     oauth2-token-url: http://localhost:${wiremock.server.port}/token
     url: http://localhost:${wiremock.server.port}/party
-  smb:
-    cron: '0 30 5 * * MON-FRI'
-    domain: domain.local
-    password: password
-    remoteDir: /
-    shareAndDir: test
-    user: user
+  raindance:
+    samba:
+      cron: '-'
+      domain: domain.local
+      user-domain: USER_DOMAIN
+      user: user
+      password: password
+      shareAndDir: test
+      remoteDir: /
+  storage:
+    samba:
+      user: user
+      password: password
+      user-domain: USER_DOMAIN
+      host: localhost:${samba.server.port}
+      share: share
+      base-directory: base
+      service-directory: invoice-cache
+      environment: test
 invoice:
   scheduled:
     cron: '* * * * * *'

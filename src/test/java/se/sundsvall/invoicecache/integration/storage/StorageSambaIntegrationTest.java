@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.io.ByteArrayInputStream;
@@ -16,15 +17,18 @@ import java.sql.SQLException;
 import java.util.stream.Stream;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.NullAndEmptySource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.zalando.problem.Problem;
 import se.sundsvall.invoicecache.integration.storage.util.HashUtil;
 import se.sundsvall.invoicecache.util.exception.BlobIntegrityException;
 import se.sundsvall.invoicecache.util.exception.BlobWriteException;
@@ -37,6 +41,11 @@ class StorageSambaIntegrationTest {
 
 	@InjectMocks
 	private StorageSambaIntegration storageSambaIntegration;
+
+	@AfterEach
+	void tearDown() {
+		verifyNoMoreInteractions(storageSambaProperties);
+	}
 
 	@Test
 	void readFile() throws IOException {
@@ -58,6 +67,14 @@ class StorageSambaIntegrationTest {
 		}
 		verify(storageSambaProperties).targetUrl();
 		verify(storageSambaProperties).cifsContext();
+	}
+
+	@ParameterizedTest
+	@NullAndEmptySource
+	void readFile_nullBlobKey(final String blobKey) {
+		assertThatThrownBy(() -> storageSambaIntegration.readFile(blobKey))
+			.isInstanceOf(Problem.class)
+			.hasMessageContaining("Blob key cannot be null or empty");
 	}
 
 	@Test
@@ -98,6 +115,13 @@ class StorageSambaIntegrationTest {
 
 		verify(storageSambaProperties).targetUrl();
 		verify(storageSambaProperties, times(2)).cifsContext();
+	}
+
+	@Test
+	void writeFile_nullBlob() {
+		assertThatThrownBy(() -> storageSambaIntegration.writeFile(null))
+			.isInstanceOf(Problem.class)
+			.hasMessageContaining("Blob cannot be null");
 	}
 
 	@Test
@@ -154,6 +178,8 @@ class StorageSambaIntegrationTest {
 				.isInstanceOf(BlobWriteException.class)
 				.hasMessageContaining("Could not write file to Samba");
 		}
+		verify(storageSambaProperties).targetUrl();
+		verify(storageSambaProperties).cifsContext();
 	}
 
 	@ParameterizedTest
@@ -165,8 +191,18 @@ class StorageSambaIntegrationTest {
 
 			var result = storageSambaIntegration.verifyBlobIntegrity(expectedHash);
 
+			verify(storageSambaProperties).targetUrl();
+			verify(storageSambaProperties).cifsContext();
 			assertThat(result).isEqualTo(expectedHash);
 		}
+	}
+
+	@ParameterizedTest
+	@NullAndEmptySource
+	void verifyBlobIntegrity_nullOrEmptyBlobKey(final String blobKey) {
+		assertThatThrownBy(() -> storageSambaIntegration.verifyBlobIntegrity(blobKey))
+			.isInstanceOf(Problem.class)
+			.hasMessageContaining("Blob key cannot be null or empty");
 	}
 
 	@Test
@@ -179,6 +215,8 @@ class StorageSambaIntegrationTest {
 				.isInstanceOf(BlobIntegrityException.class)
 				.hasMessageContaining("Could not verify blob integrity for %s".formatted(blobKey));
 		}
+		verify(storageSambaProperties).targetUrl();
+		verify(storageSambaProperties).cifsContext();
 	}
 
 	private static Stream<Arguments> verifyBlobIntegrityArgumentProvider() {
