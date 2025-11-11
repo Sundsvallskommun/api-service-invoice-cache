@@ -20,4 +20,5 @@ public record InvoicePdfRequest(
 
 	@Schema(description = "Invoice type", implementation = InvoiceType.class) InvoiceType invoiceType,
 
-	@Valid @NotNull @Schema(description = "Attachment", requiredMode = REQUIRED) InvoicePdf attachment) {}
+	@Valid @NotNull @Schema(description = "Attachment", requiredMode = REQUIRED) InvoicePdf attachment) {
+}

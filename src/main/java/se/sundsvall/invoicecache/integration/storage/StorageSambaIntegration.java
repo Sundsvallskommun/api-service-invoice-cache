@@ -1,5 +1,7 @@
 package se.sundsvall.invoicecache.integration.storage;
 
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+
 import java.io.IOException;
 import java.sql.Blob;
 import jcifs.smb.SmbFile;
@@ -7,6 +9,7 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import org.zalando.problem.Problem;
 import se.sundsvall.invoicecache.integration.storage.util.HashUtil;
 import se.sundsvall.invoicecache.util.exception.BlobIntegrityException;
 import se.sundsvall.invoicecache.util.exception.BlobWriteException;
@@ -15,6 +18,8 @@ import se.sundsvall.invoicecache.util.exception.BlobWriteException;
 public class StorageSambaIntegration {
 
 	private static final Logger LOGGER = LoggerFactory.getLogger(StorageSambaIntegration.class);
+	private static final Integer DIRECTORY_PREFIX_LENGTH = 2;
+	private static final Integer DIRECTORY_BEGIN_INDEX = 0;
 
 	private final StorageSambaProperties properties;
 
@@ -30,6 +35,10 @@ public class StorageSambaIntegration {
 	 *                 expected, it should always be equal to the provided blobKey.
 	 */
 	public String verifyBlobIntegrity(final String blobKey) {
+		if (blobKey == null || blobKey.isEmpty()) {
+			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Blob key cannot be null or empty");
+		}
+
 		var directory = extractDirectory(blobKey);
 		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
@@ -49,6 +58,10 @@ public class StorageSambaIntegration {
 	 * @return      the SHA256 hash of the file content
 	 */
 	public String writeFile(final Blob blob) {
+		if (blob == null) {
+			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Blob cannot be null");
+		}
+
 		try {
 			// Creates a SHA256 hash of the file content.
 			var blobKey = HashUtil.SHA256(blob.getBinaryStream());
@@ -85,6 +98,10 @@ public class StorageSambaIntegration {
 	 * @return         InputStream of the file content
 	 */
 	public SmbFile readFile(final String blobKey) {
+		if (blobKey == null || blobKey.isEmpty()) {
+			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Blob key cannot be null or empty");
+		}
+
 		var directory = extractDirectory(blobKey);
 		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
@@ -105,7 +122,7 @@ public class StorageSambaIntegration {
 	 */
 	private String extractDirectory(final String blobKey) {
 		// The first two characters of the blobKey are used as a directory name.
-		return blobKey.substring(0, 2);
+		return blobKey.substring(DIRECTORY_BEGIN_INDEX, DIRECTORY_PREFIX_LENGTH);
 	}
 
 }
