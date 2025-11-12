@@ -1,6 +1,7 @@
 package se.sundsvall.invoicecache.integration.db;
 
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import java.time.OffsetDateTime;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -12,5 +13,9 @@ public interface PdfRepository extends JpaRepository<PdfEntity, Long>, JpaSpecif
 	Optional<PdfEntity> findByFilenameAndMunicipalityId(String filename, String municipalityId);
 
 	Optional<PdfEntity> findByInvoiceNumberAndInvoiceIdAndMunicipalityId(String invoiceNumber, String invoiceId, String municipalityId);
+
+	Optional<PdfEntity> findFirstByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(OffsetDateTime created, String issuerLegalId);
+
+	Optional<PdfEntity> findFirstByTruncatedAtIsNullAndMovedAtIsNotNull();
 
 }

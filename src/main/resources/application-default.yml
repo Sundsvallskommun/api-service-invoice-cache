@@ -22,6 +22,18 @@ integration:
       base-directory: ${env.INTEGRATION_STORAGE_SAMBA_BASE_DIRECTORY}
       service-directory: ${env.INTEGRATION_STORAGE_SAMBA_SERVICE_DIRECTORY}
       environment: ${env.INTEGRATION_STORAGE_SAMBA_ENVIRONMENT}
+      scheduler:
+        jobs:
+          transfer:
+            cron: '-'
+            name: transfer
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
+          truncate:
+            cron: '-'
+            name: truncate
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
 invoice:
   scheduled:
     cron: '0 */10 * * * *'
