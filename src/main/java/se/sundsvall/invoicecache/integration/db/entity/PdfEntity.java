@@ -36,7 +36,9 @@ import se.sundsvall.invoicecache.api.model.InvoiceType;
 		@Index(name = "idx_invoice_number", columnList = "invoice_number"),
 		@Index(name = "idx_invoice_type", columnList = "invoice_type"),
 		@Index(name = "idx_municipality_id", columnList = "municipality_id"),
-		@Index(name = "idx_filename", columnList = "filename")
+		@Index(name = "idx_filename", columnList = "filename"),
+		@Index(name = "idx_moved_to_samba_at", columnList = "moved_to_samba_at"),
+		@Index(name = "idx_truncated_at", columnList = "blob_truncated_at")
 	},
 	uniqueConstraints = {
 		@UniqueConstraint(name = "uk_filename", columnNames = "filename")
@@ -81,6 +83,17 @@ public class PdfEntity {
 	@Column(name = "created", nullable = false)
 	@TimeZoneStorage(NORMALIZE)
 	private OffsetDateTime created;
+
+	@Column(name = "file_hash", length = 64, columnDefinition = "varchar(64)")
+	private String fileHash;
+
+	@Column(name = "moved_to_samba_at")
+	@TimeZoneStorage(NORMALIZE)
+	private OffsetDateTime movedAt;
+
+	@Column(name = "blob_truncated_at")
+	@TimeZoneStorage(NORMALIZE)
+	private OffsetDateTime truncatedAt;
 
 	@PrePersist
 	void onCreate() {
