@@ -21,7 +21,6 @@ integration:
       password: password
       user-domain: user-domain
       host: samba-host
-      share: samba-share
       base-directory: abc
       service-directory: invoice-cache
       environment: test

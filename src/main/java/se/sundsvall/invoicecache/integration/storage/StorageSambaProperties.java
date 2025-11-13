@@ -14,9 +14,8 @@ public record StorageSambaProperties(
 	// Domain in AD (Active Directory).
 	String userDomain,
 	String host,
-	String share,
 
-	// Base directory on the Samba server where service directories are located.
+	// The name of the share, basically the top-level directory in the Samba server.
 	String baseDirectory,
 
 	// Directory within the baseDirectory where files are stored. Defaults to 'invoice-cache' if no value is set.
@@ -27,7 +26,7 @@ public record StorageSambaProperties(
 	@DefaultValue("test") String environment) {
 
 	public String targetUrl() {
-		return "smb://%s/%s/%s/%s/%s".formatted(host, share, baseDirectory, serviceDirectory, environment);
+		return "smb://%s/%s/%s/%s".formatted(host, baseDirectory, serviceDirectory, environment);
 	}
 
 	public CIFSContext cifsContext() {
