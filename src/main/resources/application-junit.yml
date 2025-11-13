@@ -25,6 +25,19 @@ integration:
       base-directory: abc
       service-directory: invoice-cache
       environment: test
+      scheduler:
+        jobs:
+          transfer:
+            cron: '-'
+            name: transfer
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
+            threshold: 6
+          truncate:
+            cron: '-'
+            name: truncate
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
 raindance:
   sql:
     filename: raindance-test.esscueell
