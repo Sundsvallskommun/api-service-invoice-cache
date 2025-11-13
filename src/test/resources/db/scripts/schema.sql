@@ -115,11 +115,11 @@
     create index idx_filename 
        on invoice_pdf (filename);
 
-    create index idx_moved_to_samba_at 
-       on invoice_pdf (moved_to_samba_at);
+    create index idx_moved_created_issuer 
+       on invoice_pdf (moved_to_samba_at, created, invoice_issuer_legal_id);
 
-    create index idx_truncated_at 
-       on invoice_pdf (blob_truncated_at);
+    create index idx_truncated_moved 
+       on invoice_pdf (blob_truncated_at, moved_to_samba_at);
 
     alter table if exists invoice_pdf 
        add constraint uk_filename unique (filename);

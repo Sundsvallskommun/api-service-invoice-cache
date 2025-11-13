@@ -18,4 +18,12 @@ public interface PdfRepository extends JpaRepository<PdfEntity, Long>, JpaSpecif
 
 	Optional<PdfEntity> findFirstByTruncatedAtIsNullAndMovedAtIsNotNull();
 
+	default Optional<PdfEntity> findPdfToTransfer(final OffsetDateTime created, final String issuerLegalId) {
+		return findFirstByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(created, issuerLegalId);
+	}
+
+	default Optional<PdfEntity> findPdfToTruncate() {
+		return findFirstByTruncatedAtIsNullAndMovedAtIsNotNull();
+	}
+
 }

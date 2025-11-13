@@ -45,14 +45,14 @@ class StorageSchedulerWorkerTest {
 	void transferFile() {
 		var pdfEntity = TestObjectFactory.generatePdfEntity();
 		var fileHash = "someFileHash";
-		when(pdfRepositoryMock.findFirstByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(any(), any()))
+		when(pdfRepositoryMock.findPdfToTransfer(any(), any()))
 			.thenReturn(Optional.of(pdfEntity));
 		when(storageSambaIntegrationMock.writeFile(pdfEntity.getDocument()))
 			.thenReturn(fileHash);
 
 		storageSchedulerWorker.transferFile();
 
-		verify(pdfRepositoryMock).findFirstByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(any(), any());
+		verify(pdfRepositoryMock).findPdfToTransfer(any(), any());
 		verify(pdfRepositoryMock).save(pdfEntityCaptor.capture());
 		var capturedPdfEntity = pdfEntityCaptor.getValue();
 		assertThat(capturedPdfEntity.getFileHash()).isEqualTo(fileHash);
@@ -67,7 +67,7 @@ class StorageSchedulerWorkerTest {
 		var pdfEntity = TestObjectFactory.generatePdfEntity();
 		pdfEntity.setFileHash(fileHash);
 
-		when(pdfRepositoryMock.findFirstByTruncatedAtIsNullAndMovedAtIsNotNull())
+		when(pdfRepositoryMock.findPdfToTruncate())
 			.thenReturn(Optional.of(pdfEntity));
 		when(storageSambaIntegrationMock.verifyBlobIntegrity(fileHash))
 			.thenReturn(fileHash);
@@ -76,7 +76,7 @@ class StorageSchedulerWorkerTest {
 
 		assertThat(pdfEntity.getDocument()).isNull();
 		assertThat(pdfEntity.getTruncatedAt()).isNotNull();
-		verify(pdfRepositoryMock).findFirstByTruncatedAtIsNullAndMovedAtIsNotNull();
+		verify(pdfRepositoryMock).findPdfToTruncate();
 		verify(pdfRepositoryMock).save(pdfEntity);
 		verify(storageSambaIntegrationMock).verifyBlobIntegrity(fileHash);
 	}
@@ -87,7 +87,7 @@ class StorageSchedulerWorkerTest {
 		var pdfEntity = TestObjectFactory.generatePdfEntity();
 		pdfEntity.setFileHash(fileHash);
 
-		when(pdfRepositoryMock.findFirstByTruncatedAtIsNullAndMovedAtIsNotNull())
+		when(pdfRepositoryMock.findPdfToTruncate())
 			.thenReturn(Optional.of(pdfEntity));
 		when(storageSambaIntegrationMock.verifyBlobIntegrity(fileHash))
 			.thenReturn("differentFileHash");
@@ -96,7 +96,7 @@ class StorageSchedulerWorkerTest {
 
 		assertThat(pdfEntity.getDocument()).isNotNull();
 		assertThat(pdfEntity.getTruncatedAt()).isNull();
-		verify(pdfRepositoryMock).findFirstByTruncatedAtIsNullAndMovedAtIsNotNull();
+		verify(pdfRepositoryMock).findPdfToTruncate();
 		verify(pdfRepositoryMock, never()).save(pdfEntity);
 		verify(storageSambaIntegrationMock).verifyBlobIntegrity(fileHash);
 	}

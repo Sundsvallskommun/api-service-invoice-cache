@@ -5,6 +5,7 @@ import static org.zalando.problem.Status.NOT_FOUND;
 import java.time.OffsetDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.zalando.problem.Problem;
@@ -22,11 +23,15 @@ public class StorageSchedulerWorker {
 	// Sundsvalls Kommun invoices should not be transferred to Samba storage
 	private static final String EXCLUDED_ISSUER_LEGAL_ID = "2120002411";
 
+	@Value("${integration.storage.samba.scheduler.jobs.transfer.threshold:6}")
+	private Integer transferThresholdMonths = 6;
+
 	public StorageSchedulerWorker(
 		final StorageSambaIntegration storageSambaIntegration,
 		final PdfRepository pdfRepository) {
 		this.storageSambaIntegration = storageSambaIntegration;
 		this.pdfRepository = pdfRepository;
+
 	}
 
 	/**
@@ -71,12 +76,12 @@ public class StorageSchedulerWorker {
 	}
 
 	/**
-	 * Finds a PDF that is older than 6 months and has not been moved yet.
+	 * Finds a PDF that is older than 'transferThresholdMonths' months and has not been moved yet.
 	 *
 	 * @return the PDF entity
 	 */
 	private PdfEntity findPdfToTransfer() {
-		return pdfRepository.findFirstByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(OffsetDateTime.now().minusMonths(6), EXCLUDED_ISSUER_LEGAL_ID)
+		return pdfRepository.findPdfToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), EXCLUDED_ISSUER_LEGAL_ID)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "Found no PDF that is older than 6 months and have not been moved yet"));
 	}
 
@@ -86,7 +91,7 @@ public class StorageSchedulerWorker {
 	 * @return the PDF entity
 	 */
 	private PdfEntity findPdfToTruncate() {
-		return pdfRepository.findFirstByTruncatedAtIsNullAndMovedAtIsNotNull()
+		return pdfRepository.findPdfToTruncate()
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "Found no PDF that have been moved and not yet truncated"));
 	}
 

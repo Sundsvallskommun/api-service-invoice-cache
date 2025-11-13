@@ -32,6 +32,7 @@ integration:
             name: transfer
             shedlock-lock-at-most-for: PT5M
             maximum-execution-time: PT5M
+            threshold: 6
           truncate:
             cron: '-'
             name: truncate

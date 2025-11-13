@@ -37,8 +37,8 @@ import se.sundsvall.invoicecache.api.model.InvoiceType;
 		@Index(name = "idx_invoice_type", columnList = "invoice_type"),
 		@Index(name = "idx_municipality_id", columnList = "municipality_id"),
 		@Index(name = "idx_filename", columnList = "filename"),
-		@Index(name = "idx_moved_to_samba_at", columnList = "moved_to_samba_at"),
-		@Index(name = "idx_truncated_at", columnList = "blob_truncated_at")
+		@Index(name = "idx_moved_created_issuer", columnList = "moved_to_samba_at, created, invoice_issuer_legal_id"),
+		@Index(name = "idx_truncated_moved", columnList = "blob_truncated_at, moved_to_samba_at")
 	},
 	uniqueConstraints = {
 		@UniqueConstraint(name = "uk_filename", columnNames = "filename")
