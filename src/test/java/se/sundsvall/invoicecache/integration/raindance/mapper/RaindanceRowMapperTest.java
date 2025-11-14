@@ -9,17 +9,13 @@ import java.math.RoundingMode;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
-import org.assertj.core.api.SoftAssertions;
-import org.assertj.core.api.junit.jupiter.SoftAssertionsExtension;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-@ExtendWith({
-	MockitoExtension.class, SoftAssertionsExtension.class
-})
+@ExtendWith(MockitoExtension.class)
 class RaindanceRowMapperTest {
 
 	@Mock
@@ -29,7 +25,7 @@ class RaindanceRowMapperTest {
 	private RaindanceRowMapper rowMapper;
 
 	@Test
-	void testMapRow(final SoftAssertions softly) throws SQLException {
+	void testMapRow() throws SQLException {
 		when(resultSet.getInt("NR")).thenReturn(321654);
 		when(resultSet.getInt("KRAVNIVA")).thenReturn(2);
 		when(resultSet.getInt("Z11_BEARPNR")).thenReturn(1234567890);
@@ -65,40 +61,40 @@ class RaindanceRowMapperTest {
 		when(resultSet.getTimestamp("Z11_BEADAT")).thenReturn(Timestamp.valueOf("2022-03-03 01:02:03"));
 		when(resultSet.getTimestamp("Z21_BEADAT")).thenReturn(Timestamp.valueOf("2022-04-05 01:02:03"));
 
-		var dto = rowMapper.mapRow(resultSet, 1);
+		final var dto = rowMapper.mapRow(resultSet, 1);
 
-		softly.assertThat(dto).isNotNull();
-		softly.assertThat(dto.getNr()).isEqualTo(321654);
-		softly.assertThat(dto.getKravniva()).isEqualTo(2);
-		softly.assertThat(dto.getZ11_bearpnr()).isEqualTo(1234567890);
-		softly.assertThat(dto.getZ11_blopnr()).isEqualTo(123);
-		softly.assertThat(dto.getZ11_sbnr()).isEqualTo(654321);
-		softly.assertThat(dto.getZ21_rpnr()).isEqualTo(1987654321);
+		assertThat(dto).isNotNull();
+		assertThat(dto.getNr()).isEqualTo(321654);
+		assertThat(dto.getKravniva()).isEqualTo(2);
+		assertThat(dto.getZ11_bearpnr()).isEqualTo(1234567890);
+		assertThat(dto.getZ11_blopnr()).isEqualTo(123);
+		assertThat(dto.getZ11_sbnr()).isEqualTo(654321);
+		assertThat(dto.getZ21_rpnr()).isEqualTo(1987654321);
 
-		softly.assertThat(dto.getKundidText()).isEqualTo("customer name");
-		softly.assertThat(dto.getKundid()).isEqualTo("customerid");
-		softly.assertThat(dto.getOrgnr()).isEqualTo("551234654321");
-		softly.assertThat(dto.getKundrtyp()).isEqualTo("KA");
-		softly.assertThat(dto.getOcrnr()).isEqualTo("45673456");
-		softly.assertThat(dto.getVREF()).isEqualTo("Something");
-		softly.assertThat(dto.getFaktstatus()).isEqualTo("Betald");
-		softly.assertThat(dto.isVoid()).isFalse();
-		softly.assertThat(dto.getTabBehand()).isEqualTo("JUST");
-		softly.assertThat(dto.getNamn2()).isEqualTo("c/o Kalle");
-		softly.assertThat(dto.getAdr2()).isEqualTo("Ankeborgsvägen 2");
-		softly.assertThat(dto.getOrt()).isEqualTo("12345 Ankeborg");
-		softly.assertThat(dto.getFilnamn()).isEqualTo("Faktura_555555_to_9988776655.pdf");
+		assertThat(dto.getKundidText()).isEqualTo("customer name");
+		assertThat(dto.getKundid()).isEqualTo("customerid");
+		assertThat(dto.getOrgnr()).isEqualTo("551234654321");
+		assertThat(dto.getKundrtyp()).isEqualTo("KA");
+		assertThat(dto.getOcrnr()).isEqualTo("45673456");
+		assertThat(dto.getVREF()).isEqualTo("Something");
+		assertThat(dto.getFaktstatus()).isEqualTo("Betald");
+		assertThat(dto.isVoid()).isFalse();
+		assertThat(dto.getTabBehand()).isEqualTo("JUST");
+		assertThat(dto.getNamn2()).isEqualTo("c/o Kalle");
+		assertThat(dto.getAdr2()).isEqualTo("Ankeborgsvägen 2");
+		assertThat(dto.getOrt()).isEqualTo("12345 Ankeborg");
+		assertThat(dto.getFilnamn()).isEqualTo("Faktura_555555_to_9988776655.pdf");
 
-		softly.assertThat(dto.getBeloppSek()).isEqualTo(BigDecimal.valueOf(999.00).setScale(2, RoundingMode.HALF_EVEN));
-		softly.assertThat(dto.getBetaltSek()).isEqualTo(BigDecimal.valueOf(888.00).setScale(2, RoundingMode.HALF_EVEN));
-		softly.assertThat(dto.getMomsVal()).isEqualTo(BigDecimal.valueOf(199.80).setScale(2, RoundingMode.HALF_EVEN));
-		softly.assertThat(dto.getZ21_beabel1()).isEqualTo(BigDecimal.valueOf(777.00).setScale(2, RoundingMode.HALF_EVEN));
-		softly.assertThat(dto.getZ11_beasum1()).isEqualTo(BigDecimal.valueOf(666.00).setScale(2, RoundingMode.HALF_EVEN));
+		assertThat(dto.getBeloppSek()).isEqualTo(BigDecimal.valueOf(999.00).setScale(2, RoundingMode.HALF_EVEN));
+		assertThat(dto.getBetaltSek()).isEqualTo(BigDecimal.valueOf(888.00).setScale(2, RoundingMode.HALF_EVEN));
+		assertThat(dto.getMomsVal()).isEqualTo(BigDecimal.valueOf(199.80).setScale(2, RoundingMode.HALF_EVEN));
+		assertThat(dto.getZ21_beabel1()).isEqualTo(BigDecimal.valueOf(777.00).setScale(2, RoundingMode.HALF_EVEN));
+		assertThat(dto.getZ11_beasum1()).isEqualTo(BigDecimal.valueOf(666.00).setScale(2, RoundingMode.HALF_EVEN));
 
-		softly.assertThat(dto.getFakturadatum()).isEqualTo(Timestamp.valueOf("2022-01-01 01:02:03"));
-		softly.assertThat(dto.getForfallodatum()).isEqualTo(Timestamp.valueOf("2022-02-02 01:02:03"));
-		softly.assertThat(dto.getZ11_beadat()).isEqualTo(Timestamp.valueOf("2022-03-03 01:02:03"));
-		softly.assertThat(dto.getZ21_beadat()).isEqualTo(Timestamp.valueOf("2022-04-05 01:02:03"));
+		assertThat(dto.getFakturadatum()).isEqualTo(Timestamp.valueOf("2022-01-01 01:02:03"));
+		assertThat(dto.getForfallodatum()).isEqualTo(Timestamp.valueOf("2022-02-02 01:02:03"));
+		assertThat(dto.getZ11_beadat()).isEqualTo(Timestamp.valueOf("2022-03-03 01:02:03"));
+		assertThat(dto.getZ21_beadat()).isEqualTo(Timestamp.valueOf("2022-04-05 01:02:03"));
 	}
 
 	@Test
