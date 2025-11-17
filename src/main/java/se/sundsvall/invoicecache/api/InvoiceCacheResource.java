@@ -71,7 +71,7 @@ class InvoiceCacheResource {
 	ResponseEntity<InvoicePdf> getInvoicePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable @NotBlank final String filename) {
-		final var invoicePdf = invoicePdfService.getInvoicePdf(filename, municipalityId);
+		final var invoicePdf = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
 
 		return ok(invoicePdf);
 	}

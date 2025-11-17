@@ -35,6 +35,7 @@ public class StorageSambaIntegration {
 	 *                 expected, it should always be equal to the provided blobKey.
 	 */
 	public String verifyBlobIntegrity(final String blobKey) {
+		LOGGER.info("Verifying blob integrity for blobKey '{}'", blobKey);
 		if (blobKey == null || blobKey.isEmpty()) {
 			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Blob key cannot be null or empty");
 		}
@@ -58,6 +59,7 @@ public class StorageSambaIntegration {
 	 * @return      the SHA256 hash of the file content
 	 */
 	public String writeFile(final Blob blob) {
+		LOGGER.info("Writing file to Samba storage");
 		if (blob == null) {
 			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Blob cannot be null");
 		}
@@ -98,6 +100,7 @@ public class StorageSambaIntegration {
 	 * @return         InputStream of the file content
 	 */
 	public SmbFile readFile(final String blobKey) {
+		LOGGER.info("Reading file with blobKey '{}'", blobKey);
 		if (blobKey == null || blobKey.isEmpty()) {
 			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Blob key cannot be null or empty");
 		}

@@ -1,4 +1,4 @@
-package se.sundsvall.invoicecache.service;
+package se.sundsvall.invoicecache.service.mapper;
 
 import static java.time.LocalDate.now;
 import static java.util.Objects.nonNull;
@@ -20,8 +20,7 @@ public class InvoiceMapper {
 	 */
 	public Invoice entityToInvoice(final InvoiceEntity entity) {
 		// Don't map legalId!
-		final Invoice invoice = Invoice
-			.builder()
+		final Invoice invoice = Invoice.builder()
 			.withCustomerName(entity.getCustomerName())
 			.withCustomerType(entity.getCustomerType())
 			.withInvoiceAddress(entityToAddress(entity))
@@ -61,12 +60,12 @@ public class InvoiceMapper {
 	 * Calculates the amount without VAT, calculation is done on the invoice object since the entity probably contains
 	 * negative values for totalAmount.
 	 */
-	private void calculateAmountExcludingVat(Invoice invoice) {
+	private void calculateAmountExcludingVat(final Invoice invoice) {
 		// Subtract the vat amount from total amount.
 		invoice.setAmountVatExcluded(invoice.getTotalAmount().subtract(invoice.getVat()).abs().setScale(2, RoundingMode.HALF_EVEN));
 	}
 
-	private void calculateInvoiceAndPaidAmount(Invoice invoice) {
+	private void calculateInvoiceAndPaidAmount(final Invoice invoice) {
 		// If invoice amount is (+) and paid amount is (-), it's paid, set the paid amount to (+)
 		if ((invoice.getTotalAmount().signum() == 1) && (invoice.getPaidAmount().signum() == -1)) {
 			invoice.setPaidAmount(invoice.getPaidAmount().abs());
@@ -82,7 +81,7 @@ public class InvoiceMapper {
 		}
 	}
 
-	void determineInvoiceStatus(Invoice invoice, InvoiceEntity entity) {
+	void determineInvoiceStatus(final Invoice invoice, final InvoiceEntity entity) {
 		determineIfReminder(invoice);
 		determineIfSent(invoice, entity);
 	}
@@ -91,7 +90,7 @@ public class InvoiceMapper {
 	 * If an invoice has a reminder date after its invoice due date, and it has a valid status for e reminder, it's a
 	 * reminder.
 	 */
-	void determineIfReminder(Invoice invoice) {
+	void determineIfReminder(final Invoice invoice) {
 		if (invoiceReminderDateIsAfterInvoiceDueDate(invoice) && invoiceHasStatusValidForReminder(invoice)) {
 			invoice.setInvoiceStatus(InvoiceStatus.REMINDER);
 		}
@@ -100,7 +99,7 @@ public class InvoiceMapper {
 	/**
 	 * If reminder date is after invoice due date, it's a reminder
 	 */
-	boolean invoiceReminderDateIsAfterInvoiceDueDate(Invoice invoice) {
+	boolean invoiceReminderDateIsAfterInvoiceDueDate(final Invoice invoice) {
 		if (invoice.getInvoiceReminderDate() == null) {
 			return false;
 		}
@@ -111,7 +110,7 @@ public class InvoiceMapper {
 	 * Determine if the invoice has a status that is valid for a reminder. If it's not paid in full, it's valid for the
 	 * "REMINDER" status. E.g if it's a debt collection etc it's not ok to set it as a reminder.
 	 */
-	boolean invoiceHasStatusValidForReminder(Invoice invoice) {
+	boolean invoiceHasStatusValidForReminder(final Invoice invoice) {
 		return (invoice.getInvoiceStatus() == InvoiceStatus.UNPAID)
 			|| (invoice.getInvoiceStatus() == InvoiceStatus.PARTIALLY_PAID);
 	}
@@ -123,8 +122,8 @@ public class InvoiceMapper {
 	 * @param invoice to compare against the invoice date
 	 * @param entity  to get hold of the print date for the invoice
 	 */
-	void determineIfSent(Invoice invoice, InvoiceEntity entity) {
-		// Check if todays date is between the invoicedate and print date.
+	void determineIfSent(final Invoice invoice, final InvoiceEntity entity) {
+		// Check if today's date is between the invoice date and print date.
 		if (nonNull(entity.getInvoiceCreatedDate()) && now().isBefore(invoice.getInvoiceDate()) && now().isAfter(entity.getInvoiceCreatedDate())) {
 			invoice.setInvoiceStatus(InvoiceStatus.SENT);
 		}

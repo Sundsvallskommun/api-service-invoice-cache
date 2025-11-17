@@ -10,11 +10,19 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import jcifs.smb.SmbFile;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Answers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -24,62 +32,206 @@ import org.springframework.data.jpa.domain.Specification;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
-import se.sundsvall.invoicecache.api.model.InvoiceType;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifications;
+import se.sundsvall.invoicecache.integration.raindance.samba.RaindanceSambaIntegration;
+import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
+import se.sundsvall.invoicecache.service.mapper.PdfMapper;
 
 @ExtendWith(MockitoExtension.class)
 class InvoicePdfServiceTest {
 
 	@Spy
-	private InvoicePdfSpecifications specifications;
+	private InvoicePdfSpecifications specificationsSpy;
 
 	@Mock
-	private PdfRepository mockRepository;
+	private StorageSambaIntegration storageSambaIntegrationMock;
+
+	@Mock
+	private RaindanceSambaIntegration raindanceSambaIntegrationMock;
+
+	@Mock
+	private PdfRepository pdfRepositoryMock;
+
+	@Mock(answer = Answers.CALLS_REAL_METHODS)
+	private PdfMapper pdfMapperMock;
 
 	@InjectMocks
-	private InvoicePdfService pdfService;
+	private InvoicePdfService invoicePdfService;
+
+	@AfterEach
+	void tearDown() {
+		verifyNoMoreInteractions(storageSambaIntegrationMock, raindanceSambaIntegrationMock, pdfRepositoryMock);
+	}
 
 	@Test
-	void getInvoicePdf() {
+	void getInvoicePdfByFilename_foundInDatabaseNotTruncated() throws SQLException {
+		final var filename = "someFileName";
+		final var municipalityId = "2281";
+		final var blobMock = Mockito.mock(Blob.class);
+		final var someBlobBytes = "someBlob".getBytes();
+		final var pdfEntity = PdfEntity.builder()
+			.withTruncatedAt(null)
+			.withDocument(blobMock)
+			.build();
+
+		when(blobMock.length()).thenReturn(123L);
+		when(blobMock.getBytes(1, 123)).thenReturn(someBlobBytes);
+		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
+
+		final var result = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someBlobBytes));
+
+		verify(pdfRepositoryMock).findByFilenameAndMunicipalityId(filename, municipalityId);
+		verify(pdfMapperMock).mapToResponse(pdfEntity);
+		verifyNoInteractions(storageSambaIntegrationMock, raindanceSambaIntegrationMock);
+	}
+
+	@Test
+	void getInvoicePdfByFilename_foundInDatabaseTruncated() throws IOException {
+		final var filename = "someFileName";
+		final var municipalityId = "2281";
+		final var smbFileMock = Mockito.mock(SmbFile.class);
+		final var inputStreamMock = Mockito.mock(InputStream.class);
+		final var someInputStreamBytes = "someInputStreamBytes".getBytes();
+		final var pdfEntity = PdfEntity.builder()
+			.withTruncatedAt(OffsetDateTime.MIN)
+			.withFileHash("someFileHash")
+			.withDocument(null)
+			.build();
+
+		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
+		when(storageSambaIntegrationMock.readFile("someFileHash")).thenReturn(smbFileMock);
+		when(smbFileMock.getInputStream()).thenReturn(inputStreamMock);
+		when(inputStreamMock.readAllBytes()).thenReturn(someInputStreamBytes);
+
+		final var result = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someInputStreamBytes));
+
+		verify(pdfRepositoryMock).findByFilenameAndMunicipalityId(filename, municipalityId);
+		verify(storageSambaIntegrationMock).readFile("someFileHash");
+		verify(smbFileMock).getInputStream();
+		verify(inputStreamMock).readAllBytes();
+		verify(pdfMapperMock).mapToResponse(pdfEntity, smbFileMock);
+		verifyNoInteractions(raindanceSambaIntegrationMock);
+	}
+
+	@Test
+	void getInvoicePdfByFilename_notFoundInDatabase() throws SQLException {
+		final var filename = "someFileName";
+		final var municipalityId = "2281";
+		final var blobMock = Mockito.mock(Blob.class);
+		final var someBlobBytes = "someBlob".getBytes();
+		final var pdfEntity = PdfEntity.builder()
+			.withTruncatedAt(null)
+			.withDocument(blobMock)
+			.build();
+
+		when(blobMock.length()).thenReturn(123L);
+		when(blobMock.getBytes(1, 123)).thenReturn(someBlobBytes);
+		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.empty());
+		when(raindanceSambaIntegrationMock.findPdf(filename, municipalityId)).thenReturn(pdfEntity);
+
+		final var result = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someBlobBytes));
+
+		verify(pdfRepositoryMock).findByFilenameAndMunicipalityId(filename, municipalityId);
+		verify(raindanceSambaIntegrationMock).findPdf(filename, municipalityId);
+		verify(pdfMapperMock).mapToResponse(pdfEntity);
+		verifyNoInteractions(storageSambaIntegrationMock);
+	}
+
+	@Test
+	void getInvoicePdfByFilename() {
 		// Arrange
 		final var filename = "someFileName";
 		final var municipalityId = "2281";
 		final var pdfEntity = generatePdfEntity();
-		when(mockRepository.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
+		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
 
 		// Act
-
-		final var invoicePdf = pdfService.getInvoicePdf(filename, municipalityId);
+		final var invoicePdf = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
 
 		// Assert
 		assertThat(invoicePdf.name()).isEqualTo("someFileName");
 		assertThat(invoicePdf.content()).isEqualTo(Base64.getEncoder().encodeToString("blobMe".getBytes()));
-		verify(mockRepository, times(1)).findByFilenameAndMunicipalityId(filename, municipalityId);
-		verifyNoInteractions(specifications);
-		verifyNoMoreInteractions(mockRepository);
+		verify(pdfRepositoryMock, times(1)).findByFilenameAndMunicipalityId(filename, municipalityId);
+		verifyNoInteractions(specificationsSpy);
+		verifyNoMoreInteractions(pdfRepositoryMock);
 	}
 
 	@Test
-	void getInvoicePdf_throwsException() {
-
+	void getInvoicePdf_ByFilename_throwsException() {
 		// Arrange
 		final var filename = "someFileName";
 		final var municipalityId = "2281";
 
-		when(mockRepository.findByFilenameAndMunicipalityId(filename, municipalityId)).thenThrow(new RuntimeException());
+		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenThrow(new RuntimeException());
 
 		// Act & Assert
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> pdfService.getInvoicePdf(filename, municipalityId));
-		verify(mockRepository, times(1)).findByFilenameAndMunicipalityId(filename, municipalityId);
-		verifyNoInteractions(specifications);
-		verifyNoMoreInteractions(mockRepository);
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> invoicePdfService.getInvoicePdfByFilename(filename, municipalityId));
+		verify(pdfRepositoryMock, times(1)).findByFilenameAndMunicipalityId(filename, municipalityId);
+		verifyNoInteractions(specificationsSpy);
+		verifyNoMoreInteractions(pdfRepositoryMock);
 	}
 
 	@Test
-	void getInvoicePdfByInvoiceNumber() {
+	void getInvoicePdfByInvoiceNumber_truncated() throws IOException {
+		final var issuerLegalId = "someIssuerLegalId";
+		final var invoiceNumber = "someInvoiceNumber";
+		final var municipalityId = "2281";
+		final var request = new InvoicePdfFilterRequest();
+		final var pdfEntity = generatePdfEntity();
+		pdfEntity.setTruncatedAt(OffsetDateTime.MIN);
+		final var smbFileMock = Mockito.mock(SmbFile.class);
+		final var inputStreamMock = Mockito.mock(InputStream.class);
+		final var someInputStreamBytes = "someInputStreamBytes".getBytes();
 
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any())).thenReturn(List.of(pdfEntity));
+		when(storageSambaIntegrationMock.readFile(pdfEntity.getFileHash())).thenReturn(smbFileMock);
+		when(smbFileMock.getInputStream()).thenReturn(inputStreamMock);
+		when(inputStreamMock.readAllBytes()).thenReturn(someInputStreamBytes);
+
+		final var result = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someInputStreamBytes));
+		verify(specificationsSpy).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
+		verify(pdfRepositoryMock).findAll(Mockito.<Specification<PdfEntity>>any());
+		verify(storageSambaIntegrationMock).readFile(pdfEntity.getFileHash());
+		verify(pdfMapperMock).mapToResponse(pdfEntity, smbFileMock);
+		verify(smbFileMock).getInputStream();
+		verify(inputStreamMock).readAllBytes();
+	}
+
+	@Test
+	void getInvoicePdfByInvoiceNumber_notTruncated() {
+		final var issuerLegalId = "someIssuerLegalId";
+		final var invoiceNumber = "someInvoiceNumber";
+		final var municipalityId = "2281";
+		final var request = new InvoicePdfFilterRequest();
+		final var pdfEntity = generatePdfEntity();
+
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any())).thenReturn(List.of(pdfEntity));
+
+		final var result = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString("blobMe".getBytes()));
+		verify(specificationsSpy).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
+		verify(pdfRepositoryMock).findAll(Mockito.<Specification<PdfEntity>>any());
+		verify(pdfMapperMock).mapToResponse(pdfEntity);
+	}
+
+	@Test
+	void getInvoicePdfByInvoiceNumberByFilename() {
 		// Arrange
 		final var issuerLegalId = "someIssuerLegalId";
 		final var invoiceNumber = "someInvoiceNumber";
@@ -87,26 +239,23 @@ class InvoicePdfServiceTest {
 		final var municipalityId = "2281";
 		final var request = new InvoicePdfFilterRequest();
 
-		when(mockRepository.findAll(Mockito.<Specification<PdfEntity>>any())).thenReturn(List.of(generatePdfEntity()));
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any())).thenReturn(List.of(generatePdfEntity()));
 
 		// Act
-		final var invoicePdf = pdfService
-			.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
+		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
 
 		// Assert
 		assertThat(invoicePdf.name()).isEqualTo(fileName);
 		assertThat(invoicePdf.content()).isEqualTo(Base64.getEncoder().encodeToString("blobMe".getBytes()));
 
-		verify(mockRepository, times(1)).findAll(Mockito.<Specification<PdfEntity>>any());
-		verify(specifications, times(1))
-			.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
-		verifyNoMoreInteractions(mockRepository);
-		verifyNoMoreInteractions(specifications);
+		verify(pdfRepositoryMock, times(1)).findAll(Mockito.<Specification<PdfEntity>>any());
+		verify(specificationsSpy, times(1)).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
+		verifyNoMoreInteractions(pdfRepositoryMock);
+		verifyNoMoreInteractions(specificationsSpy);
 	}
 
 	@Test
-	void getInvoicePdfByInvoiceNumber_throwsException() {
-
+	void getInvoicePdfByInvoiceNumber_throwsExceptionByFilename() {
 		// Arrange
 		final var request = new InvoicePdfFilterRequest();
 		final var issuerLegalId = "someIssuerLegalId";
@@ -114,99 +263,46 @@ class InvoicePdfServiceTest {
 		final var municipalityId = "2281";
 		final var exception = new RuntimeException();
 
-		when(mockRepository.findAll(Mockito.<Specification<PdfEntity>>any())).thenThrow(exception);
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any())).thenThrow(exception);
 
 		// Act & Assert
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> pdfService.getInvoicePdfByInvoiceNumber(
+		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> invoicePdfService.getInvoicePdfByInvoiceNumber(
 			issuerLegalId, invoiceNumber, request, municipalityId));
 
-		verify(mockRepository, times(1)).findAll(Mockito.<Specification<PdfEntity>>any());
-		verify(specifications, times(1))
+		verify(pdfRepositoryMock, times(1)).findAll(Mockito.<Specification<PdfEntity>>any());
+		verify(specificationsSpy, times(1))
 			.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
-		verifyNoMoreInteractions(mockRepository);
-		verifyNoMoreInteractions(specifications);
+		verifyNoMoreInteractions(pdfRepositoryMock);
+		verifyNoMoreInteractions(specificationsSpy);
 	}
 
 	@Test
 	void test_createOrUpdateInvoiceWhenInvoiceDoesNotExist() {
-
 		// Arrange
 		final var municipalityId = "2281";
 		final var filename = "someFilename";
 		final var pdfEntity = PdfEntity.builder().withFilename(filename).build();
-		when(mockRepository.save(any(PdfEntity.class)))
-			.thenReturn(pdfEntity);
 
 		final var request = InvoicePdfRequest.builder()
+			.withInvoiceNumber("someInvoiceNumber")
+			.withInvoiceId("someInvoiceId")
 			.withAttachment(InvoicePdf.builder()
 				.withContent("someContent")
 				.build())
 			.build();
 
+		when(pdfRepositoryMock.findByInvoiceNumberAndInvoiceIdAndMunicipalityId(request.invoiceNumber(), request.invoiceId(), municipalityId)).thenReturn(Optional.empty());
+		when(pdfRepositoryMock.save(any(PdfEntity.class))).thenReturn(pdfEntity);
+
 		// Act
-		final var result = pdfService.createOrUpdateInvoice(request, municipalityId);
+		final var result = invoicePdfService.createOrUpdateInvoice(request, municipalityId);
 
 		// Assert
 		assertThat(result).isEqualTo(filename);
 
-		verify(mockRepository, times(1)).save(any(PdfEntity.class));
-		verifyNoInteractions(specifications);
-	}
-
-	@Test
-	void test_mapToEntity() {
-
-		// Arrange
-		final var municipalityId = "2281";
-		final var request = InvoicePdfRequest.builder()
-			.withIssuerLegalId("someIssuerLegalId")
-			.withDebtorLegalId("someDebtorLegalId")
-			.withInvoiceNumber("someInvoiceNumber")
-			.withInvoiceType(InvoiceType.SELF_INVOICE)
-			.withAttachment(InvoicePdf.builder()
-				.withName("someName")
-				.withContent("someContent")
-				.build())
-			.build();
-
-		// Act
-		final var entity = pdfService.mapToEntity(request, municipalityId);
-
-		// Assert
-		assertThat(entity.getInvoiceIssuerLegalId()).isEqualTo(request.issuerLegalId());
-		assertThat(entity.getInvoiceDebtorLegalId()).isEqualTo(request.debtorLegalId());
-		assertThat(entity.getInvoiceNumber()).isEqualTo(request.invoiceNumber());
-		assertThat(entity.getInvoiceType()).isEqualTo(request.invoiceType());
-		assertThat(entity.getFilename()).isEqualTo(request.attachment().name());
-		assertThat(entity.getDocument()).isNotNull();
-	}
-
-	@Test
-	void test_mapOntoExistingEntity() {
-
-		// Arrange
-		final var pdfEntity = generatePdfEntity();
-		final var request = InvoicePdfRequest.builder()
-			.withIssuerLegalId("someIssuerLegalId")
-			.withDebtorLegalId("someDebtorLegalId")
-			.withInvoiceNumber("someInvoiceNumber")
-			.withInvoiceType(InvoiceType.SELF_INVOICE)
-			.withAttachment(InvoicePdf.builder()
-				.withName("someName.pdf")
-				.withContent("someContent")
-				.build())
-			.build();
-
-		// Act
-		pdfService.mapOntoExistingEntity(pdfEntity, request);
-
-		// Assert
-		assertThat(pdfEntity.getInvoiceIssuerLegalId()).isEqualTo(request.issuerLegalId());
-		assertThat(pdfEntity.getInvoiceDebtorLegalId()).isEqualTo(request.debtorLegalId());
-		assertThat(pdfEntity.getInvoiceNumber()).isEqualTo(request.invoiceNumber());
-		assertThat(pdfEntity.getInvoiceType()).isEqualTo(request.invoiceType());
-		assertThat(pdfEntity.getFilename()).isEqualTo(request.attachment().name());
-		assertThat(pdfEntity.getDocument()).isNotNull();
+		verify(pdfRepositoryMock).findByInvoiceNumberAndInvoiceIdAndMunicipalityId(request.invoiceNumber(), request.invoiceId(), municipalityId);
+		verify(pdfRepositoryMock).save(any(PdfEntity.class));
+		verifyNoInteractions(specificationsSpy);
 	}
 
 }
