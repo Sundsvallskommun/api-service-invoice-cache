@@ -48,7 +48,7 @@ public class StorageSchedulerWorker {
 		file.setFileHash(fileHash);
 		file.setMovedAt(movedAt);
 		pdfRepository.save(file);
-		LOG.info("File transfer completed successfully. ID='{}', movedAt='{}', hash='{}'.", file.getId(), fileHash, movedAt);
+		LOG.info("File transfer completed successfully. ID='{}', movedAt='{}', hash='{}'.", file.getId(), movedAt, fileHash);
 	}
 
 	/**

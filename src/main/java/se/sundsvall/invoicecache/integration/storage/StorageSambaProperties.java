@@ -14,6 +14,7 @@ public record StorageSambaProperties(
 	// Domain in AD (Active Directory).
 	String userDomain,
 	String host,
+	@DefaultValue("445") Integer port,
 
 	// The name of the share, basically the top-level directory in the Samba server.
 	String baseDirectory,
@@ -26,7 +27,7 @@ public record StorageSambaProperties(
 	@DefaultValue("test") String environment) {
 
 	public String targetUrl() {
-		return "smb://%s/%s/%s/%s".formatted(host, baseDirectory, serviceDirectory, environment);
+		return "smb://%s:%d/%s/%s/%s".formatted(host, port, baseDirectory, serviceDirectory, environment);
 	}
 
 	public CIFSContext cifsContext() {

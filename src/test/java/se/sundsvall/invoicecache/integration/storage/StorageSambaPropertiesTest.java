@@ -29,6 +29,7 @@ class StorageSambaPropertiesTest {
 		assertThat(properties.password()).isEqualTo("password");
 		assertThat(properties.userDomain()).isEqualTo("user-domain");
 		assertThat(properties.host()).isEqualTo("samba-host");
+		assertThat(properties.port()).isEqualTo(445);
 		assertThat(properties.baseDirectory()).isEqualTo("abc");
 		assertThat(properties.serviceDirectory()).isEqualTo("invoice-cache");
 		assertThat(properties.environment()).isEqualTo("test");
@@ -38,7 +39,7 @@ class StorageSambaPropertiesTest {
 	void targetUrlTest() {
 		var sourceUrl = properties.targetUrl();
 
-		assertThat(sourceUrl).isEqualTo("smb://samba-host/abc/invoice-cache/test");
+		assertThat(sourceUrl).isEqualTo("smb://samba-host:445/abc/invoice-cache/test");
 	}
 
 	@Test
