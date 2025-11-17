@@ -81,7 +81,7 @@ class RaindanceToInvoiceMapperTest {
 		final var dto = TestObjectFactory.generateRaindanceQueryResultDto();
 		dto.setOcrnr(null);
 
-		assertThat("2300122202020001290").isEqualTo(mapper.getOrCalculateOcr(dto));
+		assertThat(mapper.getOrCalculateOcr(dto)).isEqualTo("2300122202020001290");
 	}
 
 	@Test
@@ -118,8 +118,8 @@ class RaindanceToInvoiceMapperTest {
 
 		final var invoice = new InvoiceEntity();
 		mapper.setZipAndCityIfCorrectFormat(dto, invoice);
-		assertThat("856 52").isEqualTo(invoice.getZip());
-		assertThat("SUNDSVALL").isEqualTo(invoice.getCity());
+		assertThat(invoice.getZip()).isEqualTo("856 52");
+		assertThat(invoice.getCity()).isEqualTo("SUNDSVALL");
 	}
 
 	@Test
