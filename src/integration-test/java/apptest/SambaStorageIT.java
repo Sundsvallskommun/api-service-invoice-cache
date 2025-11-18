@@ -4,10 +4,11 @@ import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
 import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import java.nio.file.Paths;
+import java.io.IOException;
 import java.util.Map;
 import jcifs.CIFSContext;
 import jcifs.smb.SmbFile;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,13 +17,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import org.testcontainers.utility.MountableFile;
 import se.sundsvall.dept44.test.AbstractAppTest;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.invoicecache.Application;
@@ -58,13 +59,10 @@ class SambaStorageIT extends AbstractAppTest {
 			"NAME", "ocp",
 			"USER", "user",
 			"PASS", "password"))
-
-		.withFileSystemBind(
-			Paths.get("src/integration-test/resources/test-directory")
-				.toAbsolutePath()
-				.toString(),
-			"/storage",
-			BindMode.READ_WRITE);
+		.withCopyFileToContainer(
+			MountableFile.forClasspathResource("test-directory"),
+			"/storage"
+		);
 
 	/**
 	 * The MariaDB container for InvoiceCache. This is used for storing invoice PDFs.
@@ -96,6 +94,11 @@ class SambaStorageIT extends AbstractAppTest {
 		registry.add("samba.port", () -> port);
 
 		registry.add("invoice.scheduled.cron", () -> "-");
+	}
+
+	@BeforeAll
+	static void init() throws IOException, InterruptedException {
+		smbContainer.execInContainer("sh", "-c", "chmod -R 777 /storage");
 	}
 
 	@BeforeEach

@@ -34,8 +34,9 @@ public class StorageSambaIntegration {
 	/**
 	 * Reads file from Samba storage and SHA256 hashes the content.
 	 *
-	 * @param blobKey Hash value used as the file name in the Samba storage.
-	 * @return SHA256 hash of the file content as a 64-character hexadecimal string. If everything works as expected, it should always be equal to the provided blobKey.
+	 * @param  blobKey Hash value used as the file name in the Samba storage.
+	 * @return         SHA256 hash of the file content as a 64-character hexadecimal string. If everything works as
+	 *                 expected, it should always be equal to the provided blobKey.
 	 */
 	public String verifyBlobIntegrity(final String blobKey) {
 		LOGGER.info("Verifying blob integrity for blobKey '{}'", blobKey);
@@ -58,8 +59,8 @@ public class StorageSambaIntegration {
 	/**
 	 * Writes file to Samba storage and returns a SHA256 hash of the file content
 	 *
-	 * @param blob the file content to write
-	 * @return the SHA256 hash of the file content
+	 * @param  blob the file content to write
+	 * @return      the SHA256 hash of the file content
 	 */
 	public String writeFile(final Blob blob) {
 		LOGGER.info("Writing file to Samba storage");
@@ -99,8 +100,8 @@ public class StorageSambaIntegration {
 	/**
 	 * Reads file from Samba storage as an InputStream
 	 *
-	 * @param blobKey the blob key used to identify the file
-	 * @return InputStream of the file content
+	 * @param  blobKey the blob key used to identify the file
+	 * @return         InputStream of the file content
 	 */
 	public SmbFile readFile(final String blobKey) {
 		LOGGER.info("Reading file with blobKey '{}'", blobKey);
@@ -123,8 +124,8 @@ public class StorageSambaIntegration {
 	/**
 	 * Extracts the directory from the blob key.
 	 *
-	 * @param blobKey the blob key
-	 * @return the directory extracted from the blob key
+	 * @param  blobKey the blob key
+	 * @return         the directory extracted from the blob key
 	 */
 	private String extractDirectory(final String blobKey) {
 		// The first two characters of the blobKey are used as a directory name.
