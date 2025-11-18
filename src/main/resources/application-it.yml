@@ -17,9 +17,10 @@ integration:
     samba:
       user: user
       password: password
-      user-domain: USER_DOMAIN
-      host: localhost:${samba.server.port}
-      base-directory: base
+      user-domain: WORKGROUP
+      host: localhost
+      port: ${samba.port:445}
+      share: ocp
       service-directory: invoice-cache
       environment: test
       scheduler:

@@ -29,7 +29,8 @@ class StorageSambaPropertiesTest {
 		assertThat(properties.password()).isEqualTo("password");
 		assertThat(properties.userDomain()).isEqualTo("user-domain");
 		assertThat(properties.host()).isEqualTo("samba-host");
-		assertThat(properties.baseDirectory()).isEqualTo("abc");
+		assertThat(properties.port()).isEqualTo(445);
+		assertThat(properties.share()).isEqualTo("abc");
 		assertThat(properties.serviceDirectory()).isEqualTo("invoice-cache");
 		assertThat(properties.environment()).isEqualTo("test");
 	}
@@ -38,22 +39,19 @@ class StorageSambaPropertiesTest {
 	void targetUrlTest() {
 		var sourceUrl = properties.targetUrl();
 
-		assertThat(sourceUrl).isEqualTo("smb://samba-host/abc/invoice-cache/test");
+		assertThat(sourceUrl).isEqualTo("smb://samba-host:445/abc/invoice-cache/test");
 	}
 
 	@Test
 	void cifsContextTest() {
 		var mockedContext = Mockito.mock(SingletonContext.class);
 		var argumentCaptor = ArgumentCaptor.forClass(NtlmPasswordAuthenticator.class);
-
 		try (final var mockedStatic = mockStatic(SingletonContext.class)) {
 			mockedStatic.when(SingletonContext::getInstance).thenReturn(mockedContext);
 			when(mockedContext.withCredentials(Mockito.any(NtlmPasswordAuthenticator.class))).thenCallRealMethod();
 			var cifsContext = properties.cifsContext();
-
 			assertThat(cifsContext).isNotNull();
 			verify(mockedContext).withCredentials(argumentCaptor.capture());
-
 			var value = argumentCaptor.getValue();
 			assertThat(value.getName()).isEqualTo("user-domain\\user");
 			assertThat(value.getUsername()).isEqualTo("user");
