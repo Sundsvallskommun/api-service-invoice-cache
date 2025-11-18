@@ -1,10 +1,7 @@
 package se.sundsvall.invoicecache.integration.storage;
 
-import java.util.Properties;
 import jcifs.CIFSContext;
-import jcifs.CIFSException;
-import jcifs.config.PropertyConfiguration;
-import jcifs.context.BaseContext;
+import jcifs.context.SingletonContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.bind.DefaultValue;
@@ -33,17 +30,8 @@ public record StorageSambaProperties(
 		return "smb://%s:%d/%s/%s/%s".formatted(host, port, share, serviceDirectory, environment);
 	}
 
-	public CIFSContext cifsContext() throws CIFSException {
-		return new BaseContext(new PropertyConfiguration(jcifsProperties()))
-			.withCredentials(new NtlmPasswordAuthenticator(userDomain, user, password));
-	}
-
-	private Properties jcifsProperties() {
-		var jcifsProperties = new Properties();
-		jcifsProperties.setProperty("jcifs.smb.client.connTimeout", Long.toString(3000L));
-		jcifsProperties.setProperty("jcifs.smb.client.responseTimeout", Long.toString(3000L));
-		jcifsProperties.setProperty("jcifs.smb.client.minVersion", "SMB300");
-		jcifsProperties.setProperty("jcifs.smb.client.maxVersion", "SMB311");
-		return jcifsProperties;
+	public CIFSContext cifsContext() {
+		var base = SingletonContext.getInstance();
+		return base.withCredentials(new NtlmPasswordAuthenticator(userDomain, user, password));
 	}
 }
