@@ -6,7 +6,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import java.nio.file.Paths;
 import java.util.Map;
+import jcifs.CIFSContext;
 import jcifs.smb.SmbFile;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
@@ -38,6 +40,7 @@ class SambaStorageIT extends AbstractAppTest {
 	private static final String SAMBA_FILE_PATH = "smb://localhost:%d/%s/%s/%s/%s/%s.pdf";
 
 	private static int port;
+	private CIFSContext cifsContext;
 
 	@Autowired
 	private PdfRepository pdfRepository;
@@ -91,6 +94,14 @@ class SambaStorageIT extends AbstractAppTest {
 		registry.add("samba.port", () -> port);
 
 		registry.add("invoice.scheduled.cron", () -> "-");
+	}
+
+	@BeforeEach
+	void setUp() throws Exception {
+		// Initialize the JCIFS context, if needed
+		if (cifsContext == null) {
+			cifsContext = storageSambaProperties.cifsContext();
+		}
 	}
 
 	@Test

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mockConstruction;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -15,6 +14,7 @@ import java.io.IOException;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.stream.Stream;
+import jcifs.CIFSException;
 import jcifs.smb.SmbException;
 import jcifs.smb.SmbFile;
 import org.junit.jupiter.api.AfterEach;
@@ -43,7 +43,9 @@ class StorageSambaIntegrationTest {
 	private StorageSambaIntegration storageSambaIntegration;
 
 	@AfterEach
-	void tearDown() {
+	void tearDown() throws CIFSException {
+		// CifsContext is created in the constructor of StorageSambaIntegration and hence used in all tests.
+		verify(storageSambaProperties).cifsContext();
 		verifyNoMoreInteractions(storageSambaProperties);
 	}
 
@@ -53,7 +55,6 @@ class StorageSambaIntegrationTest {
 		var blobKey = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
 
 		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
-		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
 
 		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> when(mock.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes())))) {
 
@@ -66,7 +67,6 @@ class StorageSambaIntegrationTest {
 			verify(smbFile).getInputStream();
 		}
 		verify(storageSambaProperties).targetUrl();
-		verify(storageSambaProperties).cifsContext();
 	}
 
 	@ParameterizedTest
@@ -88,7 +88,6 @@ class StorageSambaIntegrationTest {
 
 		when(blob.getBinaryStream()).thenReturn(inputStream);
 		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
-		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
 
 		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> {
 			// Directory exists
@@ -114,7 +113,6 @@ class StorageSambaIntegrationTest {
 		}
 
 		verify(storageSambaProperties).targetUrl();
-		verify(storageSambaProperties, times(2)).cifsContext();
 	}
 
 	@Test
@@ -135,7 +133,6 @@ class StorageSambaIntegrationTest {
 
 		when(blob.getBinaryStream()).thenReturn(inputStream);
 		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
-		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
 
 		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> {
 			// Directory does not exist
@@ -160,7 +157,6 @@ class StorageSambaIntegrationTest {
 		}
 
 		verify(storageSambaProperties).targetUrl();
-		verify(storageSambaProperties, times(2)).cifsContext();
 	}
 
 	@Test
@@ -179,7 +175,6 @@ class StorageSambaIntegrationTest {
 				.hasMessageContaining("Could not write file to Samba");
 		}
 		verify(storageSambaProperties).targetUrl();
-		verify(storageSambaProperties).cifsContext();
 	}
 
 	@ParameterizedTest
@@ -192,7 +187,6 @@ class StorageSambaIntegrationTest {
 			var result = storageSambaIntegration.verifyBlobIntegrity(expectedHash);
 
 			verify(storageSambaProperties).targetUrl();
-			verify(storageSambaProperties).cifsContext();
 			assertThat(result).isEqualTo(expectedHash);
 		}
 	}
@@ -216,7 +210,6 @@ class StorageSambaIntegrationTest {
 				.hasMessageContaining("Could not verify blob integrity for %s".formatted(blobKey));
 		}
 		verify(storageSambaProperties).targetUrl();
-		verify(storageSambaProperties).cifsContext();
 	}
 
 	private static Stream<Arguments> verifyBlobIntegrityArgumentProvider() {

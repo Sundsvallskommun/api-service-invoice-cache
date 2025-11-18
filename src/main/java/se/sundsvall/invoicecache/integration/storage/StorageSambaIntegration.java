@@ -4,6 +4,8 @@ import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 import java.io.IOException;
 import java.sql.Blob;
+import jcifs.CIFSContext;
+import jcifs.CIFSException;
 import jcifs.smb.SmbFile;
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -22,9 +24,11 @@ public class StorageSambaIntegration {
 	private static final Integer DIRECTORY_BEGIN_INDEX = 0;
 
 	private final StorageSambaProperties properties;
+	private final CIFSContext cifsContext;
 
-	public StorageSambaIntegration(final StorageSambaProperties storageSambaProperties) {
+	public StorageSambaIntegration(final StorageSambaProperties storageSambaProperties) throws CIFSException {
 		this.properties = storageSambaProperties;
+		this.cifsContext = properties.cifsContext();
 	}
 
 	/**
@@ -44,7 +48,7 @@ public class StorageSambaIntegration {
 		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
 
-		try (final var file = new SmbFile(filePath, properties.cifsContext())) {
+		try (final var file = new SmbFile(filePath, cifsContext)) {
 			return HashUtil.SHA256(file.getInputStream());
 		} catch (IOException e) {
 			LOGGER.error("Failed to verify blob integrity for key '{}', path '{}'", blobKey, filePath);
@@ -73,14 +77,15 @@ public class StorageSambaIntegration {
 			var filePath = directoryPath + "/" + blobKey + ".pdf";
 
 			// Ensure the directory exists, if not, creates it.
-			try (final var sambaDirectory = new SmbFile(directoryPath, properties.cifsContext())) {
+			try (final var sambaDirectory = new SmbFile(directoryPath, cifsContext)) {
 				if (!sambaDirectory.exists()) {
 					sambaDirectory.mkdirs();
 				}
 			}
 
 			// Writes the file to Samba storage.
-			try (final var file = new SmbFile(filePath, properties.cifsContext());
+			System.out.println("Writing file to path: " + filePath);
+			try (final var file = new SmbFile(filePath, cifsContext);
 				var outputStream = file.getOutputStream();
 				var inputStream = blob.getBinaryStream()) {
 				IOUtils.copy(inputStream, outputStream);
@@ -110,7 +115,7 @@ public class StorageSambaIntegration {
 		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
 
 		try {
-			return new SmbFile(filePath, properties.cifsContext());
+			return new SmbFile(filePath, cifsContext);
 		} catch (IOException e) {
 			LOGGER.error("Failed to read blob for key '{}', path '{}'", blobKey, filePath);
 			throw new BlobIntegrityException("Could not read blob for " + blobKey, e);

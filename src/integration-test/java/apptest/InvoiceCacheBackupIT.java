@@ -28,7 +28,7 @@ import se.sundsvall.invoicecache.Application;
 @Sql({
 	"/InvoiceCacheBackup/sql/data-local.sql"
 })
-public class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
+class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 
 	private static final String PATH = "/2281/invoices";
 
