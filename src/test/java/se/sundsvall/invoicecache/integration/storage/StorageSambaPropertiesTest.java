@@ -23,7 +23,7 @@ class StorageSambaPropertiesTest {
 		assertThat(properties.userDomain()).isEqualTo("user-domain");
 		assertThat(properties.host()).isEqualTo("samba-host");
 		assertThat(properties.port()).isEqualTo(445);
-		assertThat(properties.baseDirectory()).isEqualTo("abc");
+		assertThat(properties.share()).isEqualTo("abc");
 		assertThat(properties.serviceDirectory()).isEqualTo("invoice-cache");
 		assertThat(properties.environment()).isEqualTo("test");
 	}

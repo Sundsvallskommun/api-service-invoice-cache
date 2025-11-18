@@ -20,7 +20,7 @@ integration:
       user-domain: WORKGROUP
       host: localhost
       port: ${samba.port:445}
-      base-directory: base-directory
+      share: ocp
       service-directory: invoice-cache
       environment: test
       scheduler:

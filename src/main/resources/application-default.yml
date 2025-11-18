@@ -18,7 +18,7 @@ integration:
       password: ${env.INTEGRATION_STORAGE_SAMBA_PASSWORD}
       user-domain: ${env.INTEGRATION_STORAGE_SAMBA_USER_DOMAIN}
       host: ${env.INTEGRATION_STORAGE_SAMBA_HOST}
-      base-directory: ${env.INTEGRATION_STORAGE_SAMBA_BASE_DIRECTORY}
+      share: ${env.INTEGRATION_STORAGE_SAMBA_SHARE}
       service-directory: ${env.INTEGRATION_STORAGE_SAMBA_SERVICE_DIRECTORY}
       environment: ${env.INTEGRATION_STORAGE_SAMBA_ENVIRONMENT}
       scheduler:

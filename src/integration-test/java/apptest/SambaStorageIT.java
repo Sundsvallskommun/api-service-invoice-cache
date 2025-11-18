@@ -55,14 +55,16 @@ class SambaStorageIT extends AbstractAppTest {
 	public static GenericContainer<?> smbContainer = new GenericContainer<>("dockurr/samba")
 		.withExposedPorts(445)
 		.withEnv(Map.of(
-			"NAME", "base-directory",
+			"NAME", "ocp",
 			"USER", "user",
 			"PASS", "password"))
+
 		.withFileSystemBind(
 			Paths.get("src/integration-test/resources/test-directory")
 				.toAbsolutePath()
 				.toString(),
-			"/storage", BindMode.READ_WRITE);
+			"/storage",
+			BindMode.READ_WRITE);
 
 	/**
 	 * The MariaDB container for InvoiceCache. This is used for storing invoice PDFs.
@@ -128,7 +130,7 @@ class SambaStorageIT extends AbstractAppTest {
 		var fileDirectory = transferredEntity.getFileHash().substring(0, 2);
 
 		try (var transferredFile = new SmbFile(SAMBA_FILE_PATH.formatted(
-			port, storageSambaProperties.baseDirectory(),
+			port, storageSambaProperties.share(),
 			storageSambaProperties.serviceDirectory(),
 			storageSambaProperties.environment(), fileDirectory,
 			transferredEntity.getFileHash()), storageSambaProperties.cifsContext())) {
