@@ -2,7 +2,11 @@ package apptest;
 
 import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
 import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
+import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
+import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 import java.io.IOException;
 import java.util.Map;
@@ -115,7 +119,7 @@ class SambaStorageIT extends AbstractAppTest {
 			.sendRequestAndVerifyResponse();
 
 		var transferredEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("1", "1", "2281").orElseThrow();
-		assertThat(transferredEntity.getMovedAt()).isNotNull();
+		assertThat(transferredEntity.getMovedAt()).isCloseTo(now(systemDefault()), within(5L, SECONDS));
 		assertThat(transferredEntity.getTruncatedAt()).isNull();
 		assertThat(transferredEntity.getDocument()).isNotNull();
 
@@ -151,7 +155,7 @@ class SambaStorageIT extends AbstractAppTest {
 
 		var truncatedEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("2", "2", "2281").orElseThrow();
 		assertThat(truncatedEntity.getMovedAt()).isNotNull();
-		assertThat(truncatedEntity.getTruncatedAt()).isNotNull();
+		assertThat(truncatedEntity.getTruncatedAt()).isCloseTo(now(systemDefault()), within(5L, SECONDS));
 		assertThat(truncatedEntity.getDocument()).isNull(); // Verify that the document has been truncated
 
 	}
