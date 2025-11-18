@@ -41,7 +41,7 @@ class SchedulerResource {
 	@PostMapping("/transfer")
 	ResponseEntity<Void> transferFile(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
-		storageSchedulerWorker.transferFile();
+		storageSchedulerWorker.transferFiles();
 		return ResponseEntity.ok().build();
 	}
 
@@ -51,7 +51,7 @@ class SchedulerResource {
 	@PostMapping("/truncate")
 	ResponseEntity<Void> truncateFile(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
-		storageSchedulerWorker.truncateFile();
+		storageSchedulerWorker.truncateFiles();
 		return ResponseEntity.ok().build();
 	}
 
