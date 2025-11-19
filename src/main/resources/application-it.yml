@@ -1,0 +1,64 @@
+integration:
+  party:
+    oauth2-client-id: override
+    oauth2-client-secret: override
+    oauth2-token-url: http://localhost:${wiremock.server.port}/token
+    url: http://localhost:${wiremock.server.port}/party
+  raindance:
+    samba:
+      cron: '-'
+      domain: domain.local
+      user-domain: USER_DOMAIN
+      user: user
+      password: password
+      shareAndDir: test
+      remoteDir: /
+  storage:
+    samba:
+      user: user
+      password: password
+      user-domain: WORKGROUP
+      host: localhost
+      port: ${samba.port:445}
+      share: ocp
+      service-directory: invoice-cache
+      environment: test
+      scheduler:
+        jobs:
+          transfer:
+            cron: '-'
+            name: transfer
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
+            threshold-months: 6
+            limit: 1
+          truncate:
+            cron: '-'
+            name: truncate
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
+            limit: 1
+invoice:
+  scheduled:
+    cron: '* * * * * *'
+    fixedrate: PT1H
+    initialdelay: PT0S
+raindance:
+  invoice:
+    outdated: PT1H
+  sql:
+    filename: local-query.esscueell
+spring:
+  cache:
+    type: none
+  flyway:
+    enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      jakarta:
+        persistence:
+          schema-generation:
+            scripts:
+              create-target: target/database/generated-schema.sql

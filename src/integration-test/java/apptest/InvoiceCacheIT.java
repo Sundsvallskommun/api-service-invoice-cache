@@ -43,7 +43,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 	}
 
 	/**
-	 * gGet the url, user and password from the container and set them in the context.
+	 * Get the url, user and password from the container and set them in the context.
 	 */
 	@DynamicPropertySource
 	static void registerProperties(final DynamicPropertyRegistry registry) {

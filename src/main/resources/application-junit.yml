@@ -15,6 +15,30 @@ integration:
       shareAndDir: samba-share-and-dir
       user: samba-user
       userDomain: samba-user-domain
+  storage:
+    samba:
+      user: user
+      password: password
+      user-domain: user-domain
+      host: samba-host
+      share: abc
+      service-directory: invoice-cache
+      environment: test
+      scheduler:
+        jobs:
+          transfer:
+            cron: '-'
+            name: transfer
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
+            threshold-months: 6
+            limit: 1
+          truncate:
+            cron: '-'
+            name: truncate
+            shedlock-lock-at-most-for: PT5M
+            maximum-execution-time: PT5M
+            limit: 1
 raindance:
   sql:
     filename: raindance-test.esscueell

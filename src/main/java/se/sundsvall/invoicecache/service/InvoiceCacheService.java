@@ -18,6 +18,7 @@ import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoiceSpecifications;
 import se.sundsvall.invoicecache.integration.party.PartyClient;
+import se.sundsvall.invoicecache.service.mapper.InvoiceMapper;
 
 @Service
 public class InvoiceCacheService {

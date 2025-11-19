@@ -85,14 +85,14 @@ class InvoiceCacheResourceTest {
 		// Arrange
 		final var fileName = "fileName";
 		final var municipalityId = "2281";
-		when(mockPdfService.getInvoicePdf(fileName, municipalityId)).thenReturn(generateInvoicePdf());
+		when(mockPdfService.getInvoicePdfByFilename(fileName, municipalityId)).thenReturn(generateInvoicePdf());
 
 		// Act
 
 		final var invoicePdfResponse = resource.getInvoicePdf(municipalityId, fileName);
 
 		// Assert
-		verify(mockPdfService, times(1)).getInvoicePdf(fileName, municipalityId);
+		verify(mockPdfService, times(1)).getInvoicePdfByFilename(fileName, municipalityId);
 		verifyNoInteractions(mockService);
 		verifyNoMoreInteractions(mockPdfService);
 

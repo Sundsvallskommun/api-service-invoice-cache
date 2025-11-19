@@ -1,8 +1,5 @@
 package se.sundsvall.invoicecache.service;
 
-import java.sql.SQLException;
-import java.util.Base64;
-import javax.sql.rowset.serial.SerialBlob;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
 import org.zalando.problem.Status;
@@ -10,104 +7,74 @@ import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
-import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifications;
 import se.sundsvall.invoicecache.integration.raindance.samba.RaindanceSambaIntegration;
+import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
+import se.sundsvall.invoicecache.service.mapper.PdfMapper;
 import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
 
 @Service
 public class InvoicePdfService {
 
 	private final PdfRepository pdfRepository;
-	private final RaindanceSambaIntegration raindanceSambaIntegration;
 	private final InvoicePdfSpecifications invoicePdfSpecifications;
 
+	private final RaindanceSambaIntegration raindanceSambaIntegration;
+	private final StorageSambaIntegration storageSambaIntegration;
+
+	private final PdfMapper pdfMapper;
+
 	public InvoicePdfService(final PdfRepository pdfRepository,
-		final RaindanceSambaIntegration raindanceSambaIntegration, final InvoicePdfSpecifications invoicePdfSpecifications) {
+		final PdfMapper pdfMapper,
+		final RaindanceSambaIntegration raindanceSambaIntegration,
+		final InvoicePdfSpecifications invoicePdfSpecifications,
+		final StorageSambaIntegration storageSambaIntegration) {
 		this.pdfRepository = pdfRepository;
+		this.pdfMapper = pdfMapper;
 		this.raindanceSambaIntegration = raindanceSambaIntegration;
 		this.invoicePdfSpecifications = invoicePdfSpecifications;
+		this.storageSambaIntegration = storageSambaIntegration;
 	}
 
-	public InvoicePdf getInvoicePdf(final String filename, final String municipalityId) {
-
+	public InvoicePdf getInvoicePdfByFilename(final String filename, final String municipalityId) {
 		try {
-			final var result = pdfRepository.findByFilenameAndMunicipalityId(filename, municipalityId)
-				.map(this::mapToResponse)
-				.orElseGet(() -> mapToResponse(raindanceSambaIntegration.findPdf(filename, municipalityId)));
-			if (result == null) {
-				throw Problem.valueOf(Status.NOT_FOUND);
-			}
-			return result;
+			return pdfRepository.findByFilenameAndMunicipalityId(filename, municipalityId)
+				.map(entity -> {
+					// If a pdf was found, and it has not been truncated, read it from the database.
+					if (entity.getTruncatedAt() == null) {
+						return pdfMapper.mapToResponse(entity);
+					}
+					// If the pdf has been truncated, read it from storage using the file hash.
+					var bytes = storageSambaIntegration.readFile(entity.getFileHash());
+					return pdfMapper.mapToResponse(entity, bytes);
+				})
+				// If no pdf was found in the database, try to find it in Raindance Samba.
+				.orElseGet(() -> pdfMapper.mapToResponse(raindanceSambaIntegration.findPdf(filename, municipalityId)));
 		} catch (final Exception e) {
 			throw new InvoiceCacheException("Unable to get invoice PDF", e);
 		}
 	}
 
-	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber,
-		final InvoicePdfFilterRequest request, final String municipalityId) {
-		return pdfRepository.findAll(invoicePdfSpecifications
-			.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
+	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber, final InvoicePdfFilterRequest request, final String municipalityId) {
+		var pdfEntity = pdfRepository.findAll(invoicePdfSpecifications.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
 			.stream().findFirst()
-			.map(this::mapToResponse)
 			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND));
 
+		// If a pdf was found, and it has not been truncated, read it from the database.
+		if (pdfEntity.getTruncatedAt() == null) {
+			return pdfMapper.mapToResponse(pdfEntity);
+		}
+		// If the pdf has been truncated, read it from storage using the file hash.
+		var bytes = storageSambaIntegration.readFile(pdfEntity.getFileHash());
+		return pdfMapper.mapToResponse(pdfEntity, bytes);
 	}
 
 	public String createOrUpdateInvoice(final InvoicePdfRequest request, final String municipalityId) {
 		final var pdfEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId(request.invoiceNumber(), request.invoiceId(), municipalityId)
-			.map(existingPdfEntity -> mapOntoExistingEntity(existingPdfEntity, request))
-			.orElseGet(() -> mapToEntity(request, municipalityId));
+			.map(existingPdfEntity -> pdfMapper.mapOntoExistingEntity(existingPdfEntity, request))
+			.orElseGet(() -> pdfMapper.mapToEntity(request, municipalityId));
 
 		return pdfRepository.save(pdfEntity).getFilename();
-	}
-
-	PdfEntity mapToEntity(final InvoicePdfRequest request, final String municipalityId) {
-		try {
-			final var document = new SerialBlob(Base64.getDecoder().decode(request.attachment().content()));
-
-			return PdfEntity.builder()
-				.withMunicipalityId(municipalityId)
-				.withInvoiceIssuerLegalId(request.issuerLegalId())
-				.withInvoiceDebtorLegalId(request.debtorLegalId())
-				.withInvoiceNumber(request.invoiceNumber())
-				.withInvoiceId(request.invoiceId())
-				.withInvoiceType(request.invoiceType())
-				.withFilename(request.attachment().name())
-				.withDocument(document)
-				.build();
-		} catch (final SQLException e) {
-			throw new InvoiceCacheException("Unable to map PDF data", e);
-		}
-	}
-
-	PdfEntity mapOntoExistingEntity(final PdfEntity pdfEntity, final InvoicePdfRequest request) {
-		try {
-			pdfEntity.setInvoiceIssuerLegalId(request.issuerLegalId());
-			pdfEntity.setInvoiceDebtorLegalId(request.debtorLegalId());
-			pdfEntity.setInvoiceNumber(request.invoiceNumber());
-			pdfEntity.setInvoiceId(request.invoiceId());
-			pdfEntity.setInvoiceType(request.invoiceType());
-			pdfEntity.setFilename(request.attachment().name());
-			pdfEntity.setDocument(new SerialBlob(Base64.getDecoder().decode(request.attachment().content())));
-
-			return pdfEntity;
-		} catch (final SQLException e) {
-			throw new InvoiceCacheException("Unable to map PDF data onto existing invoice", e);
-		}
-	}
-
-	InvoicePdf mapToResponse(final PdfEntity entity) {
-		try {
-			final var bytes = entity.getDocument().getBytes(1, (int) entity.getDocument().length());
-
-			return InvoicePdf.builder()
-				.withName(entity.getFilename())
-				.withContent(Base64.getEncoder().encodeToString(bytes))
-				.build();
-		} catch (final SQLException e) {
-			throw new InvoiceCacheException("Unable to map response", e);
-		}
 	}
 
 }
