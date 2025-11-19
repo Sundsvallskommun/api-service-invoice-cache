@@ -31,12 +31,14 @@ integration:
             name: transfer
             shedlock-lock-at-most-for: PT5M
             maximum-execution-time: PT5M
-            threshold: 6
+            threshold-months: 6
+            limit: 1
           truncate:
             cron: '-'
             name: truncate
             shedlock-lock-at-most-for: PT5M
             maximum-execution-time: PT5M
+            limit: 1
 raindance:
   sql:
     filename: raindance-test.esscueell

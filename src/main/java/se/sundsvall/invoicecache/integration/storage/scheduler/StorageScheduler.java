@@ -20,9 +20,9 @@ public class StorageScheduler {
 		name = "${integration.storage.samba.scheduler.jobs.transfer.name}",
 		lockAtMostFor = "${integration.storage.samba.scheduler.jobs.transfer.shedlock-lock-at-most-for}",
 		maximumExecutionTime = "${integration.storage.samba.scheduler.jobs.transfer.maximum-execution-time}")
-	void transferFile() {
+	void transferFiles() {
 		LOG.info("Starting scheduled job to transfer a file to Samba storage");
-		storageSchedulerWorker.transferFile();
+		storageSchedulerWorker.transferFiles();
 		LOG.info("Finished scheduled job to transfer a file to Samba storage");
 	}
 
@@ -31,9 +31,9 @@ public class StorageScheduler {
 		name = "${integration.storage.samba.scheduler.jobs.truncate.name}",
 		lockAtMostFor = "${integration.storage.samba.scheduler.jobs.truncate.shedlock-lock-at-most-for}",
 		maximumExecutionTime = "${integration.storage.samba.scheduler.jobs.truncate.maximum-execution-time}")
-	void truncateBlob() {
+	void truncateFiles() {
 		LOG.info("Starting scheduled job to truncate a file to Samba storage");
-		storageSchedulerWorker.truncateFile();
+		storageSchedulerWorker.truncateFiles();
 		LOG.info("Finished scheduled job to truncate a file to Samba storage");
 	}
 

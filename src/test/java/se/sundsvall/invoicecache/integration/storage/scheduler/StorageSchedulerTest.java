@@ -25,17 +25,17 @@ class StorageSchedulerTest {
 	}
 
 	@Test
-	void transferFile() {
-		storageScheduler.transferFile();
+	void transferFiles() {
+		storageScheduler.transferFiles();
 
-		verify(storageSchedulerWorkerMock).transferFile();
+		verify(storageSchedulerWorkerMock).transferFiles();
 	}
 
 	@Test
-	void truncateBlob() {
-		storageScheduler.truncateBlob();
+	void truncateFiles() {
+		storageScheduler.truncateFiles();
 
-		verify(storageSchedulerWorkerMock).truncateFile();
+		verify(storageSchedulerWorkerMock).truncateFiles();
 	}
 
 }

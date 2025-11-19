@@ -41,7 +41,7 @@ class SchedulerResourceTest {
 			.exchange()
 			.expectStatus().isOk();
 
-		verify(storageSchedulerWorker).transferFile();
+		verify(storageSchedulerWorker).transferFiles();
 	}
 
 	@Test
@@ -62,7 +62,7 @@ class SchedulerResourceTest {
 			assertThat(v.getMessage()).isEqualTo("not a valid municipality ID");
 		}));
 
-		verify(storageSchedulerWorker, never()).transferFile();
+		verify(storageSchedulerWorker, never()).transferFiles();
 	}
 
 	@Test
@@ -74,7 +74,7 @@ class SchedulerResourceTest {
 			.exchange()
 			.expectStatus().isOk();
 
-		verify(storageSchedulerWorker).truncateFile();
+		verify(storageSchedulerWorker).truncateFiles();
 	}
 
 	@Test
@@ -95,7 +95,7 @@ class SchedulerResourceTest {
 			assertThat(v.getMessage()).isEqualTo("not a valid municipality ID");
 		}));
 
-		verify(storageSchedulerWorker, never()).truncateFile();
+		verify(storageSchedulerWorker, never()).truncateFiles();
 	}
 
 }
