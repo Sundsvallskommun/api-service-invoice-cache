@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.integration.storage.scheduler;
 
-import static org.zalando.problem.Status.NOT_FOUND;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.slf4j.Logger;
@@ -9,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
-import org.zalando.problem.Problem;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
@@ -47,6 +44,10 @@ public class StorageSchedulerWorker {
 	@Transactional
 	public void transferFiles() {
 		var files = findPdfToTransfer();
+		if (files.isEmpty()) {
+			LOG.info("Found no files eligible for transfer.");
+			return;
+		}
 		for (var file : files) {
 			LOG.info("Transferring file with id='{}'", file.getId());
 
@@ -66,6 +67,10 @@ public class StorageSchedulerWorker {
 	@Transactional
 	public void truncateFiles() {
 		var files = findPdfToTruncate();
+		if (files.isEmpty()) {
+			LOG.info("Found no files eligible for truncation.");
+			return;
+		}
 
 		for (var file : files) {
 			LOG.info("Truncating file with id='{}'", file.getId());
@@ -93,12 +98,7 @@ public class StorageSchedulerWorker {
 	 * @return the PDF entity
 	 */
 	private List<PdfEntity> findPdfToTransfer() {
-		var pdfs = pdfRepository.findPdfsToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), EXCLUDED_ISSUER_LEGAL_ID, transferLimit);
-
-		if (pdfs.isEmpty()) {
-			throw Problem.valueOf(NOT_FOUND, "Found no PDF that are eligible for transfer to Samba storage");
-		}
-		return pdfs;
+		return pdfRepository.findPdfsToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), EXCLUDED_ISSUER_LEGAL_ID, transferLimit);
 	}
 
 	/**
@@ -107,13 +107,7 @@ public class StorageSchedulerWorker {
 	 * @return the PDF entity
 	 */
 	private List<PdfEntity> findPdfToTruncate() {
-		var pdfs = pdfRepository.findPdfsToTruncate(truncateLimit);
-
-		if (pdfs.isEmpty()) {
-			throw Problem.valueOf(NOT_FOUND, "Found no PDF that have been moved and not yet truncated");
-		}
-
-		return pdfs;
+		return pdfRepository.findPdfsToTruncate(truncateLimit);
 	}
 
 }

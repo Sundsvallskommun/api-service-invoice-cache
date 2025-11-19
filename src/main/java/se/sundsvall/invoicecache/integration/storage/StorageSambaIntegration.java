@@ -99,7 +99,7 @@ public class StorageSambaIntegration {
 	 * @param  blobKey the blob key used to identify the file
 	 * @return         InputStream of the file content
 	 */
-	public SmbFile readFile(final String blobKey) {
+	public byte[] readFile(final String blobKey) {
 		LOGGER.info("Reading file with blobKey '{}'", blobKey);
 		if (blobKey == null || blobKey.isEmpty()) {
 			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Blob key cannot be null or empty");
@@ -109,12 +109,14 @@ public class StorageSambaIntegration {
 		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
 
-		try {
-			return new SmbFile(filePath, properties.cifsContext());
-		} catch (IOException e) {
+		try (var smbFile = new SmbFile(filePath, properties.cifsContext());
+			var inputStream = smbFile.getInputStream()) {
+			return inputStream.readAllBytes();
+		} catch (Exception e) {
 			LOGGER.error("Failed to read blob for key '{}', path '{}'", blobKey, filePath);
 			throw new BlobIntegrityException("Could not read blob for " + blobKey, e);
 		}
+
 	}
 
 	/**

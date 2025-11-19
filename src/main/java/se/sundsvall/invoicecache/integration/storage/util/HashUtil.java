@@ -20,7 +20,7 @@ public final class HashUtil {
 	 * @throws IOException if an I/O error occurs
 	 */
 	public static String SHA256(final InputStream inputStream) throws IOException {
-		try {
+		try (inputStream) {
 			final var messageDigest = MessageDigest.getInstance(SHA256);
 			// Sets a buffer size of 64KB.
 			final var buffer = new byte[64 * 1024];
@@ -30,7 +30,6 @@ public final class HashUtil {
 			while ((numberOfBytes = inputStream.read(buffer)) != -1) {
 				messageDigest.update(buffer, 0, numberOfBytes);
 			}
-
 			return HexFormat.of().formatHex(messageDigest.digest());
 		} catch (NoSuchAlgorithmException e) {
 			// Should never happen since SHA-256 is a standard algorithm.
