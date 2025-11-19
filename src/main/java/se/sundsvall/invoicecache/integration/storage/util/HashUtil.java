@@ -31,6 +31,7 @@ public final class HashUtil {
 				messageDigest.update(buffer, 0, numberOfBytes);
 			}
 
+			inputStream.close();
 			return HexFormat.of().formatHex(messageDigest.digest());
 		} catch (NoSuchAlgorithmException e) {
 			// Should never happen since SHA-256 is a standard algorithm.

@@ -10,15 +10,12 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Blob;
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
-import jcifs.smb.SmbFile;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -91,11 +88,9 @@ class InvoicePdfServiceTest {
 	}
 
 	@Test
-	void getInvoicePdfByFilename_foundInDatabaseTruncated() throws IOException {
+	void getInvoicePdfByFilename_foundInDatabaseTruncated() {
 		final var filename = "someFileName";
 		final var municipalityId = "2281";
-		final var smbFileMock = Mockito.mock(SmbFile.class);
-		final var inputStreamMock = Mockito.mock(InputStream.class);
 		final var someInputStreamBytes = "someInputStreamBytes".getBytes();
 		final var pdfEntity = PdfEntity.builder()
 			.withTruncatedAt(OffsetDateTime.MIN)
@@ -104,9 +99,7 @@ class InvoicePdfServiceTest {
 			.build();
 
 		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
-		when(storageSambaIntegrationMock.readFile("someFileHash")).thenReturn(smbFileMock);
-		when(smbFileMock.getInputStream()).thenReturn(inputStreamMock);
-		when(inputStreamMock.readAllBytes()).thenReturn(someInputStreamBytes);
+		when(storageSambaIntegrationMock.readFile("someFileHash")).thenReturn(someInputStreamBytes);
 
 		final var result = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
 
@@ -115,9 +108,8 @@ class InvoicePdfServiceTest {
 
 		verify(pdfRepositoryMock).findByFilenameAndMunicipalityId(filename, municipalityId);
 		verify(storageSambaIntegrationMock).readFile("someFileHash");
-		verify(smbFileMock).getInputStream();
-		verify(inputStreamMock).readAllBytes();
-		verify(pdfMapperMock).mapToResponse(pdfEntity, smbFileMock);
+
+		verify(pdfMapperMock).mapToResponse(pdfEntity, someInputStreamBytes);
 		verifyNoInteractions(raindanceSambaIntegrationMock);
 	}
 
@@ -183,21 +175,17 @@ class InvoicePdfServiceTest {
 	}
 
 	@Test
-	void getInvoicePdfByInvoiceNumber_truncated() throws IOException {
+	void getInvoicePdfByInvoiceNumber_truncated() {
 		final var issuerLegalId = "someIssuerLegalId";
 		final var invoiceNumber = "someInvoiceNumber";
 		final var municipalityId = "2281";
 		final var request = new InvoicePdfFilterRequest();
 		final var pdfEntity = generatePdfEntity();
 		pdfEntity.setTruncatedAt(OffsetDateTime.MIN);
-		final var smbFileMock = Mockito.mock(SmbFile.class);
-		final var inputStreamMock = Mockito.mock(InputStream.class);
 		final var someInputStreamBytes = "someInputStreamBytes".getBytes();
 
 		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any())).thenReturn(List.of(pdfEntity));
-		when(storageSambaIntegrationMock.readFile(pdfEntity.getFileHash())).thenReturn(smbFileMock);
-		when(smbFileMock.getInputStream()).thenReturn(inputStreamMock);
-		when(inputStreamMock.readAllBytes()).thenReturn(someInputStreamBytes);
+		when(storageSambaIntegrationMock.readFile(pdfEntity.getFileHash())).thenReturn(someInputStreamBytes);
 
 		final var result = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
 
@@ -206,9 +194,7 @@ class InvoicePdfServiceTest {
 		verify(specificationsSpy).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
 		verify(pdfRepositoryMock).findAll(Mockito.<Specification<PdfEntity>>any());
 		verify(storageSambaIntegrationMock).readFile(pdfEntity.getFileHash());
-		verify(pdfMapperMock).mapToResponse(pdfEntity, smbFileMock);
-		verify(smbFileMock).getInputStream();
-		verify(inputStreamMock).readAllBytes();
+		verify(pdfMapperMock).mapToResponse(pdfEntity, someInputStreamBytes);
 	}
 
 	@Test

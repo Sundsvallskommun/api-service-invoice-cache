@@ -2,7 +2,6 @@ package se.sundsvall.invoicecache.service.mapper;
 
 import java.util.Base64;
 import javax.sql.rowset.serial.SerialBlob;
-import jcifs.smb.SmbFile;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
@@ -60,17 +59,10 @@ public class PdfMapper {
 		}
 	}
 
-	public InvoicePdf mapToResponse(final PdfEntity entity, final SmbFile smbFile) {
-		try {
-			final var bytes = smbFile.getInputStream().readAllBytes();
-
-			return InvoicePdf.builder()
-				.withName(entity.getFilename())
-				.withContent(Base64.getEncoder().encodeToString(bytes))
-				.build();
-		} catch (final Exception e) {
-			throw new InvoiceCacheException("Unable to map response", e);
-		}
-
+	public InvoicePdf mapToResponse(final PdfEntity entity, final byte[] bytes) {
+		return InvoicePdf.builder()
+			.withName(entity.getFilename())
+			.withContent(Base64.getEncoder().encodeToString(bytes))
+			.build();
 	}
 }

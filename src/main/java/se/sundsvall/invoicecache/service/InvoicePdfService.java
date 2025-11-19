@@ -45,8 +45,8 @@ public class InvoicePdfService {
 						return pdfMapper.mapToResponse(entity);
 					}
 					// If the pdf has been truncated, read it from storage using the file hash.
-					var smbFile = storageSambaIntegration.readFile(entity.getFileHash());
-					return pdfMapper.mapToResponse(entity, smbFile);
+					var bytes = storageSambaIntegration.readFile(entity.getFileHash());
+					return pdfMapper.mapToResponse(entity, bytes);
 				})
 				// If no pdf was found in the database, try to find it in Raindance Samba.
 				.orElseGet(() -> pdfMapper.mapToResponse(raindanceSambaIntegration.findPdf(filename, municipalityId)));
@@ -65,8 +65,8 @@ public class InvoicePdfService {
 			return pdfMapper.mapToResponse(pdfEntity);
 		}
 		// If the pdf has been truncated, read it from storage using the file hash.
-		var smbFile = storageSambaIntegration.readFile(pdfEntity.getFileHash());
-		return pdfMapper.mapToResponse(pdfEntity, smbFile);
+		var bytes = storageSambaIntegration.readFile(pdfEntity.getFileHash());
+		return pdfMapper.mapToResponse(pdfEntity, bytes);
 	}
 
 	public String createOrUpdateInvoice(final InvoicePdfRequest request, final String municipalityId) {

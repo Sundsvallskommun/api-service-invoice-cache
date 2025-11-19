@@ -29,7 +29,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.zalando.problem.Problem;
-import se.sundsvall.invoicecache.integration.storage.util.HashUtil;
 import se.sundsvall.invoicecache.util.exception.BlobIntegrityException;
 import se.sundsvall.invoicecache.util.exception.BlobWriteException;
 
@@ -59,8 +58,7 @@ class StorageSambaIntegrationTest {
 
 			var result = storageSambaIntegration.readFile(blobKey);
 
-			assertThat(result).isNotNull().isInstanceOf(SmbFile.class);
-			assertThat(HashUtil.SHA256(result.getInputStream())).isEqualTo(blobKey);
+			assertThat(result).isEqualTo(content.getBytes());
 
 			var smbFile = constructor.constructed().getFirst();
 			verify(smbFile).getInputStream();
