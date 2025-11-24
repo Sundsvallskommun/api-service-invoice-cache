@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -13,8 +12,6 @@ import static org.mockito.Mockito.when;
 import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceEntity;
 import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
 
-import java.sql.Blob;
-import java.sql.SQLException;
 import java.time.OffsetDateTime;
 import java.util.Base64;
 import java.util.Optional;
@@ -67,119 +64,6 @@ class InvoicePdfServiceTest {
 	@AfterEach
 	void tearDown() {
 		verifyNoMoreInteractions(storageSambaIntegrationMock, raindanceSambaIntegrationMock, pdfRepositoryMock, invoiceRepositoryMock, specificationsSpy, pdfMapperMock);
-	}
-
-	@Test
-	void getInvoicePdfByFilename_foundInDatabaseNotTruncated() throws SQLException {
-		final var filename = "someFileName";
-		final var municipalityId = "2281";
-		final var blobMock = Mockito.mock(Blob.class);
-		final var someBlobBytes = "someBlob".getBytes();
-		final var pdfEntity = PdfEntity.builder()
-			.withTruncatedAt(null)
-			.withDocument(blobMock)
-			.build();
-
-		when(blobMock.length()).thenReturn(123L);
-		when(blobMock.getBytes(1, 123)).thenReturn(someBlobBytes);
-		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
-
-		final var result = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
-
-		assertThat(result).isNotNull();
-		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someBlobBytes));
-
-		verify(pdfRepositoryMock).findByFilenameAndMunicipalityId(filename, municipalityId);
-		verify(pdfMapperMock).mapToResponse(pdfEntity);
-		verifyNoInteractions(storageSambaIntegrationMock, raindanceSambaIntegrationMock);
-	}
-
-	@Test
-	void getInvoicePdfByFilename_foundInDatabaseTruncated() {
-		final var filename = "someFileName";
-		final var municipalityId = "2281";
-		final var someInputStreamBytes = "someInputStreamBytes".getBytes();
-		final var pdfEntity = PdfEntity.builder()
-			.withTruncatedAt(OffsetDateTime.MIN)
-			.withFileHash("someFileHash")
-			.withDocument(null)
-			.build();
-
-		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
-		when(storageSambaIntegrationMock.readFile("someFileHash")).thenReturn(someInputStreamBytes);
-
-		final var result = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
-
-		assertThat(result).isNotNull();
-		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someInputStreamBytes));
-
-		verify(pdfRepositoryMock).findByFilenameAndMunicipalityId(filename, municipalityId);
-		verify(storageSambaIntegrationMock).readFile("someFileHash");
-
-		verify(pdfMapperMock).mapToResponse(pdfEntity, someInputStreamBytes);
-		verifyNoInteractions(raindanceSambaIntegrationMock);
-	}
-
-	@Test
-	void getInvoicePdfByFilename_notFoundInDatabase() throws SQLException {
-		final var filename = "someFileName";
-		final var municipalityId = "2281";
-		final var blobMock = Mockito.mock(Blob.class);
-		final var someBlobBytes = "someBlob".getBytes();
-		final var pdfEntity = PdfEntity.builder()
-			.withTruncatedAt(null)
-			.withDocument(blobMock)
-			.build();
-
-		when(blobMock.length()).thenReturn(123L);
-		when(blobMock.getBytes(1, 123)).thenReturn(someBlobBytes);
-		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.empty());
-		when(raindanceSambaIntegrationMock.findPdf(filename, municipalityId)).thenReturn(pdfEntity);
-
-		final var result = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
-
-		assertThat(result).isNotNull();
-		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someBlobBytes));
-
-		verify(pdfRepositoryMock).findByFilenameAndMunicipalityId(filename, municipalityId);
-		verify(raindanceSambaIntegrationMock).findPdf(filename, municipalityId);
-		verify(pdfMapperMock).mapToResponse(pdfEntity);
-		verifyNoInteractions(storageSambaIntegrationMock);
-	}
-
-	@Test
-	void getInvoicePdfByFilename() {
-		// Arrange
-		final var filename = "someFileName";
-		final var municipalityId = "2281";
-		final var pdfEntity = generatePdfEntity();
-		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenReturn(Optional.of(pdfEntity));
-
-		// Act
-		final var invoicePdf = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
-
-		// Assert
-		assertThat(invoicePdf.name()).isEqualTo("someFileName");
-		assertThat(invoicePdf.content()).isEqualTo(Base64.getEncoder().encodeToString("blobMe".getBytes()));
-		verify(pdfRepositoryMock, times(1)).findByFilenameAndMunicipalityId(filename, municipalityId);
-		verify(pdfMapperMock).mapToResponse(pdfEntity);
-		verifyNoInteractions(specificationsSpy);
-		verifyNoMoreInteractions(pdfRepositoryMock);
-	}
-
-	@Test
-	void getInvoicePdf_ByFilename_throwsException() {
-		// Arrange
-		final var filename = "someFileName";
-		final var municipalityId = "2281";
-
-		when(pdfRepositoryMock.findByFilenameAndMunicipalityId(filename, municipalityId)).thenThrow(new RuntimeException());
-
-		// Act & Assert
-		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> invoicePdfService.getInvoicePdfByFilename(filename, municipalityId));
-		verify(pdfRepositoryMock, times(1)).findByFilenameAndMunicipalityId(filename, municipalityId);
-		verifyNoInteractions(specificationsSpy);
-		verifyNoMoreInteractions(pdfRepositoryMock);
 	}
 
 	@Test
@@ -310,7 +194,7 @@ class InvoicePdfServiceTest {
 			.build();
 
 		when(invoiceRepositoryMock.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId))
-			.thenReturn(Optional.ofNullable(invoiceEntity));
+			.thenReturn(Optional.of(invoiceEntity));
 		when(raindanceSambaIntegrationMock.fetchInvoiceByFilename(invoiceEntity.getFileName()))
 			.thenReturn(invoicePdf);
 

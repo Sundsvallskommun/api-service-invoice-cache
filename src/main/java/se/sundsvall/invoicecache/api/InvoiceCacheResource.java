@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -60,21 +59,6 @@ class InvoiceCacheResource {
 		RequestValidator.validateRequest(request);
 
 		return ok(invoiceCacheService.getInvoices(request, municipalityId));
-	}
-
-	@Operation(
-		summary = "Fetch an invoice PDF via filename",
-		responses = {
-			@ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true),
-			@ApiResponse(responseCode = "404", description = "Not Found", content = @Content(schema = @Schema(implementation = Problem.class), mediaType = APPLICATION_PROBLEM_JSON_VALUE))
-		})
-	@GetMapping(value = "/{filename}", produces = APPLICATION_JSON_VALUE)
-	ResponseEntity<InvoicePdf> getInvoicePdf(
-		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
-		@PathVariable @NotBlank final String filename) {
-		final var invoicePdf = invoicePdfService.getInvoicePdfByFilename(filename, municipalityId);
-
-		return ok(invoicePdf);
 	}
 
 	@GetMapping(value = "/{issuerLegalId}/{invoiceNumber}/pdf", produces = APPLICATION_JSON_VALUE)

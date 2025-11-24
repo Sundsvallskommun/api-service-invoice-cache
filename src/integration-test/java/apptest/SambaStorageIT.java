@@ -161,17 +161,7 @@ class SambaStorageIT extends AbstractAppTest {
 	}
 
 	@Test
-	void test03_getTruncatedFileByFilename() {
-		setupCall()
-			.withServicePath("/2281/invoices/my-invoice.pdf")
-			.withHttpMethod(HttpMethod.GET)
-			.withExpectedResponseStatus(HttpStatus.OK)
-			.withExpectedResponse("response.json")
-			.sendRequestAndVerifyResponse();
-	}
-
-	@Test
-	void test04_getTruncatedFileByIssuerLegalIdAndInvoiceNumber() {
+	void test03_getTruncatedFileByIssuerLegalIdAndInvoiceNumber() {
 		setupCall()
 			.withServicePath("/2281/invoices/issuerLegalId/invoiceNumber/pdf")
 			.withHttpMethod(HttpMethod.GET)

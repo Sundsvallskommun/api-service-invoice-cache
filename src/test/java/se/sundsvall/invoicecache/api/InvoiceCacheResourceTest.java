@@ -80,32 +80,6 @@ class InvoiceCacheResourceTest {
 	}
 
 	@Test
-	void testGetPdfSuccessfulRequest_shouldReturnResponse() {
-
-		// Arrange
-		final var fileName = "fileName";
-		final var municipalityId = "2281";
-		when(mockPdfService.getInvoicePdfByFilename(fileName, municipalityId)).thenReturn(generateInvoicePdf());
-
-		// Act
-
-		final var invoicePdfResponse = resource.getInvoicePdf(municipalityId, fileName);
-
-		// Assert
-		verify(mockPdfService, times(1)).getInvoicePdfByFilename(fileName, municipalityId);
-		verifyNoInteractions(mockService);
-		verifyNoMoreInteractions(mockPdfService);
-
-		assertThat(invoicePdfResponse).isNotNull();
-		assertThat(invoicePdfResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
-		assertThat(invoicePdfResponse.getBody()).isNotNull();
-
-		final var invoicePdf = invoicePdfResponse.getBody();
-		assertThat(invoicePdf.name()).isEqualTo("someName");
-		assertThat(invoicePdf.content()).isEqualTo("someContent");
-	}
-
-	@Test
 	void testImportInvoice() {
 
 		// Arrange
