@@ -40,8 +40,9 @@ import se.sundsvall.invoicecache.service.InvoicePdfService;
 @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class InvoiceCacheResource {
 
-	private final InvoiceCacheService invoiceCacheService;
+	private static final String RAINDANCE_ISSUER_LEGAL_ID = "2120002411";
 
+	private final InvoiceCacheService invoiceCacheService;
 	private final InvoicePdfService invoicePdfService;
 
 	InvoiceCacheResource(final InvoiceCacheService invoiceCacheService, final InvoicePdfService invoicePdfService) {
@@ -85,6 +86,11 @@ class InvoiceCacheResource {
 		@PathVariable final String issuerLegalId,
 		@PathVariable final String invoiceNumber,
 		@ParameterObject @Valid final InvoicePdfFilterRequest request) {
+		if (RAINDANCE_ISSUER_LEGAL_ID.equals(issuerLegalId)) {
+			// Invoices that are issued by RAINDANCE_ISSUER_LEGAL_ID are always fetched from the Raindance Samba.
+			var invoicePdf = invoicePdfService.getRaindanceInvoicePdf(invoiceNumber, municipalityId);
+			return ok(invoicePdf);
+		}
 		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
 		return ok(invoicePdf);
 	}

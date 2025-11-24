@@ -1,10 +1,13 @@
 package se.sundsvall.invoicecache.integration.raindance.samba;
 
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Objects;
 import java.util.TimeZone;
 import jcifs.CIFSException;
@@ -18,8 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Component;
+import org.zalando.problem.Problem;
 import se.sundsvall.dept44.scheduling.Dept44Scheduled;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
+import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
@@ -30,7 +35,7 @@ public class RaindanceSambaIntegration {
 
 	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
 	private static final String MUNICIPALITY_ID = "2281";
-	private static final Logger logger = LoggerFactory.getLogger(RaindanceSambaIntegration.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(RaindanceSambaIntegration.class);
 	private final PdfRepository pdfRepository;
 	private final InvoiceRepository invoiceRepository;
 	private final RaindanceSambaProperties raindanceSambaProperties;
@@ -59,11 +64,25 @@ public class RaindanceSambaIntegration {
 		return LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), TimeZone.getDefault().toZoneId()).isAfter(LocalDateTime.now().minusDays(1));
 	}
 
+	public InvoicePdf fetchInvoiceByFilename(final String filename) {
+		try (final var file = createSmbFile(sourceUrl + "/" + filename);
+			final var inputStream = new SmbFileInputStream(file)) {
+			return InvoicePdf.builder()
+				.withName(filename)
+				.withContent(Base64.getEncoder().encodeToString(inputStream.readAllBytes()))
+				.build();
+
+		} catch (final Exception e) {
+			LOGGER.warn("Something went wrong when trying to fetch invoice by filename", e);
+			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Something went wrong when trying to fetch invoice by filename");
+		}
+	}
+
 	public PdfEntity findPdf(final String filename, final String municipalityId) {
 		try (final var file = createSmbFile(sourceUrl + "/" + filename)) {
 			return saveFile(file, municipalityId);
 		} catch (final MalformedURLException e) {
-			logger.warn("Something went wrong when trying to find pdf", e);
+			LOGGER.warn("Something went wrong when trying to find pdf", e);
 			return null;
 		}
 	}
@@ -75,18 +94,18 @@ public class RaindanceSambaIntegration {
 	void cacheInvoicePdfs() {
 
 		final var start = System.currentTimeMillis();
-		logger.info("Starting caching of invoice pdfs");
+		LOGGER.info("Starting caching of invoice pdfs");
 
 		try (final var directory = createSmbFile(sourceUrl)) {
 			Arrays.stream(Objects.requireNonNull(directory)
 				.listFiles(file -> isAfterYesterday(file.lastModified()))).forEach(file1 -> saveFile(file1, MUNICIPALITY_ID));
 
 		} catch (final CIFSException | MalformedURLException e) {
-			logger.warn("Something went wrong when trying to cache pdf", e);
+			LOGGER.warn("Something went wrong when trying to cache pdf", e);
 			dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, "Something went wrong when trying to cache pdfs");
 		}
 		final var end = System.currentTimeMillis();
-		logger.info("Caching of invoice pdfs completed in {} seconds", (end - start) / 1000);
+		LOGGER.info("Caching of invoice pdfs completed in {} seconds", (end - start) / 1000);
 	}
 
 	private SmbFile createSmbFile(final String sourceUrl) throws MalformedURLException {
@@ -116,7 +135,7 @@ public class RaindanceSambaIntegration {
 					.build());
 			}
 		} catch (final IOException e) {
-			logger.warn("Something went wrong when trying to save file", e);
+			LOGGER.warn("Something went wrong when trying to save file", e);
 			dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, "Unable to save file when trying to cache pdfs.");
 
 		}

@@ -1,11 +1,13 @@
 package se.sundsvall.invoicecache.service;
 
+import static org.zalando.problem.Status.NOT_FOUND;
+
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
-import org.zalando.problem.Status;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
+import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifications;
 import se.sundsvall.invoicecache.integration.raindance.samba.RaindanceSambaIntegration;
@@ -16,6 +18,7 @@ import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
 @Service
 public class InvoicePdfService {
 
+	private final InvoiceRepository invoiceRepository;
 	private final PdfRepository pdfRepository;
 	private final InvoicePdfSpecifications invoicePdfSpecifications;
 
@@ -24,11 +27,14 @@ public class InvoicePdfService {
 
 	private final PdfMapper pdfMapper;
 
-	public InvoicePdfService(final PdfRepository pdfRepository,
+	public InvoicePdfService(
+		final InvoiceRepository invoiceRepository,
+		final PdfRepository pdfRepository,
 		final PdfMapper pdfMapper,
 		final RaindanceSambaIntegration raindanceSambaIntegration,
 		final InvoicePdfSpecifications invoicePdfSpecifications,
 		final StorageSambaIntegration storageSambaIntegration) {
+		this.invoiceRepository = invoiceRepository;
 		this.pdfRepository = pdfRepository;
 		this.pdfMapper = pdfMapper;
 		this.raindanceSambaIntegration = raindanceSambaIntegration;
@@ -56,9 +62,8 @@ public class InvoicePdfService {
 	}
 
 	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber, final InvoicePdfFilterRequest request, final String municipalityId) {
-		var pdfEntity = pdfRepository.findAll(invoicePdfSpecifications.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
-			.stream().findFirst()
-			.orElseThrow(() -> Problem.valueOf(Status.NOT_FOUND));
+		var pdfEntity = pdfRepository.findOne(invoicePdfSpecifications.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
+			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "PDF not found for invoiceNumber: " + invoiceNumber + ", issuerLegalId: " + issuerLegalId));
 
 		// If a pdf was found, and it has not been truncated, read it from the database.
 		if (pdfEntity.getTruncatedAt() == null) {
@@ -67,6 +72,13 @@ public class InvoicePdfService {
 		// If the pdf has been truncated, read it from storage using the file hash.
 		var bytes = storageSambaIntegration.readFile(pdfEntity.getFileHash());
 		return pdfMapper.mapToResponse(pdfEntity, bytes);
+	}
+
+	public InvoicePdf getRaindanceInvoicePdf(final String invoiceNumber, final String municipalityId) {
+		var invoiceEntity = invoiceRepository.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId)
+			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "No invoice with invoice number '%s' was found".formatted(invoiceNumber)));
+
+		return raindanceSambaIntegration.fetchInvoiceByFilename(invoiceEntity.getFileName());
 	}
 
 	public String createOrUpdateInvoice(final InvoicePdfRequest request, final String municipalityId) {
