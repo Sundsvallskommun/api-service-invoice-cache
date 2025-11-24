@@ -11,8 +11,6 @@ import java.util.Base64;
 import java.util.Objects;
 import java.util.TimeZone;
 import jcifs.CIFSException;
-import jcifs.context.SingletonContext;
-import jcifs.smb.NtlmPasswordAuthenticator;
 import jcifs.smb.SmbFile;
 import jcifs.smb.SmbFileInputStream;
 import org.hibernate.engine.jdbc.BlobProxy;
@@ -40,7 +38,6 @@ public class RaindanceSambaIntegration {
 	private final InvoiceRepository invoiceRepository;
 	private final RaindanceSambaProperties raindanceSambaProperties;
 	private final Dept44HealthUtility dept44HealthUtility;
-	private final String sourceUrl;
 	@Value("${integration.raindance.samba.name}")
 	private String jobName;
 
@@ -53,11 +50,6 @@ public class RaindanceSambaIntegration {
 		this.invoiceRepository = invoiceRepository;
 		this.raindanceSambaProperties = raindanceSambaProperties;
 		this.dept44HealthUtility = dept44HealthUtility;
-
-		this.sourceUrl = "smb://" +
-			raindanceSambaProperties.domain() +
-			raindanceSambaProperties.shareAndDir() +
-			raindanceSambaProperties.remoteDir();
 	}
 
 	static boolean isAfterYesterday(final long lastModified) {
@@ -65,7 +57,7 @@ public class RaindanceSambaIntegration {
 	}
 
 	public InvoicePdf fetchInvoiceByFilename(final String filename) {
-		try (final var file = createSmbFile(sourceUrl + "/" + filename);
+		try (final var file = new SmbFile(raindanceSambaProperties.targetUrl() + "/" + filename, raindanceSambaProperties.cifsContext());
 			final var inputStream = new SmbFileInputStream(file)) {
 			return InvoicePdf.builder()
 				.withName(filename)
@@ -78,15 +70,6 @@ public class RaindanceSambaIntegration {
 		}
 	}
 
-	public PdfEntity findPdf(final String filename, final String municipalityId) {
-		try (final var file = createSmbFile(sourceUrl + "/" + filename)) {
-			return saveFile(file, municipalityId);
-		} catch (final MalformedURLException e) {
-			LOGGER.warn("Something went wrong when trying to find pdf", e);
-			return null;
-		}
-	}
-
 	@Dept44Scheduled(cron = "${integration.raindance.samba.cron}",
 		name = "${integration.raindance.samba.name}",
 		lockAtMostFor = "${integration.raindance.samba.shedlock-lock-at-most-for}",
@@ -96,9 +79,9 @@ public class RaindanceSambaIntegration {
 		final var start = System.currentTimeMillis();
 		LOGGER.info("Starting caching of invoice pdfs");
 
-		try (final var directory = createSmbFile(sourceUrl)) {
+		try (final var directory = new SmbFile(raindanceSambaProperties.targetUrl(), raindanceSambaProperties.cifsContext())) {
 			Arrays.stream(Objects.requireNonNull(directory)
-				.listFiles(file -> isAfterYesterday(file.lastModified()))).forEach(file1 -> saveFile(file1, MUNICIPALITY_ID));
+				.listFiles(file -> isAfterYesterday(file.lastModified()))).forEach(this::saveFile);
 
 		} catch (final CIFSException | MalformedURLException e) {
 			LOGGER.warn("Something went wrong when trying to cache pdf", e);
@@ -108,25 +91,16 @@ public class RaindanceSambaIntegration {
 		LOGGER.info("Caching of invoice pdfs completed in {} seconds", (end - start) / 1000);
 	}
 
-	private SmbFile createSmbFile(final String sourceUrl) throws MalformedURLException {
-		final var base = SingletonContext.getInstance();
-		final var cifsContext = base.withCredentials(new NtlmPasswordAuthenticator(raindanceSambaProperties.userDomain(),
-			raindanceSambaProperties.user(), raindanceSambaProperties.password()));
-		try (final var directory = new SmbFile(sourceUrl, cifsContext)) {
-			return directory;
-		}
-	}
-
-	private PdfEntity saveFile(final SmbFile file, final String municipalityId) {
+	private void saveFile(final SmbFile file) {
 		try (final var inputStream = new SmbFileInputStream(file)) {
 			final var filename = file.getName().replace(raindanceSambaProperties.remoteDir(), "");
-			final var entity = invoiceRepository.findByFileNameAndMunicipalityId(filename, municipalityId);
-			final var pdfEntity = pdfRepository.findByFilenameAndMunicipalityId(filename, municipalityId);
+			final var entity = invoiceRepository.findByFileNameAndMunicipalityId(filename, RaindanceSambaIntegration.MUNICIPALITY_ID);
+			final var pdfEntity = pdfRepository.findByFilenameAndMunicipalityId(filename, RaindanceSambaIntegration.MUNICIPALITY_ID);
 
 			// Only save if entity exists and pdfEntity does not exist (indication that it has already been saved)
 			if (entity.isPresent() && pdfEntity.isEmpty()) {
-				return pdfRepository.save(PdfEntity.builder()
-					.withMunicipalityId(municipalityId)
+				pdfRepository.save(PdfEntity.builder()
+					.withMunicipalityId(RaindanceSambaIntegration.MUNICIPALITY_ID)
 					.withFilename(filename)
 					.withDocument(BlobProxy.generateProxy(inputStream.readAllBytes()))
 					.withInvoiceIssuerLegalId(INVOICE_ISSUER_LEGAL_ID)
@@ -139,7 +113,6 @@ public class RaindanceSambaIntegration {
 			dept44HealthUtility.setHealthIndicatorUnhealthy(jobName, "Unable to save file when trying to cache pdfs.");
 
 		}
-		return null;
 	}
 
 }
