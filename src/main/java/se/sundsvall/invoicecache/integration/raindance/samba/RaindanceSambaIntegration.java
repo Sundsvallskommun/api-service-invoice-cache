@@ -57,7 +57,9 @@ public class RaindanceSambaIntegration {
 	}
 
 	public InvoicePdf fetchInvoiceByFilename(final String filename) {
-		try (final var file = new SmbFile(raindanceSambaProperties.targetUrl() + "/" + filename, raindanceSambaProperties.cifsContext());
+		final var path = raindanceSambaProperties.targetUrl() + "/" + filename;
+		LOGGER.info("Fetching invoice from Samba with path: {}", path);
+		try (final var file = new SmbFile(path, raindanceSambaProperties.cifsContext());
 			final var inputStream = new SmbFileInputStream(file)) {
 			return InvoicePdf.builder()
 				.withName(filename)
@@ -65,8 +67,12 @@ public class RaindanceSambaIntegration {
 				.build();
 
 		} catch (final Exception e) {
-			LOGGER.warn("Something went wrong when trying to fetch invoice by filename", e);
-			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Something went wrong when trying to fetch invoice by filename");
+			if (e.getMessage().contains("The system cannot find the file specified")) {
+				LOGGER.error("Invoice PDF with name {} was not found at path: {}", filename, path);
+				throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Invoice PDF with name '%s' was not found".formatted(filename));
+			}
+			LOGGER.warn("Something went wrong when trying to fetch invoice with filename {} at path {}", filename, path, e);
+			throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Something went wrong when trying to fetch invoice");
 		}
 	}
 
