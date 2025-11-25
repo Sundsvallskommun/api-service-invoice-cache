@@ -98,7 +98,7 @@ class RaindanceSambaIntegrationTest {
 
 			assertThatThrownBy(() -> raindanceSambaIntegration.fetchInvoiceByFilename(filename))
 				.isInstanceOf(Problem.class)
-				.hasMessageContaining("Internal Server Error: Something went wrong when trying to fetch invoice by filename");
+				.hasMessageContaining("Internal Server Error: Something went wrong when trying to fetch invoice");
 
 			verify(raindanceSambaProperties).targetUrl();
 			verify(raindanceSambaProperties).cifsContext();
