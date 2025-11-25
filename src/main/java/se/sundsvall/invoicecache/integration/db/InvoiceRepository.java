@@ -12,6 +12,8 @@ import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 @CircuitBreaker(name = "invoiceRepository")
 public interface InvoiceRepository extends JpaRepository<InvoiceEntity, Long>, JpaSpecificationExecutor<InvoiceEntity> {
 
+	Optional<InvoiceEntity> findFirstByInvoiceNumberAndMunicipalityId(String invoiceNumber, String municipalityId);
+
 	Optional<InvoiceEntity> findByFileNameAndMunicipalityId(String fileName, String municipalityId);
 
 	@Modifying

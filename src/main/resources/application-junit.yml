@@ -9,10 +9,10 @@ integration:
   raindance:
     samba:
       cron: '-'
-      domain: samba-domain
+      domain: samba-domain/
       password: samba-password
       remoteDir: samba-remote-dir
-      shareAndDir: samba-share-and-dir
+      shareAndDir: samba-share-and-dir/
       user: samba-user
       userDomain: samba-user-domain
   storage:

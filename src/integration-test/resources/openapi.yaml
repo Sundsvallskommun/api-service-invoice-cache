@@ -7,7 +7,7 @@ info:
     url: https://opensource.org/licenses/MIT
   version: "4.0"
 servers:
-  - url: http://localhost:62482
+  - url: http://localhost:54139
     description: Generated server url
 paths:
   /{municipalityId}/scheduler/truncate:
@@ -225,51 +225,6 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
-  /{municipalityId}/invoices/{filename}:
-    get:
-      tags:
-        - Invoice Cache
-      summary: Fetch an invoice PDF via filename
-      operationId: getInvoicePdf_1
-      parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: filename
-          in: path
-          required: true
-          schema:
-            minLength: 1
-            type: string
-      responses:
-        "200":
-          description: Successful Operation
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/InvoicePdf"
-        "404":
-          description: Not Found
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "400":
-          description: Bad Request
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
   /api-docs:
     get:
       tags:
@@ -310,11 +265,11 @@ components:
     StatusType:
       type: object
       properties:
+        reasonPhrase:
+          type: string
         statusCode:
           type: integer
           format: int32
-        reasonPhrase:
-          type: string
     ConstraintViolationProblem:
       type: object
       properties:
