@@ -8,7 +8,6 @@ integration:
     url: api-party-url
   raindance:
     samba:
-      cron: '-'
       domain: samba-domain/
       password: samba-password
       remoteDir: samba-remote-dir

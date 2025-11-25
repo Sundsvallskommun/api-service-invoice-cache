@@ -2,9 +2,8 @@ package se.sundsvall.invoicecache.service;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 import static se.sundsvall.invoicecache.TestObjectFactory.createJobExecution;
 
@@ -45,7 +44,7 @@ class SchedulerTest {
 
 	@BeforeEach
 	void setup() {
-		this.scheduler = new Scheduler(mockJobLauncher, mockInvoiceJob, mockBackupJob, mockRestoreBackupJob, mockJobHelper, true);
+		this.scheduler = new Scheduler(mockJobLauncher, mockInvoiceJob, mockBackupJob, mockRestoreBackupJob, mockJobHelper);
 	}
 
 	@Test
@@ -58,9 +57,9 @@ class SchedulerTest {
 		when(mockJobHelper.invoiceTableHasInvoices()).thenReturn(true);
 		scheduler.launchJob();
 
-		verify(mockJobHelper, times(1)).areInvoicesOutdated();
-		verify(mockJobLauncher, times(1)).run(eq(mockInvoiceJob), any(JobParameters.class));
-		verify(mockJobLauncher, times(1)).run(eq(mockBackupJob), any(JobParameters.class));
+		verify(mockJobHelper).areInvoicesOutdated();
+		verify(mockJobLauncher).run(eq(mockInvoiceJob), any(JobParameters.class));
+		verify(mockJobLauncher).run(eq(mockBackupJob), any(JobParameters.class));
 	}
 
 	@Test
@@ -72,10 +71,10 @@ class SchedulerTest {
 		when(mockJobLauncher.run(eq(mockRestoreBackupJob), any(JobParameters.class))).thenReturn(createJobExecution(ExitStatus.COMPLETED));
 		scheduler.launchJob();
 
-		verify(mockJobHelper, times(1)).areInvoicesOutdated();
-		verify(mockJobLauncher, times(1)).run(eq(mockInvoiceJob), any(JobParameters.class));
-		verify(mockJobLauncher, times(0)).run(eq(mockBackupJob), any(JobParameters.class));
-		verify(mockJobLauncher, times(1)).run(eq(mockRestoreBackupJob), any(JobParameters.class));
+		verify(mockJobHelper).areInvoicesOutdated();
+		verify(mockJobLauncher).run(eq(mockInvoiceJob), any(JobParameters.class));
+		verify(mockJobLauncher, never()).run(eq(mockBackupJob), any(JobParameters.class));
+		verify(mockJobLauncher).run(eq(mockRestoreBackupJob), any(JobParameters.class));
 	}
 
 	@Test
@@ -83,18 +82,9 @@ class SchedulerTest {
 		when(mockJobHelper.areInvoicesOutdated()).thenReturn(false);
 		scheduler.launchJob();
 
-		verify(mockJobHelper, times(1)).areInvoicesOutdated();
-		verify(mockJobLauncher, times(0)).run(eq(mockInvoiceJob), any(JobParameters.class));
-		verify(mockJobLauncher, times(0)).run(eq(mockBackupJob), any(JobParameters.class));
-		verify(mockJobLauncher, times(0)).run(eq(mockRestoreBackupJob), any(JobParameters.class));
-	}
-
-	@Test
-	void testSchedulingIsDisabled_shouldNotRunAnyJobs() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-		// Disable scheduling
-		scheduler = new Scheduler(mockJobLauncher, mockInvoiceJob, mockBackupJob, mockRestoreBackupJob, mockJobHelper, false);
-		scheduler.launchJob();
-
-		verifyNoInteractions(mockJobLauncher, mockInvoiceJob, mockBackupJob, mockRestoreBackupJob, mockJobHelper);
+		verify(mockJobHelper).areInvoicesOutdated();
+		verify(mockJobLauncher, never()).run(eq(mockInvoiceJob), any(JobParameters.class));
+		verify(mockJobLauncher, never()).run(eq(mockBackupJob), any(JobParameters.class));
+		verify(mockJobLauncher, never()).run(eq(mockRestoreBackupJob), any(JobParameters.class));
 	}
 }

@@ -6,7 +6,6 @@ integration:
     url: http://localhost:${wiremock.server.port}/party
   raindance:
     samba:
-      cron: '-'
       domain: domain.local
       user-domain: USER_DOMAIN
       user: user

@@ -17,7 +17,6 @@ import org.springframework.batch.core.repository.JobExecutionAlreadyRunningExcep
 import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.repository.JobRestartException;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import se.sundsvall.dept44.scheduling.Dept44Scheduled;
@@ -34,20 +33,17 @@ public class Scheduler {
 	private final Job invoiceJob;
 	private final Job restoreBackupJob;
 	private final JobHelper jobHelper;
-	private final boolean schedulingIsEnabled;
 
 	public Scheduler(final JobLauncher jobLauncher,
 		@Qualifier(RAINDANCE_JOB_NAME) final Job invoiceJob,
 		@Qualifier(BACKUP_JOB_NAME) final Job backupJob,
 		@Qualifier(RESTORE_BACKUP_JOB_NAME) final Job restoreBackupJob,
-		final JobHelper jobHelper,
-		@Value("${invoices.scheduling.enabled:true}") final boolean schedulingIsEnabled) {
+		final JobHelper jobHelper) {
 		this.jobLauncher = jobLauncher;
 		this.backupJob = backupJob;
 		this.invoiceJob = invoiceJob;
 		this.jobHelper = jobHelper;
 		this.restoreBackupJob = restoreBackupJob;
-		this.schedulingIsEnabled = schedulingIsEnabled;
 	}
 
 	/**
@@ -63,26 +59,20 @@ public class Scheduler {
 		name = "${invoice.scheduled.name}",
 		lockAtMostFor = "${invoice.scheduled.shedlock-lock-at-most-for}",
 		maximumExecutionTime = "${invoice.scheduled.maximum-execution-time}")
-	public void launchJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-		// Only run if scheduling is enabled
-		if (schedulingIsEnabled) {
-			if (jobHelper.areInvoicesOutdated()) {
-				// Always try to run the job that fetches invoices
-				startFetchingInvoices();
-			} else {
-				LOG.info("Invoices are not outdated.");
-			}
+	void launchJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+		if (jobHelper.areInvoicesOutdated()) {
+			// Always try to run the job that fetches invoices
+			startFetchingInvoices();
 		} else {
-			LOG.info("Scheduling is disabled.");
+			LOG.info("Invoices are not outdated.");
 		}
 	}
 
 	private void startFetchingInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
 		final JobExecution executionResult = fetchInvoices();
 
-		// If the invoice job ended with a successful exitstatus, and we actually have any invoices, backup the fetched
+		// If the invoice job ended with a successful exit status, and we actually have any invoices, backup the fetched
 		// invoices.
-		// TODO, maybe check the age of the backup, if it's less than a day old, don't run a backup
 		if (executionResult.getExitStatus().equals(ExitStatus.COMPLETED) && jobHelper.invoiceTableHasInvoices()) {
 			runBackup();
 		} else {
