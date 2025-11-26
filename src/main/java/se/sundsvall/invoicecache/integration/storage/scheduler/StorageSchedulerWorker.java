@@ -1,5 +1,7 @@
 package se.sundsvall.invoicecache.integration.storage.scheduler;
 
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
+
 import java.time.OffsetDateTime;
 import java.util.List;
 import org.slf4j.Logger;
@@ -17,9 +19,6 @@ public class StorageSchedulerWorker {
 	private static final Logger LOG = LoggerFactory.getLogger(StorageSchedulerWorker.class);
 	private final StorageSambaIntegration storageSambaIntegration;
 	private final PdfRepository pdfRepository;
-
-	// Sundsvalls Kommun invoices should not be transferred to Samba storage
-	private static final String EXCLUDED_ISSUER_LEGAL_ID = "2120002411";
 
 	@Value("${integration.storage.samba.scheduler.jobs.transfer.threshold-months:6}")
 	private Integer transferThresholdMonths = 6;
@@ -98,7 +97,7 @@ public class StorageSchedulerWorker {
 	 * @return the PDF entity
 	 */
 	private List<PdfEntity> findPdfToTransfer() {
-		return pdfRepository.findPdfsToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), EXCLUDED_ISSUER_LEGAL_ID, transferLimit);
+		return pdfRepository.findPdfsToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), RAINDANCE_ISSUER_LEGAL_ID, transferLimit);
 	}
 
 	/**

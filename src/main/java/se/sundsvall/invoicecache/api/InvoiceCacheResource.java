@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 import static org.springframework.http.ResponseEntity.ok;
 import static org.springframework.web.util.UriComponentsBuilder.fromPath;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -39,8 +40,6 @@ import se.sundsvall.invoicecache.service.InvoicePdfService;
 @ApiResponse(responseCode = "500", description = "Internal Server Error", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
 class InvoiceCacheResource {
 
-	private static final String RAINDANCE_ISSUER_LEGAL_ID = "2120002411";
-
 	private final InvoiceCacheService invoiceCacheService;
 	private final InvoicePdfService invoicePdfService;
 
@@ -71,7 +70,6 @@ class InvoiceCacheResource {
 		@PathVariable final String invoiceNumber,
 		@ParameterObject @Valid final InvoicePdfFilterRequest request) {
 		if (RAINDANCE_ISSUER_LEGAL_ID.equals(issuerLegalId)) {
-			// Invoices that are issued by RAINDANCE_ISSUER_LEGAL_ID are always fetched from the Raindance Samba.
 			var invoicePdf = invoicePdfService.getRaindanceInvoicePdf(invoiceNumber, municipalityId);
 			return ok(invoicePdf);
 		}

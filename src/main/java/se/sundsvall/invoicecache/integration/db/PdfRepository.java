@@ -16,6 +16,8 @@ public interface PdfRepository extends JpaRepository<PdfEntity, Long>, JpaSpecif
 
 	Optional<PdfEntity> findByInvoiceNumberAndInvoiceIdAndMunicipalityId(String invoiceNumber, String invoiceId, String municipalityId);
 
+	Optional<PdfEntity> findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(String invoiceId, String invoiceIssuerLegalId, String municipalityId);
+
 	List<PdfEntity> findByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(OffsetDateTime created, String issuerLegalId, Limit limit);
 
 	List<PdfEntity> findByTruncatedAtIsNullAndMovedAtIsNotNull(Limit limit);

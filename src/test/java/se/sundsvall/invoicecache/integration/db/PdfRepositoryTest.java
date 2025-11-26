@@ -5,6 +5,7 @@ import static java.time.ZoneId.systemDefault;
 import static java.time.temporal.ChronoUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -55,7 +56,7 @@ class PdfRepositoryTest {
 			.build();
 		repository.saveAll(List.of(pdfEntity1, pdfEntity2, pdfEntity3));
 
-		var result = repository.findPdfsToTransfer(now().plusMonths(6), "2120002411", maxResults);
+		var result = repository.findPdfsToTransfer(now().plusMonths(6), RAINDANCE_ISSUER_LEGAL_ID, maxResults);
 
 		assertThat(result).hasSize(maxResults);
 	}
