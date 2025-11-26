@@ -9,6 +9,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceEntity;
 import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
 
@@ -195,6 +196,8 @@ class InvoicePdfServiceTest {
 
 		when(invoiceRepositoryMock.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId))
 			.thenReturn(Optional.of(invoiceEntity));
+		when(pdfRepositoryMock.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId))
+			.thenReturn(Optional.empty());
 		when(raindanceSambaIntegrationMock.fetchInvoiceByFilename(invoiceEntity.getFileName()))
 			.thenReturn(invoicePdf);
 
@@ -206,6 +209,7 @@ class InvoicePdfServiceTest {
 		});
 
 		verify(invoiceRepositoryMock).findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId);
+		verify(pdfRepositoryMock).findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId);
 		verify(raindanceSambaIntegrationMock).fetchInvoiceByFilename(invoiceEntity.getFileName());
 	}
 

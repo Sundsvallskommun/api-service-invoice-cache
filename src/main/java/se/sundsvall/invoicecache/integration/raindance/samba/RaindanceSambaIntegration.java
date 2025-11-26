@@ -1,6 +1,7 @@
 package se.sundsvall.invoicecache.integration.raindance.samba;
 
 import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -31,7 +32,6 @@ import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 @EnableScheduling
 public class RaindanceSambaIntegration {
 
-	private static final String INVOICE_ISSUER_LEGAL_ID = "2120002411";
 	private static final String MUNICIPALITY_ID = "2281";
 	private static final Logger LOGGER = LoggerFactory.getLogger(RaindanceSambaIntegration.class);
 	private final PdfRepository pdfRepository;
@@ -109,7 +109,7 @@ public class RaindanceSambaIntegration {
 					.withMunicipalityId(RaindanceSambaIntegration.MUNICIPALITY_ID)
 					.withFilename(filename)
 					.withDocument(BlobProxy.generateProxy(inputStream.readAllBytes()))
-					.withInvoiceIssuerLegalId(INVOICE_ISSUER_LEGAL_ID)
+					.withInvoiceIssuerLegalId(RAINDANCE_ISSUER_LEGAL_ID)
 					.withInvoiceDebtorLegalId(entity.get().getOrganizationNumber())
 					.withInvoiceNumber(entity.get().getInvoiceNumber())
 					.build());

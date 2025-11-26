@@ -149,6 +149,7 @@
 						<exclude>**/se/sundsvall/invoicecache/integration/db/entity/PdfEntity_**</exclude>
 						<exclude>**/se/sundsvall/invoicecache/integration/db/entity/InvoiceEntity_**</exclude>
 						<exclude>**/se/sundsvall/invoicecache/integration/db/entity/BackupInvoiceEntity_**</exclude>
+						<exclude>**/se/sundsvall/invoicecache/Constant**</exclude>
 						<exclude>**/generated/se/sundsvall/party/**</exclude>
 						<!-- Generated classes -->
 						<exclude>**/org/openapitools/api/**</exclude>

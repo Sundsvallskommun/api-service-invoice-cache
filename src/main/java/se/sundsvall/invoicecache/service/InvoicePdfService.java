@@ -1,6 +1,7 @@
 package se.sundsvall.invoicecache.service;
 
 import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
@@ -58,7 +59,9 @@ public class InvoicePdfService {
 		var invoiceEntity = invoiceRepository.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "No invoice with invoice number '%s' was found".formatted(invoiceNumber)));
 
-		return raindanceSambaIntegration.fetchInvoiceByFilename(invoiceEntity.getFileName());
+		return pdfRepository.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId)
+			.map(pdfMapper::mapToResponse)
+			.orElseGet(() -> raindanceSambaIntegration.fetchInvoiceByFilename(invoiceEntity.getFileName()));
 	}
 
 	public String createOrUpdateInvoice(final InvoicePdfRequest request, final String municipalityId) {
