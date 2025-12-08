@@ -33,6 +33,12 @@ integration:
             name: truncate
             shedlock-lock-at-most-for: PT5M
             maximum-execution-time: PT5M
+scheduler:
+  removal:
+    cron: '-'
+    name: removeOldRaindanceInvoices
+    shedlock-lock-at-most-for: PT5M
+    maximum-execution-time: PT5M
 invoice:
   scheduled:
     cron: '0 */10 * * * *'
