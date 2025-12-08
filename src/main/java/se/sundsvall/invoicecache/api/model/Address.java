@@ -9,15 +9,15 @@ import lombok.Data;
 @Schema(description = "Model for the Address")
 public class Address {
 
-	@Schema(description = "City", example = "Sundsvall")
+	@Schema(description = "City", examples = "Sundsvall")
 	private String city;
 
-	@Schema(description = "Street address", example = "Storgatan 10")
+	@Schema(description = "Street address", examples = "Storgatan 10")
 	private String street;
 
-	@Schema(description = "Postal code", example = "85740")
+	@Schema(description = "Postal code", examples = "85740")
 	private String postcode;
 
-	@Schema(description = "Care of", example = "John Doe")
+	@Schema(description = "Care of", examples = "John Doe")
 	private String careOf;
 }
