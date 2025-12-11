@@ -8,6 +8,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +18,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.test.util.ReflectionTestUtils;
 import se.sundsvall.invoicecache.TestObjectFactory;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
@@ -31,6 +32,12 @@ class StorageSchedulerWorkerTest {
 	@Mock
 	private StorageSambaIntegration storageSambaIntegrationMock;
 
+	@Mock
+	private Consumer<String> transferFileUnhealthyConsumerMock;
+
+	@Mock
+	private Consumer<String> truncateFileUnhealthyConsumerMock;
+
 	@Captor
 	private ArgumentCaptor<PdfEntity> pdfEntityCaptor;
 
@@ -39,7 +46,7 @@ class StorageSchedulerWorkerTest {
 
 	@AfterEach
 	void tearDown() {
-		verifyNoMoreInteractions(pdfRepositoryMock, storageSambaIntegrationMock);
+		verifyNoMoreInteractions(pdfRepositoryMock, storageSambaIntegrationMock, transferFileUnhealthyConsumerMock, truncateFileUnhealthyConsumerMock);
 	}
 
 	@Test
@@ -53,7 +60,7 @@ class StorageSchedulerWorkerTest {
 		when(storageSambaIntegrationMock.writeFile(pdfEntity.getDocument()))
 			.thenReturn(fileHash);
 
-		storageSchedulerWorker.transferFiles();
+		storageSchedulerWorker.transferFiles(transferFileUnhealthyConsumerMock);
 
 		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
 		verify(pdfRepositoryMock).findById(pdfEntity.getId());
@@ -75,22 +82,27 @@ class StorageSchedulerWorkerTest {
 		pdfEntity2.setId(2);
 		pdfEntity2.setFileHash(fileHash2);
 
-		// Set truncate limit to 2 for testing purposes
-		ReflectionTestUtils.setField(storageSchedulerWorker, "truncateLimit", 2);
-		when(pdfRepositoryMock.findPdfsToTruncate(2))
-			.thenReturn(List.of(pdfEntity1, pdfEntity2));
+		when(pdfRepositoryMock.findPdfIdsToTruncate())
+			.thenReturn(List.of(pdfEntity1.getId(), pdfEntity2.getId()));
+		when(pdfRepositoryMock.findById(pdfEntity1.getId()))
+			.thenReturn(Optional.of(pdfEntity1));
+		when(pdfRepositoryMock.findById(pdfEntity2.getId()))
+			.thenReturn(Optional.of(pdfEntity2));
 		when(storageSambaIntegrationMock.verifyBlobIntegrity(fileHash1))
 			.thenReturn(fileHash1);
 		when(storageSambaIntegrationMock.verifyBlobIntegrity(fileHash2))
 			.thenReturn(fileHash2);
 
-		storageSchedulerWorker.truncateFiles();
+		final var fileIds = storageSchedulerWorker.getFileIdsToTruncate();
+		fileIds.forEach(fileId -> storageSchedulerWorker.truncateFile(fileId, truncateFileUnhealthyConsumerMock));
 
 		assertThat(pdfEntity1.getDocument()).isNull();
 		assertThat(pdfEntity1.getTruncatedAt()).isNotNull();
 		assertThat(pdfEntity2.getDocument()).isNull();
 		assertThat(pdfEntity2.getTruncatedAt()).isNotNull();
-		verify(pdfRepositoryMock).findPdfsToTruncate(2);
+		verify(pdfRepositoryMock).findPdfIdsToTruncate();
+		verify(pdfRepositoryMock).findById(pdfEntity1.getId());
+		verify(pdfRepositoryMock).findById(pdfEntity2.getId());
 		verify(pdfRepositoryMock).save(pdfEntity1);
 		verify(pdfRepositoryMock).save(pdfEntity2);
 		verify(storageSambaIntegrationMock).verifyBlobIntegrity(fileHash1);
@@ -103,18 +115,23 @@ class StorageSchedulerWorkerTest {
 		final var pdfEntity = TestObjectFactory.generatePdfEntity();
 		pdfEntity.setFileHash(fileHash);
 
-		when(pdfRepositoryMock.findPdfsToTruncate(1))
-			.thenReturn(List.of(pdfEntity));
+		when(pdfRepositoryMock.findPdfIdsToTruncate())
+			.thenReturn(List.of(pdfEntity.getId()));
+		when(pdfRepositoryMock.findById(pdfEntity.getId()))
+			.thenReturn(Optional.of(pdfEntity));
 		when(storageSambaIntegrationMock.verifyBlobIntegrity(fileHash))
 			.thenReturn("differentFileHash");
 
-		storageSchedulerWorker.truncateFiles();
+		final var fileIds = storageSchedulerWorker.getFileIdsToTruncate();
+		fileIds.forEach(fileId -> storageSchedulerWorker.truncateFile(fileId, truncateFileUnhealthyConsumerMock));
 
 		assertThat(pdfEntity.getDocument()).isNotNull();
 		assertThat(pdfEntity.getTruncatedAt()).isNull();
-		verify(pdfRepositoryMock).findPdfsToTruncate(1);
+		verify(pdfRepositoryMock).findPdfIdsToTruncate();
+		verify(pdfRepositoryMock).findById(pdfEntity.getId());
 		verify(pdfRepositoryMock, never()).save(pdfEntity);
 		verify(storageSambaIntegrationMock).verifyBlobIntegrity(fileHash);
+		verify(truncateFileUnhealthyConsumerMock).accept(any());
 	}
 
 	@Test
@@ -122,7 +139,7 @@ class StorageSchedulerWorkerTest {
 		when(pdfRepositoryMock.findPdfIdsToTransfer(any(), any()))
 			.thenReturn(List.of());
 
-		storageSchedulerWorker.transferFiles();
+		storageSchedulerWorker.transferFiles(transferFileUnhealthyConsumerMock);
 
 		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
 		verify(pdfRepositoryMock, never()).findById(any());
@@ -138,7 +155,7 @@ class StorageSchedulerWorkerTest {
 		when(pdfRepositoryMock.findById(pdfId))
 			.thenReturn(java.util.Optional.empty());
 
-		storageSchedulerWorker.transferFiles();
+		storageSchedulerWorker.transferFiles(transferFileUnhealthyConsumerMock);
 
 		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
 		verify(pdfRepositoryMock).findById(pdfId);
@@ -156,22 +173,24 @@ class StorageSchedulerWorkerTest {
 		when(storageSambaIntegrationMock.writeFile(pdfEntity.getDocument()))
 			.thenThrow(new RuntimeException("Transfer failed"));
 
-		storageSchedulerWorker.transferFiles();
+		storageSchedulerWorker.transferFiles(transferFileUnhealthyConsumerMock);
 
 		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
 		verify(pdfRepositoryMock).findById(pdfEntity.getId());
 		verify(pdfRepositoryMock, never()).save(any());
 		verify(storageSambaIntegrationMock).writeFile(pdfEntity.getDocument());
+		verify(transferFileUnhealthyConsumerMock).accept(any());
 	}
 
 	@Test
 	void truncateFiles_noFilesEligible() {
-		when(pdfRepositoryMock.findPdfsToTruncate(1))
+		when(pdfRepositoryMock.findPdfIdsToTruncate())
 			.thenReturn(List.of());
 
-		storageSchedulerWorker.truncateFiles();
+		final var result = storageSchedulerWorker.getFileIdsToTruncate();
 
-		verify(pdfRepositoryMock).findPdfsToTruncate(1);
+		assertThat(result).isEmpty();
+		verify(pdfRepositoryMock).findPdfIdsToTruncate();
 		verify(pdfRepositoryMock, never()).save(any());
 		verify(storageSambaIntegrationMock, never()).verifyBlobIntegrity(any());
 	}

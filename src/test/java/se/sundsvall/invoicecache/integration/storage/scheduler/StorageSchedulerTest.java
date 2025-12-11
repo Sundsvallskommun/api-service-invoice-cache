@@ -1,5 +1,6 @@
 package se.sundsvall.invoicecache.integration.storage.scheduler;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
@@ -28,14 +29,14 @@ class StorageSchedulerTest {
 	void transferFiles() {
 		storageScheduler.transferFiles();
 
-		verify(storageSchedulerWorkerMock).transferFiles();
+		verify(storageSchedulerWorkerMock).transferFiles(any());
 	}
 
 	@Test
 	void truncateFiles() {
 		storageScheduler.truncateFiles();
 
-		verify(storageSchedulerWorkerMock).truncateFiles();
+		verify(storageSchedulerWorkerMock).getFileIdsToTruncate();
 	}
 
 }

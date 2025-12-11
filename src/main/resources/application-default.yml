@@ -30,10 +30,10 @@ integration:
             maximum-execution-time: PT4H
             threshold-months: 6
           truncate:
-            cron: '-'
+            cron: '0 0 22 1-31/2 * *'
             name: truncate
-            shedlock-lock-at-most-for: PT5M
-            maximum-execution-time: PT5M
+            shedlock-lock-at-most-for: PT4H
+            maximum-execution-time: PT4H
 scheduler:
   removal:
     cron: '-'
