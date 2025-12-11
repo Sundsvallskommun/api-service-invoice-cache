@@ -9,7 +9,7 @@ See the [Mini-SAD](#Mini-sad) for more detailed information.
 
 ### Prerequisites
 
-- **Java 21 or higher**
+- **Java 25 or higher**
 - **Git**
 - **Maven**
 - **MariaDB**
