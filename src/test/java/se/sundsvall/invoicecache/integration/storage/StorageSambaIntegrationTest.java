@@ -41,6 +41,13 @@ class StorageSambaIntegrationTest {
 	@InjectMocks
 	private StorageSambaIntegration storageSambaIntegration;
 
+	private static Stream<Arguments> verifyBlobIntegrityArgumentProvider() {
+		return Stream.of(
+			Arguments.of("TestString", "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27"),
+			Arguments.of("AnotherTestString", "8df77a731fb9cacafb233b32ace2fa58ebbbfbd48849a83c48e2d717bd333acd"),
+			Arguments.of("ThirdString", "9eade98be98408fa03c656457076018866d8ac1f78c9fe9fea1b6f4efe75c2ae"));
+	}
+
 	@AfterEach
 	void tearDown() {
 		verifyNoMoreInteractions(storageSambaProperties);
@@ -48,19 +55,19 @@ class StorageSambaIntegrationTest {
 
 	@Test
 	void readFile() throws IOException {
-		var content = "TestString";
-		var blobKey = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
+		final var content = "TestString";
+		final var blobKey = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
 
 		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
 		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
 
-		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> when(mock.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes())))) {
+		try (final var constructor = mockConstruction(SmbFile.class, (mock, _) -> when(mock.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes())))) {
 
-			var result = storageSambaIntegration.readFile(blobKey);
+			final var result = storageSambaIntegration.readFile(blobKey);
 
 			assertThat(result).isEqualTo(content.getBytes());
 
-			var smbFile = constructor.constructed().getFirst();
+			final var smbFile = constructor.constructed().getFirst();
 			verify(smbFile).getInputStream();
 		}
 		verify(storageSambaProperties).targetUrl();
@@ -77,32 +84,32 @@ class StorageSambaIntegrationTest {
 
 	@Test
 	void writeFile() throws SQLException, IOException {
-		var content = "TestString";
-		var expectedHash = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
+		final var content = "TestString";
+		final var expectedHash = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
 
-		var blob = Mockito.mock(Blob.class);
-		var inputStream = new ByteArrayInputStream(content.getBytes());
-		var outputStream = new ByteArrayOutputStream();
+		final var blob = Mockito.mock(Blob.class);
+		final var inputStream = new ByteArrayInputStream(content.getBytes());
+		final var outputStream = new ByteArrayOutputStream();
 
 		when(blob.getBinaryStream()).thenReturn(inputStream);
 		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
 		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
 
-		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> {
+		try (final var constructor = mockConstruction(SmbFile.class, (mock, _) -> {
 			// Directory exists
 			when(mock.exists()).thenReturn(true);
 			when(mock.getOutputStream()).thenReturn(outputStream);
 		})) {
 
-			var resultHash = storageSambaIntegration.writeFile(blob);
+			final var resultHash = storageSambaIntegration.writeFile(blob);
 
 			assertThat(outputStream.toByteArray()).isEqualTo(inputStream.readAllBytes());
 			assertThat(resultHash).isEqualTo(expectedHash);
 
-			var constructed = constructor.constructed();
+			final var constructed = constructor.constructed();
 			assertThat(constructed).hasSize(2);
-			var dirMock = constructed.get(0);
-			var fileMock = constructed.get(1);
+			final var dirMock = constructed.get(0);
+			final var fileMock = constructed.get(1);
 
 			verify(dirMock).exists();
 
@@ -124,32 +131,32 @@ class StorageSambaIntegrationTest {
 
 	@Test
 	void writeFile_createDirectory() throws SQLException, IOException {
-		var content = "TestString";
-		var expectedHash = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
+		final var content = "TestString";
+		final var expectedHash = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
 
-		var blob = Mockito.mock(Blob.class);
-		var inputStream = new ByteArrayInputStream(content.getBytes());
-		var outputStream = new ByteArrayOutputStream();
+		final var blob = Mockito.mock(Blob.class);
+		final var inputStream = new ByteArrayInputStream(content.getBytes());
+		final var outputStream = new ByteArrayOutputStream();
 
 		when(blob.getBinaryStream()).thenReturn(inputStream);
 		when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
 		when(storageSambaProperties.cifsContext()).thenCallRealMethod();
 
-		try (var constructor = mockConstruction(SmbFile.class, (mock, context) -> {
+		try (final var constructor = mockConstruction(SmbFile.class, (mock, _) -> {
 			// Directory does not exist
 			when(mock.exists()).thenReturn(false);
 			when(mock.getOutputStream()).thenReturn(outputStream);
 		})) {
 
-			var resultHash = storageSambaIntegration.writeFile(blob);
+			final var resultHash = storageSambaIntegration.writeFile(blob);
 
 			assertThat(outputStream.toByteArray()).isEqualTo(inputStream.readAllBytes());
 			assertThat(resultHash).isEqualTo(expectedHash);
 
-			var constructed = constructor.constructed();
+			final var constructed = constructor.constructed();
 			assertThat(constructed).hasSize(2);
-			var dirMock = constructed.get(0);
-			var fileMock = constructed.get(1);
+			final var dirMock = constructed.get(0);
+			final var fileMock = constructed.get(1);
 
 			verify(dirMock).exists();
 			// Should attempt to create directory since it does not exist
@@ -163,14 +170,14 @@ class StorageSambaIntegrationTest {
 
 	@Test
 	void writeFile_throws() throws SQLException {
-		var content = "TestString";
-		var blob = Mockito.mock(Blob.class);
+		final var content = "TestString";
+		final var blob = Mockito.mock(Blob.class);
 
-		var inputStream = new ByteArrayInputStream(content.getBytes());
+		final var inputStream = new ByteArrayInputStream(content.getBytes());
 
 		when(blob.getBinaryStream()).thenReturn(inputStream);
 
-		try (var ignored = mockConstruction(SmbFile.class, (mock, context) -> when(mock.exists()).thenThrow(new SmbException("Random error")))) {
+		try (var _ = mockConstruction(SmbFile.class, (mock, _) -> when(mock.exists()).thenThrow(new SmbException("Random error")))) {
 
 			assertThatThrownBy(() -> storageSambaIntegration.writeFile(blob))
 				.isInstanceOf(BlobWriteException.class)
@@ -183,11 +190,11 @@ class StorageSambaIntegrationTest {
 	@ParameterizedTest
 	@MethodSource("verifyBlobIntegrityArgumentProvider")
 	void verifyBlobIntegrity(final String content, final String expectedHash) {
-		try (var ignored = mockConstruction(SmbFile.class, (mock, context) -> when(mock.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes())))) {
+		try (final var _ = mockConstruction(SmbFile.class, (mock, _) -> when(mock.getInputStream()).thenReturn(new ByteArrayInputStream(content.getBytes())))) {
 
 			when(storageSambaProperties.targetUrl()).thenReturn("smb://samba-hostname/abc/invoice-cache/test");
 
-			var result = storageSambaIntegration.verifyBlobIntegrity(expectedHash);
+			final var result = storageSambaIntegration.verifyBlobIntegrity(expectedHash);
 
 			verify(storageSambaProperties).targetUrl();
 			verify(storageSambaProperties).cifsContext();
@@ -205,9 +212,9 @@ class StorageSambaIntegrationTest {
 
 	@Test
 	void verifyBlobIntegrity_throws() {
-		var blobKey = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
+		final var blobKey = "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27";
 
-		try (var ignored = mockConstruction(SmbFile.class, (mock, context) -> when(mock.getInputStream()).thenThrow(new IOException("Read error")))) {
+		try (final var _ = mockConstruction(SmbFile.class, (mock, _) -> when(mock.getInputStream()).thenThrow(new IOException("Read error")))) {
 
 			assertThatThrownBy(() -> storageSambaIntegration.verifyBlobIntegrity(blobKey))
 				.isInstanceOf(BlobIntegrityException.class)
@@ -215,13 +222,6 @@ class StorageSambaIntegrationTest {
 		}
 		verify(storageSambaProperties).targetUrl();
 		verify(storageSambaProperties).cifsContext();
-	}
-
-	private static Stream<Arguments> verifyBlobIntegrityArgumentProvider() {
-		return Stream.of(
-			Arguments.of("TestString", "6dd79f2770a0bb38073b814a5ff000647b37be5abbde71ec9176c6ce0cb32a27"),
-			Arguments.of("AnotherTestString", "8df77a731fb9cacafb233b32ace2fa58ebbbfbd48849a83c48e2d717bd333acd"),
-			Arguments.of("ThirdString", "9eade98be98408fa03c656457076018866d8ac1f78c9fe9fea1b6f4efe75c2ae"));
 	}
 
 }

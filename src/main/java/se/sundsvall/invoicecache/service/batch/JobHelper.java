@@ -33,7 +33,7 @@ public class JobHelper {
 	private final InvoiceRepository invoiceRepository;
 
 	public JobHelper(final JobExplorer jobExplorer, final InvoiceRepository invoiceRepository,
-		@Value("${raindance.invoice.outdated}") Duration timeToWait) {
+		@Value("${raindance.invoice.outdated}") final Duration timeToWait) {
 		this.jobExplorer = jobExplorer;
 		this.invoiceRepository = invoiceRepository;
 		this.successfulWithin = timeToWait;
@@ -70,7 +70,7 @@ public class JobHelper {
 	 *
 	 * @param jobName name of the job to check
 	 */
-	Optional<JobExecution> getSuccessfulJobWithinTimePeriod(String jobName) {
+	Optional<JobExecution> getSuccessfulJobWithinTimePeriod(final String jobName) {
 		try {
 			final int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(jobName);
 
@@ -83,7 +83,7 @@ public class JobHelper {
 					.isAfter(LocalDateTime.now().minusMinutes(successfulWithin.toMinutes())))
 				.findFirst();
 
-		} catch (final NoSuchJobException e) {
+		} catch (final NoSuchJobException _) {
 			// If we can't find any job, we don't care, run a new one.
 			LOG.info("Couldn't find any job with name: {}", jobName);
 			return Optional.empty();
@@ -96,7 +96,7 @@ public class JobHelper {
 	 * @return list of the 50 latest jobs
 	 */
 	public List<JobStatus> getJobs() {
-		List<JobStatus> listOfJobs = new ArrayList<>();
+		final List<JobStatus> listOfJobs = new ArrayList<>();
 		final int jobsToFetch = 50;
 		try {
 			final int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME);
@@ -115,7 +115,7 @@ public class JobHelper {
 				.map(this::mapJobExecutionToJobStatus)
 				.toList();
 
-		} catch (final NoSuchJobException e) {
+		} catch (final NoSuchJobException _) {
 			// If we can't find any job, we don't care, run a new one.
 			LOG.info("Couldn't find any job with name: {}", RAINDANCE_JOB_NAME);
 		}
@@ -123,7 +123,7 @@ public class JobHelper {
 		return listOfJobs;
 	}
 
-	private JobStatus mapJobExecutionToJobStatus(JobExecution jobExecution) {
+	private JobStatus mapJobExecutionToJobStatus(final JobExecution jobExecution) {
 		final JobStatus jobStatus = JobStatus.builder()
 			.withStatus(jobExecution.getStatus().toString())
 			.withStartTime(jobExecution.getStartTime())

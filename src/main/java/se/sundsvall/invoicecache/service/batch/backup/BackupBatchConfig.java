@@ -72,7 +72,7 @@ public class BackupBatchConfig {
 			.build();
 	}
 
-	public Step backupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+	public Step backupStep(final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		return new StepBuilder("backupStep", jobRepository)
 			.<InvoiceEntity, BackupInvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
 			.reader(invoiceReader())
@@ -83,16 +83,15 @@ public class BackupBatchConfig {
 	}
 
 	@Bean(name = BACKUP_JOB_NAME)
-	Job backupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+	Job backupJob(final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		return new JobBuilder(BACKUP_JOB_NAME, jobRepository)
 			.start(backupStep(jobRepository, transactionManager))
 			.build();
 	}
 
-	/////////////////////////////////////
+	// --------------------------------//
 	// Restore backup batch config below
-
-	/// //////////////////////////////////
+	// --------------------------------//
 
 	public RepositoryItemReader<BackupInvoiceEntity> invoiceBackupReader() {
 		return new RepositoryItemReaderBuilder<BackupInvoiceEntity>()
@@ -110,7 +109,7 @@ public class BackupBatchConfig {
 			.build();
 	}
 
-	public Step restoreBackupStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+	public Step restoreBackupStep(final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		return new StepBuilder("restoreBackupStep", jobRepository)
 			.<BackupInvoiceEntity, InvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
 			.reader(invoiceBackupReader())
@@ -121,7 +120,7 @@ public class BackupBatchConfig {
 	}
 
 	@Bean(name = RESTORE_BACKUP_JOB_NAME)
-	Job restoreBackupJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+	Job restoreBackupJob(final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		return new JobBuilder(RESTORE_BACKUP_JOB_NAME, jobRepository)
 			.start(restoreBackupStep(jobRepository, transactionManager))
 			.build();

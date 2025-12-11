@@ -1,12 +1,11 @@
 package apptest;
 
+import static org.awaitility.Awaitility.await;
+
 import java.time.Duration;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import se.sundsvall.dept44.test.AbstractAppTest;
 
 public abstract class AbstractInvoiceCacheAppTest extends AbstractAppTest {
@@ -25,11 +24,9 @@ public abstract class AbstractInvoiceCacheAppTest extends AbstractAppTest {
 		getSendRequestAndVerifyResponseDelay().ifPresent(delay -> {
 			LOG.info("Sleeping {} seconds before sending request", delay.getSeconds());
 
-			try {
-				TimeUnit.SECONDS.sleep(delay.getSeconds());
-			} catch (final InterruptedException e) {
-				throw new RuntimeException(e);
-			}
+			await().pollDelay(delay).untilAsserted(() -> {
+				// Delay completed
+			});
 
 		});
 
