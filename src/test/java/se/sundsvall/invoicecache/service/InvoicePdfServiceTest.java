@@ -196,8 +196,6 @@ class InvoicePdfServiceTest {
 
 		when(invoiceRepositoryMock.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId))
 			.thenReturn(Optional.of(invoiceEntity));
-		when(pdfRepositoryMock.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId))
-			.thenReturn(Optional.empty());
 		when(raindanceSambaIntegrationMock.fetchInvoiceByFilename(invoiceEntity.getFileName()))
 			.thenReturn(invoicePdf);
 
@@ -209,8 +207,54 @@ class InvoicePdfServiceTest {
 		});
 
 		verify(invoiceRepositoryMock).findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId);
-		verify(pdfRepositoryMock).findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId);
 		verify(raindanceSambaIntegrationMock).fetchInvoiceByFilename(invoiceEntity.getFileName());
+	}
+
+	@Test
+	void getRaindanceInvoicePdf_fallbackToPdfRepository() {
+		final var invoiceNumber = "someInvoiceNumber";
+		final var municipalityId = "2281";
+		final var invoiceEntity = generateInvoiceEntity();
+		final var pdfEntity = generatePdfEntity();
+
+		when(invoiceRepositoryMock.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId))
+			.thenReturn(Optional.of(invoiceEntity));
+		when(raindanceSambaIntegrationMock.fetchInvoiceByFilename(invoiceEntity.getFileName()))
+			.thenThrow(new RuntimeException("Samba connection failed"));
+		when(pdfRepositoryMock.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId))
+			.thenReturn(Optional.of(pdfEntity));
+
+		final var result = invoicePdfService.getRaindanceInvoicePdf(invoiceNumber, municipalityId);
+
+		assertThat(result).isNotNull();
+		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString("blobMe".getBytes()));
+
+		verify(invoiceRepositoryMock).findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId);
+		verify(raindanceSambaIntegrationMock).fetchInvoiceByFilename(invoiceEntity.getFileName());
+		verify(pdfRepositoryMock).findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId);
+		verify(pdfMapperMock).mapToResponse(pdfEntity);
+	}
+
+	@Test
+	void getRaindanceInvoicePdf_fallbackFails() {
+		final var invoiceNumber = "someInvoiceNumber";
+		final var municipalityId = "2281";
+		final var invoiceEntity = generateInvoiceEntity();
+
+		when(invoiceRepositoryMock.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId))
+			.thenReturn(Optional.of(invoiceEntity));
+		when(raindanceSambaIntegrationMock.fetchInvoiceByFilename(invoiceEntity.getFileName()))
+			.thenThrow(new RuntimeException("Samba connection failed"));
+		when(pdfRepositoryMock.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId))
+			.thenReturn(Optional.empty());
+
+		assertThatThrownBy(() -> invoicePdfService.getRaindanceInvoicePdf(invoiceNumber, municipalityId))
+			.isInstanceOf(Problem.class)
+			.hasMessageContaining("Not Found: PDF not found for invoiceNumber: " + invoiceNumber);
+
+		verify(invoiceRepositoryMock).findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId);
+		verify(raindanceSambaIntegrationMock).fetchInvoiceByFilename(invoiceEntity.getFileName());
+		verify(pdfRepositoryMock).findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId);
 	}
 
 	@Test

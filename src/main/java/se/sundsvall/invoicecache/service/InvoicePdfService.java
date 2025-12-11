@@ -43,7 +43,7 @@ public class InvoicePdfService {
 	}
 
 	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber, final InvoicePdfFilterRequest request, final String municipalityId) {
-		var pdfEntity = pdfRepository.findOne(invoicePdfSpecifications.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
+		final var pdfEntity = pdfRepository.findOne(invoicePdfSpecifications.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "PDF not found for invoiceNumber: " + invoiceNumber + ", issuerLegalId: " + issuerLegalId));
 
 		// If a pdf was found, and it has not been truncated, read it from the database.
@@ -51,17 +51,21 @@ public class InvoicePdfService {
 			return pdfMapper.mapToResponse(pdfEntity);
 		}
 		// If the pdf has been truncated, read it from storage using the file hash.
-		var bytes = storageSambaIntegration.readFile(pdfEntity.getFileHash());
+		final var bytes = storageSambaIntegration.readFile(pdfEntity.getFileHash());
 		return pdfMapper.mapToResponse(pdfEntity, bytes);
 	}
 
 	public InvoicePdf getRaindanceInvoicePdf(final String invoiceNumber, final String municipalityId) {
-		var invoiceEntity = invoiceRepository.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId)
+		final var invoiceEntity = invoiceRepository.findFirstByInvoiceNumberAndMunicipalityId(invoiceNumber, municipalityId)
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "No invoice with invoice number '%s' was found".formatted(invoiceNumber)));
 
-		return pdfRepository.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId)
-			.map(pdfMapper::mapToResponse)
-			.orElseGet(() -> raindanceSambaIntegration.fetchInvoiceByFilename(invoiceEntity.getFileName()));
+		try {
+			return raindanceSambaIntegration.fetchInvoiceByFilename(invoiceEntity.getFileName());
+		} catch (Exception _) {
+			return pdfRepository.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId)
+				.map(pdfMapper::mapToResponse)
+				.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "PDF not found for invoiceNumber: " + invoiceNumber));
+		}
 	}
 
 	public String createOrUpdateInvoice(final InvoicePdfRequest request, final String municipalityId) {

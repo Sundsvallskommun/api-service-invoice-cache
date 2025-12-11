@@ -14,11 +14,11 @@ public class ValidPdfConstraintValidator implements ConstraintValidator<ValidPdf
 	@Override
 	public boolean isValid(final InvoicePdf invoicePdf, final ConstraintValidatorContext context) {
 		try {
-			var decodedContent = Base64.getDecoder().decode(invoicePdf.content());
-			var inputStream = new ByteArrayInputStream(decodedContent);
-			var detectedType = tika.detect(inputStream, invoicePdf.name());
+			final var decodedContent = Base64.getDecoder().decode(invoicePdf.content());
+			final var inputStream = new ByteArrayInputStream(decodedContent);
+			final var detectedType = tika.detect(inputStream, invoicePdf.name());
 			return "application/pdf".equals(detectedType);
-		} catch (Exception e) {
+		} catch (Exception _) {
 			return false;
 		}
 	}

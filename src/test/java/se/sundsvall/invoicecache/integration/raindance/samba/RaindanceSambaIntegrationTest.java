@@ -75,7 +75,7 @@ class RaindanceSambaIntegrationTest {
 		final var content = "sample content".getBytes();
 
 		try (final MockedConstruction<SmbFileInputStream> myobjectMockedConstruction = Mockito.mockConstruction(SmbFileInputStream.class,
-			(mock, context) -> when(mock.readAllBytes()).thenReturn(content))) {
+			(mock, _) -> when(mock.readAllBytes()).thenReturn(content))) {
 
 			final var result = raindanceSambaIntegration.fetchInvoiceByFilename(filename);
 
@@ -94,7 +94,7 @@ class RaindanceSambaIntegrationTest {
 	void fetchInvoiceByFilename_throws() {
 		final var filename = "test.pdf";
 
-		try (var ignored = mockConstruction(SmbFile.class, (mock, context) -> when(mock.exists()).thenThrow(new SmbException("Random error")))) {
+		try (final var _ = mockConstruction(SmbFile.class, (mock, _) -> when(mock.exists()).thenThrow(new SmbException("Random error")))) {
 
 			assertThatThrownBy(() -> raindanceSambaIntegration.fetchInvoiceByFilename(filename))
 				.isInstanceOf(Problem.class)
@@ -108,28 +108,30 @@ class RaindanceSambaIntegrationTest {
 	@Test
 	void cacheInvoicePdfs() {
 
-		var smbFileMock = Mockito.mock(SmbFile.class);
-		when(smbFileMock.getName()).thenReturn("someDir/someFile.pdf");
 		when(raindanceSambaProperties.remoteDir()).thenReturn("someDir/");
-		var bytes = "sample content".getBytes();
-		var smbFileArray = new SmbFile[] {
-			smbFileMock
-		};
+		final var bytes = "sample content".getBytes();
 
-		try (var ignored = mockConstruction(SmbFile.class, (mock, context) -> when(mock.listFiles(any(SmbFileFilter.class))).thenReturn(smbFileArray))) {
-			try (var ignored2 = mockConstruction(SmbFileInputStream.class, (mock, context) -> when(mock.readAllBytes()).thenReturn(bytes))) {
+		try (final var smbFileMock = Mockito.mock(SmbFile.class)) {
+			when(smbFileMock.getName()).thenReturn("someDir/someFile.pdf");
+			final var smbFileArray = new SmbFile[] {
+				smbFileMock
+			};
 
-				when(invoiceRepository.findByFileNameAndMunicipalityId("someFile.pdf", "2281")).thenReturn(Optional.of(generateInvoiceEntity()));
-				when(pdfRepository.findByFilenameAndMunicipalityId("someFile.pdf", "2281")).thenReturn(Optional.empty());
+			try (final var _ = mockConstruction(SmbFile.class, (mock, _) -> when(mock.listFiles(any(SmbFileFilter.class))).thenReturn(smbFileArray))) {
+				try (final var _ = mockConstruction(SmbFileInputStream.class, (mock, _) -> when(mock.readAllBytes()).thenReturn(bytes))) {
 
-				raindanceSambaIntegration.cacheInvoicePdfs();
+					when(invoiceRepository.findByFileNameAndMunicipalityId("someFile.pdf", "2281")).thenReturn(Optional.of(generateInvoiceEntity()));
+					when(pdfRepository.findByFilenameAndMunicipalityId("someFile.pdf", "2281")).thenReturn(Optional.empty());
 
-				verify(invoiceRepository).findByFileNameAndMunicipalityId("someFile.pdf", "2281");
-				verify(pdfRepository).findByFilenameAndMunicipalityId("someFile.pdf", "2281");
-				verify(pdfRepository).save(any());
-				verify(raindanceSambaProperties).targetUrl();
-				verify(raindanceSambaProperties).cifsContext();
-				verifyNoInteractions(dept44HealthUtilityMock);
+					raindanceSambaIntegration.cacheInvoicePdfs();
+
+					verify(invoiceRepository).findByFileNameAndMunicipalityId("someFile.pdf", "2281");
+					verify(pdfRepository).findByFilenameAndMunicipalityId("someFile.pdf", "2281");
+					verify(pdfRepository).save(any());
+					verify(raindanceSambaProperties).targetUrl();
+					verify(raindanceSambaProperties).cifsContext();
+					verifyNoInteractions(dept44HealthUtilityMock);
+				}
 			}
 		}
 	}
