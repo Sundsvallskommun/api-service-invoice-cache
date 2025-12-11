@@ -13,7 +13,7 @@ import org.springframework.data.repository.query.Param;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 
 @CircuitBreaker(name = "pdfRepository")
-public interface PdfRepository extends JpaRepository<PdfEntity, Long>, JpaSpecificationExecutor<PdfEntity> {
+public interface PdfRepository extends JpaRepository<PdfEntity, Integer>, JpaSpecificationExecutor<PdfEntity> {
 
 	Optional<PdfEntity> findByFilenameAndMunicipalityId(String filename, String municipalityId);
 
@@ -33,7 +33,10 @@ public interface PdfRepository extends JpaRepository<PdfEntity, Long>, JpaSpecif
 		@Param("issuerLegalId") String issuerLegalId,
 		@Param("before") OffsetDateTime before);
 
-	List<PdfEntity> findByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(OffsetDateTime created, String issuerLegalId, Limit limit);
+	@Query("SELECT pdfentity.id FROM PdfEntity pdfentity WHERE pdfentity.movedAt IS NULL AND pdfentity.created < :created AND pdfentity.invoiceIssuerLegalId <> :issuerLegalId")
+	List<Integer> findIdsByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(
+		@Param("created") OffsetDateTime created,
+		@Param("issuerLegalId") String issuerLegalId);
 
 	List<PdfEntity> findByTruncatedAtIsNullAndMovedAtIsNotNull(Limit limit);
 
@@ -41,8 +44,8 @@ public interface PdfRepository extends JpaRepository<PdfEntity, Long>, JpaSpecif
 		return findByTruncatedAtIsNullAndMovedAtIsNotNull(Limit.of(maxResults));
 	}
 
-	default List<PdfEntity> findPdfsToTransfer(final OffsetDateTime created, final String issuerLegalId, final int maxResults) {
-		return findByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(created, issuerLegalId, Limit.of(maxResults));
+	default List<Integer> findPdfIdsToTransfer(final OffsetDateTime created, final String issuerLegalId) {
+		return findIdsByMovedAtIsNullAndCreatedIsBeforeAndInvoiceIssuerLegalIdIsNot(created, issuerLegalId);
 	}
 
 }

@@ -2,7 +2,6 @@ package se.sundsvall.invoicecache.integration.storage.scheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -45,18 +44,21 @@ class StorageSchedulerWorkerTest {
 
 	@Test
 	void transferFiles() {
-		var pdfEntity = TestObjectFactory.generatePdfEntity();
-		var fileHash = "someFileHash";
-		when(pdfRepositoryMock.findPdfsToTransfer(any(), any(), eq(1)))
-			.thenReturn(List.of(pdfEntity));
+		final var pdfEntity = TestObjectFactory.generatePdfEntity();
+		final var fileHash = "someFileHash";
+		when(pdfRepositoryMock.findPdfIdsToTransfer(any(), any()))
+			.thenReturn(List.of(pdfEntity.getId()));
+		when(pdfRepositoryMock.findById(pdfEntity.getId()))
+			.thenReturn(java.util.Optional.of(pdfEntity));
 		when(storageSambaIntegrationMock.writeFile(pdfEntity.getDocument()))
 			.thenReturn(fileHash);
 
 		storageSchedulerWorker.transferFiles();
 
-		verify(pdfRepositoryMock).findPdfsToTransfer(any(), any(), eq(1));
+		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
+		verify(pdfRepositoryMock).findById(pdfEntity.getId());
 		verify(pdfRepositoryMock).save(pdfEntityCaptor.capture());
-		var capturedPdfEntity = pdfEntityCaptor.getValue();
+		final var capturedPdfEntity = pdfEntityCaptor.getValue();
 		assertThat(capturedPdfEntity.getFileHash()).isEqualTo(fileHash);
 		assertThat(capturedPdfEntity.getMovedAt()).isNotNull();
 
@@ -65,11 +67,11 @@ class StorageSchedulerWorkerTest {
 
 	@Test
 	void truncateFiles_verification_OK() {
-		var fileHash1 = "someFileHash1";
-		var fileHash2 = "someFileHash2";
-		var pdfEntity1 = TestObjectFactory.generatePdfEntity();
+		final var fileHash1 = "someFileHash1";
+		final var fileHash2 = "someFileHash2";
+		final var pdfEntity1 = TestObjectFactory.generatePdfEntity();
 		pdfEntity1.setFileHash(fileHash1);
-		var pdfEntity2 = TestObjectFactory.generatePdfEntity();
+		final var pdfEntity2 = TestObjectFactory.generatePdfEntity();
 		pdfEntity2.setId(2);
 		pdfEntity2.setFileHash(fileHash2);
 
@@ -97,8 +99,8 @@ class StorageSchedulerWorkerTest {
 
 	@Test
 	void truncateFiles_verification_failed() {
-		var fileHash = "someFileHash";
-		var pdfEntity = TestObjectFactory.generatePdfEntity();
+		final var fileHash = "someFileHash";
+		final var pdfEntity = TestObjectFactory.generatePdfEntity();
 		pdfEntity.setFileHash(fileHash);
 
 		when(pdfRepositoryMock.findPdfsToTruncate(1))
@@ -113,6 +115,65 @@ class StorageSchedulerWorkerTest {
 		verify(pdfRepositoryMock).findPdfsToTruncate(1);
 		verify(pdfRepositoryMock, never()).save(pdfEntity);
 		verify(storageSambaIntegrationMock).verifyBlobIntegrity(fileHash);
+	}
+
+	@Test
+	void transferFiles_noFilesEligible() {
+		when(pdfRepositoryMock.findPdfIdsToTransfer(any(), any()))
+			.thenReturn(List.of());
+
+		storageSchedulerWorker.transferFiles();
+
+		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
+		verify(pdfRepositoryMock, never()).findById(any());
+		verify(pdfRepositoryMock, never()).save(any());
+		verify(storageSambaIntegrationMock, never()).writeFile(any());
+	}
+
+	@Test
+	void transferFiles_fileNotFound() {
+		final var pdfId = 123;
+		when(pdfRepositoryMock.findPdfIdsToTransfer(any(), any()))
+			.thenReturn(List.of(pdfId));
+		when(pdfRepositoryMock.findById(pdfId))
+			.thenReturn(java.util.Optional.empty());
+
+		storageSchedulerWorker.transferFiles();
+
+		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
+		verify(pdfRepositoryMock).findById(pdfId);
+		verify(pdfRepositoryMock, never()).save(any());
+		verify(storageSambaIntegrationMock, never()).writeFile(any());
+	}
+
+	@Test
+	void transferFiles_exceptionDuringTransfer() {
+		final var pdfEntity = TestObjectFactory.generatePdfEntity();
+		when(pdfRepositoryMock.findPdfIdsToTransfer(any(), any()))
+			.thenReturn(List.of(pdfEntity.getId()));
+		when(pdfRepositoryMock.findById(pdfEntity.getId()))
+			.thenReturn(java.util.Optional.of(pdfEntity));
+		when(storageSambaIntegrationMock.writeFile(pdfEntity.getDocument()))
+			.thenThrow(new RuntimeException("Transfer failed"));
+
+		storageSchedulerWorker.transferFiles();
+
+		verify(pdfRepositoryMock).findPdfIdsToTransfer(any(), any());
+		verify(pdfRepositoryMock).findById(pdfEntity.getId());
+		verify(pdfRepositoryMock, never()).save(any());
+		verify(storageSambaIntegrationMock).writeFile(pdfEntity.getDocument());
+	}
+
+	@Test
+	void truncateFiles_noFilesEligible() {
+		when(pdfRepositoryMock.findPdfsToTruncate(1))
+			.thenReturn(List.of());
+
+		storageSchedulerWorker.truncateFiles();
+
+		verify(pdfRepositoryMock).findPdfsToTruncate(1);
+		verify(pdfRepositoryMock, never()).save(any());
+		verify(storageSambaIntegrationMock, never()).verifyBlobIntegrity(any());
 	}
 
 }

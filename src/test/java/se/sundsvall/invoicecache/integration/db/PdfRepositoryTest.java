@@ -34,31 +34,30 @@ class PdfRepositoryTest {
 	}
 
 	/**
-	 * Created 3 pds that match the criteria for transfer, but only 2 should be returned due to maxResults.
+	 * Created 3 pds that match the criteria for transfer, and all should be returned.
 	 */
 	@Test
 	void findPdfsToTransfer() {
-		var maxResults = 2;
-		var pdfEntity1 = PdfEntity.builder()
+		final var pdfEntity1 = PdfEntity.builder()
 			.withFilename("transferFile1.pdf")
 			.withInvoiceIssuerLegalId("1234567890")
 			.withMovedAt(null)
 			.build();
-		var pdfEntity2 = PdfEntity.builder()
+		final var pdfEntity2 = PdfEntity.builder()
 			.withFilename("transferFile2.pdf")
 			.withInvoiceIssuerLegalId("1234567890")
 			.withMovedAt(null)
 			.build();
-		var pdfEntity3 = PdfEntity.builder()
+		final var pdfEntity3 = PdfEntity.builder()
 			.withFilename("transferFile3.pdf")
 			.withInvoiceIssuerLegalId("1234567890")
 			.withMovedAt(null)
 			.build();
 		repository.saveAll(List.of(pdfEntity1, pdfEntity2, pdfEntity3));
 
-		var result = repository.findPdfsToTransfer(now().plusMonths(6), RAINDANCE_ISSUER_LEGAL_ID, maxResults);
+		final var result = repository.findPdfIdsToTransfer(now().plusMonths(6), RAINDANCE_ISSUER_LEGAL_ID);
 
-		assertThat(result).hasSize(maxResults);
+		assertThat(result).hasSize(3).contains(pdfEntity1.getId(), pdfEntity2.getId(), pdfEntity3.getId());
 	}
 
 	/**
@@ -66,25 +65,25 @@ class PdfRepositoryTest {
 	 */
 	@Test
 	void findPdfsToTruncate() {
-		var maxResults = 2;
-		var pdfEntity1 = PdfEntity.builder()
+		final var maxResults = 2;
+		final var pdfEntity1 = PdfEntity.builder()
 			.withFilename("truncateFile1.pdf")
 			.withMovedAt(now())
 			.withTruncatedAt(null)
 			.build();
-		var pdfEntity2 = PdfEntity.builder()
+		final var pdfEntity2 = PdfEntity.builder()
 			.withFilename("truncateFile2.pdf")
 			.withMovedAt(now())
 			.withTruncatedAt(null)
 			.build();
-		var pdfEntity3 = PdfEntity.builder()
+		final var pdfEntity3 = PdfEntity.builder()
 			.withFilename("truncateFile3.pdf")
 			.withMovedAt(now())
 			.withTruncatedAt(null)
 			.build();
 		repository.saveAll(List.of(pdfEntity1, pdfEntity2, pdfEntity3));
 
-		var result = repository.findPdfsToTruncate(maxResults);
+		final var result = repository.findPdfsToTruncate(maxResults);
 
 		assertThat(result).hasSize(maxResults);
 	}
