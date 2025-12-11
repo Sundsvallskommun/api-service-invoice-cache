@@ -23,9 +23,6 @@ public class StorageSchedulerWorker {
 	@Value("${integration.storage.samba.scheduler.jobs.transfer.threshold-months:6}")
 	private Integer transferThresholdMonths = 6;
 
-	@Value("${integration.storage.samba.scheduler.jobs.transfer.limit:1}")
-	private Integer transferLimit = 1;
-
 	@Value("${integration.storage.samba.scheduler.jobs.truncate.limit:1}")
 	private Integer truncateLimit = 1;
 
@@ -38,26 +35,39 @@ public class StorageSchedulerWorker {
 	}
 
 	/**
-	 * Finds files eligible for transfer and writes to the Samba storage.
+	 * Finds files eligible for transfer and writes to the Samba storage. Processes all invoices older than the threshold
+	 * without limit.
 	 */
-	@Transactional
 	public void transferFiles() {
-		var files = findPdfToTransfer();
-		if (files.isEmpty()) {
+		final var fileIds = findPdfIdsToTransfer();
+		if (fileIds.isEmpty()) {
 			LOG.info("Found no files eligible for transfer.");
 			return;
 		}
-		for (var file : files) {
-			LOG.info("Transferring file with id='{}'", file.getId());
+		LOG.info("Found {} files eligible for transfer.", fileIds.size());
 
-			// Writes the file to Samba storage and returns a SHA256 hash of the file content
-			var fileHash = storageSambaIntegration.writeFile(file.getDocument());
-			var movedAt = OffsetDateTime.now();
-			file.setFileHash(fileHash);
-			file.setMovedAt(movedAt);
-			pdfRepository.save(file);
-			LOG.info("File transfer completed successfully. ID='{}', movedAt='{}', hash='{}'.", file.getId(), movedAt, fileHash);
-		}
+		fileIds.forEach(fileId -> {
+			try {
+				final var fileOptional = pdfRepository.findById(fileId);
+				if (fileOptional.isEmpty()) {
+					LOG.warn("File with id='{}' not found. Skipping.", fileId);
+					return;
+				}
+
+				final var file = fileOptional.get();
+				LOG.info("Transferring file with id='{}'", file.getId());
+
+				// Writes the file to Samba storage and returns a SHA256 hash of the file content
+				final var fileHash = storageSambaIntegration.writeFile(file.getDocument());
+				final var movedAt = OffsetDateTime.now();
+				file.setFileHash(fileHash);
+				file.setMovedAt(movedAt);
+				pdfRepository.save(file);
+				LOG.info("File transfer completed successfully. ID='{}', movedAt='{}', hash='{}'.", file.getId(), movedAt, fileHash);
+			} catch (final Exception e) {
+				LOG.error("Failed to transfer file with id='{}'. Error: {}", fileId, e.getMessage(), e);
+			}
+		});
 	}
 
 	/**
@@ -65,18 +75,18 @@ public class StorageSchedulerWorker {
 	 */
 	@Transactional
 	public void truncateFiles() {
-		var files = findPdfToTruncate();
+		final var files = findPdfToTruncate();
 		if (files.isEmpty()) {
 			LOG.info("Found no files eligible for truncation.");
 			return;
 		}
 
-		for (var file : files) {
+		for (final var file : files) {
 			LOG.info("Truncating file with id='{}'", file.getId());
-			var fileHash = file.getFileHash();
+			final var fileHash = file.getFileHash();
 
 			// verifyBlobIntegrity finds a file using the given file hash and returns a calculated hash of the file content
-			var calculatedHash = storageSambaIntegration.verifyBlobIntegrity(fileHash);
+			final var calculatedHash = storageSambaIntegration.verifyBlobIntegrity(fileHash);
 
 			// If the calculated hash matches the stored file hash, we can safely truncate the blob
 			if (calculatedHash.equals(file.getFileHash())) {
@@ -92,12 +102,12 @@ public class StorageSchedulerWorker {
 	}
 
 	/**
-	 * Finds a PDF that is older than 'transferThresholdMonths' months and has not been moved yet.
+	 * Finds IDs of PDFs that are older than 'transferThresholdMonths' months and have not been moved yet.
 	 *
-	 * @return the PDF entity
+	 * @return list of PDF entity IDs
 	 */
-	private List<PdfEntity> findPdfToTransfer() {
-		return pdfRepository.findPdfsToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), RAINDANCE_ISSUER_LEGAL_ID, transferLimit);
+	private List<Integer> findPdfIdsToTransfer() {
+		return pdfRepository.findPdfIdsToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), RAINDANCE_ISSUER_LEGAL_ID);
 	}
 
 	/**

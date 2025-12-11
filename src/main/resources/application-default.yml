@@ -24,10 +24,11 @@ integration:
       scheduler:
         jobs:
           transfer:
-            cron: '-'
-            name: transfer
-            shedlock-lock-at-most-for: PT5M
-            maximum-execution-time: PT5M
+            cron: '0 0 22 2-30/2 * *'
+            name: transferFiles
+            shedlock-lock-at-most-for: PT4H
+            maximum-execution-time: PT4H
+            threshold-months: 6
           truncate:
             cron: '-'
             name: truncate
