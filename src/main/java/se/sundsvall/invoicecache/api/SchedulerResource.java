@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -41,7 +42,7 @@ class SchedulerResource {
 	@PostMapping("/transfer")
 	ResponseEntity<Void> transferFile(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
-		storageSchedulerWorker.transferFiles();
+		storageSchedulerWorker.transferFiles(null);
 		return ResponseEntity.ok().build();
 	}
 
@@ -49,9 +50,13 @@ class SchedulerResource {
 		summary = "Triggers scheduled job that verifies a file is eligible for truncation and truncates the file from database storage",
 		responses = @ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true))
 	@PostMapping("/truncate")
+	@Transactional
 	ResponseEntity<Void> truncateFile(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId) {
-		storageSchedulerWorker.truncateFiles();
+		final var ids = storageSchedulerWorker.getFileIdsToTruncate();
+		for (final Integer id : ids) {
+			storageSchedulerWorker.truncateFile(id, null);
+		}
 		return ResponseEntity.ok().build();
 	}
 

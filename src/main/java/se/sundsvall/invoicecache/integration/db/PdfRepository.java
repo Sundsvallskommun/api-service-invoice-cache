@@ -4,7 +4,6 @@ import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.data.domain.Limit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
@@ -38,10 +37,11 @@ public interface PdfRepository extends JpaRepository<PdfEntity, Integer>, JpaSpe
 		@Param("created") OffsetDateTime created,
 		@Param("issuerLegalId") String issuerLegalId);
 
-	List<PdfEntity> findByTruncatedAtIsNullAndMovedAtIsNotNull(Limit limit);
+	@Query("SELECT p.id FROM PdfEntity p WHERE p.truncatedAt IS NULL AND p.movedAt IS NOT NULL")
+	List<Integer> findIdsByTruncatedAtIsNullAndMovedAtIsNotNull();
 
-	default List<PdfEntity> findPdfsToTruncate(final int maxResults) {
-		return findByTruncatedAtIsNullAndMovedAtIsNotNull(Limit.of(maxResults));
+	default List<Integer> findPdfIdsToTruncate() {
+		return findIdsByTruncatedAtIsNullAndMovedAtIsNotNull();
 	}
 
 	default List<Integer> findPdfIdsToTransfer(final OffsetDateTime created, final String issuerLegalId) {

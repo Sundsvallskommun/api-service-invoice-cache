@@ -61,11 +61,11 @@ class PdfRepositoryTest {
 	}
 
 	/**
-	 * Created 3 pds that match the criteria for truncation, but only 2 should be returned due to maxResults.
+	 * Created 3 pds that match the criteria for truncation, all 3 should be returned.
 	 */
 	@Test
 	void findPdfsToTruncate() {
-		final var maxResults = 2;
+		final var maxResults = 3;
 		final var pdfEntity1 = PdfEntity.builder()
 			.withFilename("truncateFile1.pdf")
 			.withMovedAt(now())
@@ -83,7 +83,7 @@ class PdfRepositoryTest {
 			.build();
 		repository.saveAll(List.of(pdfEntity1, pdfEntity2, pdfEntity3));
 
-		final var result = repository.findPdfsToTruncate(maxResults);
+		final var result = repository.findPdfIdsToTruncate();
 
 		assertThat(result).hasSize(maxResults);
 	}
