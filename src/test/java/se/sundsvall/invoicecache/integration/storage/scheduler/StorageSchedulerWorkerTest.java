@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -18,6 +19,7 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import se.sundsvall.invoicecache.TestObjectFactory;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
@@ -43,6 +45,12 @@ class StorageSchedulerWorkerTest {
 
 	@InjectMocks
 	private StorageSchedulerWorker storageSchedulerWorker;
+
+	@BeforeEach
+	void setUp() {
+		// Set transfer threshold to 6 months for testing
+		ReflectionTestUtils.setField(storageSchedulerWorker, "transferThresholdMonths", 6);
+	}
 
 	@AfterEach
 	void tearDown() {

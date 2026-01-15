@@ -21,7 +21,7 @@ public class StorageSchedulerWorker {
 	private final PdfRepository pdfRepository;
 
 	@Value("${integration.storage.samba.scheduler.jobs.transfer.threshold-months:6}")
-	private Integer transferThresholdMonths = 6;
+	private Integer transferThresholdMonths;
 
 	public StorageSchedulerWorker(
 		final StorageSambaIntegration storageSambaIntegration,
