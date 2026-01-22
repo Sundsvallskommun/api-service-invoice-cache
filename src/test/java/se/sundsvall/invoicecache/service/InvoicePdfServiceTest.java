@@ -15,6 +15,7 @@ import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
 
 import java.time.OffsetDateTime;
 import java.util.Base64;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.zalando.problem.Problem;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
@@ -76,8 +80,9 @@ class InvoicePdfServiceTest {
 		final var pdfEntity = generatePdfEntity();
 		pdfEntity.setTruncatedAt(OffsetDateTime.MIN);
 		final var someInputStreamBytes = "someInputStreamBytes".getBytes();
+		final Page<PdfEntity> page = new PageImpl<>(List.of(pdfEntity));
 
-		when(pdfRepositoryMock.findOne(Mockito.<Specification<PdfEntity>>any())).thenReturn(Optional.of(pdfEntity));
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any())).thenReturn(page);
 		when(storageSambaIntegrationMock.readFile(pdfEntity.getFileHash())).thenReturn(someInputStreamBytes);
 
 		final var result = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
@@ -85,7 +90,7 @@ class InvoicePdfServiceTest {
 		assertThat(result).isNotNull();
 		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString(someInputStreamBytes));
 		verify(specificationsSpy).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
-		verify(pdfRepositoryMock).findOne(Mockito.<Specification<PdfEntity>>any());
+		verify(pdfRepositoryMock).findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any());
 		verify(storageSambaIntegrationMock).readFile(pdfEntity.getFileHash());
 		verify(pdfMapperMock).mapToResponse(pdfEntity, someInputStreamBytes);
 	}
@@ -97,15 +102,16 @@ class InvoicePdfServiceTest {
 		final var municipalityId = "2281";
 		final var request = new InvoicePdfFilterRequest();
 		final var pdfEntity = generatePdfEntity();
+		final Page<PdfEntity> page = new PageImpl<>(List.of(pdfEntity));
 
-		when(pdfRepositoryMock.findOne(Mockito.<Specification<PdfEntity>>any())).thenReturn(Optional.ofNullable(pdfEntity));
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any())).thenReturn(page);
 
 		final var result = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
 
 		assertThat(result).isNotNull();
 		assertThat(result.content()).isEqualTo(Base64.getEncoder().encodeToString("blobMe".getBytes()));
 		verify(specificationsSpy).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
-		verify(pdfRepositoryMock).findOne(Mockito.<Specification<PdfEntity>>any());
+		verify(pdfRepositoryMock).findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any());
 		verify(pdfMapperMock).mapToResponse(pdfEntity);
 	}
 
@@ -118,8 +124,9 @@ class InvoicePdfServiceTest {
 		final var municipalityId = "2281";
 		final var request = new InvoicePdfFilterRequest();
 		final var pdfEntity = generatePdfEntity();
+		final Page<PdfEntity> page = new PageImpl<>(List.of(pdfEntity));
 
-		when(pdfRepositoryMock.findOne(Mockito.<Specification<PdfEntity>>any())).thenReturn(Optional.ofNullable(pdfEntity));
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any())).thenReturn(page);
 
 		// Act
 		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
@@ -128,7 +135,7 @@ class InvoicePdfServiceTest {
 		assertThat(invoicePdf.name()).isEqualTo(fileName);
 		assertThat(invoicePdf.content()).isEqualTo(Base64.getEncoder().encodeToString("blobMe".getBytes()));
 
-		verify(pdfRepositoryMock).findOne(Mockito.<Specification<PdfEntity>>any());
+		verify(pdfRepositoryMock).findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any());
 		verify(specificationsSpy).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
 		verify(pdfMapperMock).mapToResponse(pdfEntity);
 		verifyNoMoreInteractions(pdfRepositoryMock, specificationsSpy);
@@ -143,13 +150,13 @@ class InvoicePdfServiceTest {
 		final var municipalityId = "2281";
 		final var exception = new RuntimeException();
 
-		when(pdfRepositoryMock.findOne(Mockito.<Specification<PdfEntity>>any())).thenThrow(exception);
+		when(pdfRepositoryMock.findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any())).thenThrow(exception);
 
 		// Act & Assert
 		assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> invoicePdfService.getInvoicePdfByInvoiceNumber(
 			issuerLegalId, invoiceNumber, request, municipalityId));
 
-		verify(pdfRepositoryMock).findOne(Mockito.<Specification<PdfEntity>>any());
+		verify(pdfRepositoryMock).findAll(Mockito.<Specification<PdfEntity>>any(), Mockito.<Pageable>any());
 		verify(specificationsSpy).createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId);
 		verifyNoMoreInteractions(pdfRepositoryMock, specificationsSpy);
 	}

@@ -2,7 +2,6 @@ package se.sundsvall.invoicecache.integration.db.specifications;
 
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Component;
@@ -16,7 +15,7 @@ public class InvoicePdfSpecifications {
 	public Specification<PdfEntity> createInvoicesSpecification(final InvoicePdfFilterRequest request,
 		final String invoiceNumber, final String issuerLegalId, final String municipalityId) {
 		return (root, query, criteriaBuilder) -> {
-			final List<Predicate> predicates = new ArrayList<>();
+			final var predicates = new ArrayList<Predicate>();
 
 			if (StringUtils.isNotBlank(municipalityId)) {
 				predicates.add(criteriaBuilder.equal(root.get(PdfEntity_.MUNICIPALITY_ID), municipalityId));
@@ -41,8 +40,13 @@ public class InvoicePdfSpecifications {
 			if (StringUtils.isNotBlank(request.getInvoiceFileName())) {
 				predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(PdfEntity_.FILENAME), request.getInvoiceFileName()));
 			}
+
 			if (request.getInvoiceType() != null) {
 				predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get(PdfEntity_.INVOICE_TYPE), request.getInvoiceType()));
+			}
+
+			if (query != null) {
+				query.orderBy(criteriaBuilder.desc(root.get(PdfEntity_.CREATED)));
 			}
 
 			return criteriaBuilder.and(predicates.toArray(new Predicate[0]));

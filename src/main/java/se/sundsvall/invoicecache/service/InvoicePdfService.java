@@ -3,8 +3,10 @@ package se.sundsvall.invoicecache.service;
 import static org.zalando.problem.Status.NOT_FOUND;
 import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.zalando.problem.Problem;
+
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
@@ -43,7 +45,10 @@ public class InvoicePdfService {
 	}
 
 	public InvoicePdf getInvoicePdfByInvoiceNumber(final String issuerLegalId, final String invoiceNumber, final InvoicePdfFilterRequest request, final String municipalityId) {
-		final var pdfEntity = pdfRepository.findOne(invoicePdfSpecifications.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId))
+		// Find all with paged request to limit to one result, which will be the one with the latest created as we sort it in the specification.
+		final var pdfEntity = pdfRepository.findAll(invoicePdfSpecifications.createInvoicesSpecification(request, invoiceNumber, issuerLegalId, municipalityId), PageRequest.of(0, 1))
+			.stream()
+			.findFirst()
 			.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "PDF not found for invoiceNumber: " + invoiceNumber + ", issuerLegalId: " + issuerLegalId));
 
 		// If a pdf was found, and it has not been truncated, read it from the database.
