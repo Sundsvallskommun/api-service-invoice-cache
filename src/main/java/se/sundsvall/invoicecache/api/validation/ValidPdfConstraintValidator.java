@@ -18,7 +18,7 @@ public class ValidPdfConstraintValidator implements ConstraintValidator<ValidPdf
 			final var inputStream = new ByteArrayInputStream(decodedContent);
 			final var detectedType = tika.detect(inputStream, invoicePdf.name());
 			return "application/pdf".equals(detectedType);
-		} catch (Exception _) {
+		} catch (Exception e) {
 			return false;
 		}
 	}
