@@ -77,7 +77,7 @@ public class InvoicePdfService {
 
 		try {
 			return raindanceSambaIntegration.fetchInvoiceByFilename(invoiceEntity.getFileName());
-		} catch (final Exception e) {
+		} catch (final Exception _) {
 			return pdfRepository.findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(invoiceNumber, RAINDANCE_ISSUER_LEGAL_ID, municipalityId)
 				.map(pdfMapper::mapToResponse)
 				.orElseThrow(() -> Problem.valueOf(NOT_FOUND, "PDF not found for invoiceNumber: " + invoiceNumber));
@@ -130,7 +130,7 @@ public class InvoicePdfService {
 						zipOut.write(bytes);
 						zipOut.closeEntry();
 					}
-				} catch (final IOException e) {
+				} catch (final IOException _) {
 					throw Problem.valueOf(INTERNAL_SERVER_ERROR, "Failed to create zip file for invoiceNumber: " + invoiceNumber);
 				}
 			},
