@@ -65,4 +65,13 @@ public class PdfMapper {
 			.withContent(Base64.getEncoder().encodeToString(bytes))
 			.build();
 	}
+
+	public byte[] extractBytes(final PdfEntity entity) {
+		try {
+			// The first byte is at position 1, start from there, not 0.
+			return entity.getDocument().getBytes(1, (int) entity.getDocument().length());
+		} catch (final Exception e) {
+			throw new InvoiceCacheException("Unable to extract bytes from PDF", e);
+		}
+	}
 }

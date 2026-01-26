@@ -13,6 +13,7 @@ import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.jdbc.Sql;
 import org.testcontainers.containers.MSSQLServerContainer;
 import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -22,6 +23,10 @@ import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.invoicecache.Application;
 
 @WireMockAppTestSuite(files = "classpath:/InvoiceCache/", classes = Application.class)
+@Sql({
+	"/db/scripts/truncate.sql",
+	"/db/scripts/testdata-downloadpdfs.sql"
+})
 @Testcontainers
 class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 
@@ -129,6 +134,32 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 			.withRequest(REQUEST)
 			.withExpectedResponseStatus(CREATED)
 			.withExpectedResponseHeader("Location", List.of("^" + PATH + "/(.*)$"))
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test7_downloadSingleInvoicePdf_shouldReturnPdfFile() {
+		assertThat(raindanceDb.isRunning()).isTrue();
+		assertThat(invoiceDb.isRunning()).isTrue();
+		setupCall()
+			.withServicePath(PATH + "/single-issuer/SINGLE123/pdfs")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponseHeader("Content-Type", List.of("application/pdf"))
+			.withExpectedResponseHeader("Content-Disposition", List.of("^attachment; filename=\".*\\.pdf\"$"))
+			.sendRequestAndVerifyResponse();
+	}
+
+	@Test
+	void test8_downloadMultipleInvoicePdfs_shouldReturnZipFile() {
+		assertThat(raindanceDb.isRunning()).isTrue();
+		assertThat(invoiceDb.isRunning()).isTrue();
+		setupCall()
+			.withServicePath(PATH + "/multi-issuer/MULTI123/pdfs")
+			.withHttpMethod(GET)
+			.withExpectedResponseStatus(OK)
+			.withExpectedResponseHeader("Content-Type", List.of("application/zip"))
+			.withExpectedResponseHeader("Content-Disposition", List.of("^attachment; filename=\".*\\.zip\"$"))
 			.sendRequestAndVerifyResponse();
 	}
 

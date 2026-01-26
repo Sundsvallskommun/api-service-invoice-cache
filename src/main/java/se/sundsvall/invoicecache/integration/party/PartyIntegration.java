@@ -31,6 +31,7 @@ public interface PartyIntegration {
 		TEXT_PLAIN_VALUE, APPLICATION_PROBLEM_JSON_VALUE
 	})
 	Optional<String> getLegalId(
-		@PathVariable("municipalityId") String municipalityId,
-		@PathVariable("type") PartyType partyType, @PathVariable("partyId") String partyId);
+		@PathVariable String municipalityId,
+		@PathVariable PartyType type,
+		@PathVariable String partyId);
 }

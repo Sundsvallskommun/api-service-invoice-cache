@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 import org.zalando.problem.Problem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
@@ -60,10 +61,14 @@ class InvoiceCacheResource {
 		return ok(invoiceCacheService.getInvoices(request, municipalityId));
 	}
 
+	@Deprecated(forRemoval = true, since = "2026-01-26")
 	@GetMapping(value = "/{issuerLegalId}/{invoiceNumber}/pdf", produces = APPLICATION_JSON_VALUE)
 	@Operation(
 		summary = "Fetch an invoice PDF via issuer legal id and invoice number",
-		responses = @ApiResponse(responseCode = "200", description = "Successful Operation", useReturnTypeSchema = true))
+		responses = @ApiResponse(responseCode = "200",
+			description = "This endpoint is deprecated and will be removed in a future version." +
+				"use /{issuerLegalId}/{invoiceNumber}/pdfs instead",
+			useReturnTypeSchema = true))
 	ResponseEntity<InvoicePdf> getInvoicePdf(
 		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
 		@PathVariable final String issuerLegalId,
@@ -75,6 +80,26 @@ class InvoiceCacheResource {
 		}
 		final var invoicePdf = invoicePdfService.getInvoicePdfByInvoiceNumber(issuerLegalId, invoiceNumber, request, municipalityId);
 		return ok(invoicePdf);
+	}
+
+	@GetMapping(value = "/{issuerLegalId}/{invoiceNumber}/pdfs", produces = ALL_VALUE)
+	@Operation(
+		summary = "Download invoice PDFs as stream (single PDF or ZIP if multiple)",
+		responses = {
+			@ApiResponse(responseCode = "200", description = "Successful Operation - Returns PDF or ZIP file"),
+			@ApiResponse(responseCode = "404", description = "No PDFs found", content = @Content(mediaType = APPLICATION_PROBLEM_JSON_VALUE, schema = @Schema(implementation = Problem.class)))
+		})
+	ResponseEntity<StreamingResponseBody> downloadInvoicePdfs(
+		@Parameter(name = "municipalityId", description = "Municipality id", example = "2281") @ValidMunicipalityId @PathVariable final String municipalityId,
+		@PathVariable final String issuerLegalId,
+		@PathVariable final String invoiceNumber,
+		@ParameterObject @Valid final InvoicePdfFilterRequest request) {
+		final var streamData = invoicePdfService.getInvoicePdfsAsStream(issuerLegalId, invoiceNumber, request, municipalityId);
+
+		return ResponseEntity.ok()
+			.contentType(streamData.contentType())
+			.header(HttpHeaders.CONTENT_DISPOSITION, streamData.contentDisposition().toString())
+			.body(streamData.contentStream());
 	}
 
 	@Operation(

@@ -17,13 +17,16 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.zalando.problem.ThrowableProblem;
 import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
+import se.sundsvall.invoicecache.api.model.InvoicePdfStreamData;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.service.InvoiceCacheService;
 import se.sundsvall.invoicecache.service.InvoicePdfService;
@@ -127,6 +130,36 @@ class InvoiceCacheResourceTest {
 		assertThat(invoicePdf.name()).isEqualTo("someName");
 		assertThat(invoicePdf.content()).isEqualTo("someContent");
 
+	}
+
+	@Test
+	void testDownloadInvoicePdfs_shouldReturnStreamingResponse() {
+		// Arrange
+		final var municipalityId = "2281";
+		final var request = new InvoicePdfFilterRequest();
+		final var invoiceNumber = "invoicenumber";
+		final var issuerLegalId = "issuerlegalid";
+		final var streamData = new InvoicePdfStreamData(
+			outputStream -> outputStream.write("test".getBytes()),
+			MediaType.APPLICATION_PDF,
+			ContentDisposition.attachment().filename("test.pdf").build());
+
+		when(mockPdfService.getInvoicePdfsAsStream(issuerLegalId, invoiceNumber, request, municipalityId))
+			.thenReturn(streamData);
+
+		// Act
+		final var response = resource.downloadInvoicePdfs(municipalityId, issuerLegalId, invoiceNumber, request);
+
+		// Assert
+		verify(mockPdfService).getInvoicePdfsAsStream(issuerLegalId, invoiceNumber, request, municipalityId);
+		verifyNoInteractions(mockService);
+		verifyNoMoreInteractions(mockPdfService);
+
+		assertThat(response).isNotNull();
+		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+		assertThat(response.getHeaders().getContentType()).isEqualTo(MediaType.APPLICATION_PDF);
+		assertThat(response.getHeaders().getContentDisposition().getFilename()).isEqualTo("test.pdf");
+		assertThat(response.getBody()).isNotNull();
 	}
 
 }

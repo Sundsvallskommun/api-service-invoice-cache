@@ -1,13 +1,13 @@
 openapi: 3.1.0
 info:
   title: api-invoicecache
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "4.0"
 servers:
-  - url: http://localhost:55438
+  - url: http://localhost:56171
     description: Generated server url
 paths:
   /{municipalityId}/scheduler/truncate:
@@ -134,7 +134,92 @@ paths:
         "201":
           description: Created
           content:
-            '*/*': { }
+            '*/*': {}
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+  /{municipalityId}/invoices/{issuerLegalId}/{invoiceNumber}/pdfs:
+    get:
+      tags:
+        - Invoice Cache
+      summary: Download invoice PDFs as stream (single PDF or ZIP if multiple)
+      operationId: downloadInvoicePdfs
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+        - name: issuerLegalId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: invoiceNumber
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: debtorLegalId
+          in: query
+          description: Invoice debtor legal id
+          required: false
+          schema:
+            type: string
+            description: Invoice debtor legal id
+        - name: invoiceId
+          in: query
+          description: Invoice id
+          required: false
+          schema:
+            type: string
+            description: Invoice id
+        - name: invoiceFileName
+          in: query
+          description: Invoice file name
+          required: false
+          schema:
+            type: string
+            description: Invoice file name
+        - name: invoiceType
+          in: query
+          description: Invoice type
+          required: false
+          schema:
+            type: string
+            description: Invoice type
+            enum:
+              - INVOICE
+              - CREDIT_INVOICE
+              - DIRECT_DEBIT
+              - SELF_INVOICE
+              - REMINDER
+              - FINAL_INVOICE
+              - CONSOLIDATED_INVOICE
+      responses:
+        "200":
+          description: Successful Operation - Returns PDF or ZIP file
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/StreamingResponseBody"
+        "404":
+          description: No PDFs found
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
         "400":
           description: Bad Request
           content:
@@ -209,7 +294,8 @@ paths:
               - CONSOLIDATED_INVOICE
       responses:
         "200":
-          description: Successful Operation
+          description: "This endpoint is deprecated and will be removed in a future\
+            \ version.use /{issuerLegalId}/{invoiceNumber}/pdfs instead"
           content:
             application/json:
               schema:
@@ -226,6 +312,7 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+      deprecated: true
   /api-docs:
     get:
       tags:
@@ -247,6 +334,12 @@ components:
     Problem:
       type: object
       properties:
+        status:
+          $ref: "#/components/schemas/StatusType"
+        title:
+          type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -255,13 +348,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: { }
-        status:
-          $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
-        detail:
-          type: string
+          additionalProperties: {}
     StatusType:
       type: object
       properties:
@@ -310,14 +397,14 @@ components:
           type: string
         message:
           type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
         parameters:
           type: object
-          additionalProperties: { }
-        detail:
-          type: string
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -354,7 +441,7 @@ components:
     ThrowableProblem:
       type: object
       properties:
-        cause: { }
+        cause: {}
         stackTrace:
           type: array
           items:
@@ -379,6 +466,12 @@ components:
                 type: boolean
         message:
           type: string
+        status:
+          $ref: "#/components/schemas/StatusType"
+        title:
+          type: string
+        detail:
+          type: string
         instance:
           type: string
           format: uri
@@ -387,13 +480,7 @@ components:
           format: uri
         parameters:
           type: object
-          additionalProperties: { }
-        status:
-          $ref: "#/components/schemas/StatusType"
-        title:
-          type: string
-        detail:
-          type: string
+          additionalProperties: {}
         suppressed:
           type: array
           items:
@@ -729,4 +816,5 @@ components:
           examples:
             - "23"
           readOnly: true
-  securitySchemes: { }
+    StreamingResponseBody: {}
+  securitySchemes: {}
