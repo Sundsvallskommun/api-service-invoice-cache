@@ -14,7 +14,7 @@
 	<name>api-service-invoice-cache</name>
 	<properties>
 		<commons-validator.version>1.10.1</commons-validator.version>
-		<jackson-databind-nullable.version>0.2.8</jackson-databind-nullable.version>
+		<jackson-databind-nullable.version>0.2.9</jackson-databind-nullable.version>
 		<jcifs-ng.version>2.1.10</jcifs-ng.version>
 		<tika-core.version>3.2.3</tika-core.version>
 		<generated-sources-path>${project.build.directory}/generated-sources</generated-sources-path>
