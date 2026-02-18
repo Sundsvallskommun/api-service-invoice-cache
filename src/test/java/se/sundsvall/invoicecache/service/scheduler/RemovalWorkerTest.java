@@ -1,13 +1,5 @@
 package se.sundsvall.invoicecache.service.scheduler;
 
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
-
 import java.time.OffsetDateTime;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +9,14 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.zalando.problem.Problem;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
+
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 @ExtendWith(MockitoExtension.class)
 class RemovalWorkerTest {

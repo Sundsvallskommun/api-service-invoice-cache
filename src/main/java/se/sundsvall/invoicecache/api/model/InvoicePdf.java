@@ -1,11 +1,11 @@
 package se.sundsvall.invoicecache.api.model;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import se.sundsvall.dept44.common.validators.annotation.ValidBase64;
 import se.sundsvall.invoicecache.api.validation.ValidPdf;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Builder(setterPrefix = "with")
 @Schema(description = "Model for the InvoicePdf")

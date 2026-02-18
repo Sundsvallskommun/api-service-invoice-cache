@@ -1,10 +1,5 @@
 package se.sundsvall.invoicecache.integration.db.entity;
 
-import static java.time.OffsetDateTime.now;
-import static java.time.ZoneId.systemDefault;
-import static java.time.temporal.ChronoUnit.MILLIS;
-import static org.hibernate.annotations.TimeZoneStorageType.NORMALIZE;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -26,6 +21,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.TimeZoneStorage;
 import se.sundsvall.invoicecache.api.model.InvoiceType;
+
+import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
+import static java.time.temporal.ChronoUnit.MILLIS;
+import static org.hibernate.annotations.TimeZoneStorageType.NORMALIZE;
 
 @Entity
 @Table(name = "invoice_pdf",

@@ -1,9 +1,5 @@
 package se.sundsvall.invoicecache.service;
 
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
-import static org.zalando.problem.Status.NOT_FOUND;
-import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
-
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -26,6 +22,10 @@ import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifi
 import se.sundsvall.invoicecache.integration.raindance.samba.RaindanceSambaIntegration;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
 import se.sundsvall.invoicecache.service.mapper.PdfMapper;
+
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+import static org.zalando.problem.Status.NOT_FOUND;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 @Service
 public class InvoicePdfService {

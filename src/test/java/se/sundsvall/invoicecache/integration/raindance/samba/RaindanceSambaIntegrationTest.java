@@ -1,15 +1,5 @@
 package se.sundsvall.invoicecache.integration.raindance.samba;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mockConstruction;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceEntity;
-
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -35,6 +25,16 @@ import org.zalando.problem.Problem;
 import se.sundsvall.dept44.scheduling.health.Dept44HealthUtility;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mockConstruction;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceEntity;
 
 @ExtendWith({
 	MockitoExtension.class, OutputCaptureExtension.class

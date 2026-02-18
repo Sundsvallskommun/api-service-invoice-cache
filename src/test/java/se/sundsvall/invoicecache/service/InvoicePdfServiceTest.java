@@ -1,19 +1,5 @@
 package se.sundsvall.invoicecache.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
-import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceEntity;
-import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
-
 import java.io.ByteArrayOutputStream;
 import java.time.OffsetDateTime;
 import java.util.Base64;
@@ -45,6 +31,20 @@ import se.sundsvall.invoicecache.integration.db.specifications.InvoicePdfSpecifi
 import se.sundsvall.invoicecache.integration.raindance.samba.RaindanceSambaIntegration;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
 import se.sundsvall.invoicecache.service.mapper.PdfMapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
+import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceEntity;
+import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
 
 @ExtendWith(MockitoExtension.class)
 class InvoicePdfServiceTest {

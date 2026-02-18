@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.api;
 
-import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -19,6 +17,8 @@ import org.zalando.problem.Problem;
 import org.zalando.problem.violations.ConstraintViolationProblem;
 import se.sundsvall.dept44.common.validators.annotation.ValidMunicipalityId;
 import se.sundsvall.invoicecache.integration.storage.scheduler.StorageSchedulerWorker;
+
+import static org.springframework.http.MediaType.APPLICATION_PROBLEM_JSON_VALUE;
 
 @Validated
 @RestController

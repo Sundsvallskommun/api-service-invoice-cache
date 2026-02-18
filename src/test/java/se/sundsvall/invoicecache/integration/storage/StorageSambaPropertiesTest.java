@@ -1,10 +1,5 @@
 package se.sundsvall.invoicecache.integration.storage;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mockStatic;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import jcifs.context.SingletonContext;
 import jcifs.smb.NtlmPasswordAuthenticator;
 import org.junit.jupiter.api.Test;
@@ -14,6 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import se.sundsvall.invoicecache.Application;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(classes = Application.class)
 @ActiveProfiles("junit")

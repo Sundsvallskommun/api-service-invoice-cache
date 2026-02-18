@@ -1,8 +1,5 @@
 package se.sundsvall.invoicecache.service.mapper;
 
-import static java.time.LocalDate.now;
-import static java.util.Objects.nonNull;
-
 import java.math.RoundingMode;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.api.model.Address;
@@ -10,6 +7,9 @@ import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceStatus;
 import se.sundsvall.invoicecache.api.model.InvoiceType;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
+
+import static java.time.LocalDate.now;
+import static java.util.Objects.nonNull;
 
 @Component
 public class InvoiceMapper {

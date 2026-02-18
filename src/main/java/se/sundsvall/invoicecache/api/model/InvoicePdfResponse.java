@@ -1,10 +1,10 @@
 package se.sundsvall.invoicecache.api.model;
 
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
-
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Generated;
+
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Generated // To avoid having to create stupid coverage-only tests
 @Builder(setterPrefix = "with")

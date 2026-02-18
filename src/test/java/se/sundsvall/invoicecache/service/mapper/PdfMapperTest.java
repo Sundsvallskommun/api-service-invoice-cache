@@ -1,16 +1,16 @@
 package se.sundsvall.invoicecache.service.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mockStatic;
-import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
-
 import java.util.Base64;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
 import se.sundsvall.invoicecache.api.model.InvoiceType;
 import se.sundsvall.invoicecache.util.exception.InvoiceCacheException;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mockStatic;
+import static se.sundsvall.invoicecache.TestObjectFactory.generatePdfEntity;
 
 class PdfMapperTest {
 

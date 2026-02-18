@@ -1,11 +1,5 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -15,6 +9,12 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepExecution;
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RestoreBackupListenerTest {

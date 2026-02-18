@@ -1,12 +1,5 @@
 package se.sundsvall.invoicecache.integration.storage.scheduler;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -24,6 +17,13 @@ import se.sundsvall.invoicecache.TestObjectFactory;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class StorageSchedulerWorkerTest {

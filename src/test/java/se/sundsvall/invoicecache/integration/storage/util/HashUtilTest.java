@@ -1,9 +1,5 @@
 package se.sundsvall.invoicecache.integration.storage.util;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.Mockito.mockStatic;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
@@ -13,6 +9,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mockStatic;
 
 class HashUtilTest {
 

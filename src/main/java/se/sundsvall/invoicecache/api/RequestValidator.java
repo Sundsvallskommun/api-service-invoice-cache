@@ -1,13 +1,13 @@
 package se.sundsvall.invoicecache.api;
 
-import static org.zalando.problem.Status.BAD_REQUEST;
-
 import java.time.LocalDate;
 import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 import org.zalando.problem.Problem;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
+
+import static org.zalando.problem.Status.BAD_REQUEST;
 
 public class RequestValidator {
 

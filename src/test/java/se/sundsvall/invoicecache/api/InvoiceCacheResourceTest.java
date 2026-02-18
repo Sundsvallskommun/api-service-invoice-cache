@@ -1,17 +1,5 @@
 package se.sundsvall.invoicecache.api;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceFilterRequest;
-import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoicePdf;
-
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -30,6 +18,18 @@ import se.sundsvall.invoicecache.api.model.InvoicePdfStreamData;
 import se.sundsvall.invoicecache.api.model.InvoicesResponse;
 import se.sundsvall.invoicecache.service.InvoiceCacheService;
 import se.sundsvall.invoicecache.service.InvoicePdfService;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoiceFilterRequest;
+import static se.sundsvall.invoicecache.TestObjectFactory.generateInvoicePdf;
 
 @ExtendWith(MockitoExtension.class)
 class InvoiceCacheResourceTest {
