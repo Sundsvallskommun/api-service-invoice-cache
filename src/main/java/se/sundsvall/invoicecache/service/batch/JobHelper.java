@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.service.batch;
 
-import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -18,6 +16,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
+
+import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 /**
  * Helper class for everything related to fetching statuses for batches and determining whether to run or not.

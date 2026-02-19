@@ -1,8 +1,5 @@
 package se.sundsvall.invoicecache.integration.raindance.mapper;
 
-import static org.apache.commons.lang3.StringUtils.trim;
-import static se.sundsvall.invoicecache.util.OCR.IN_PATTERN;
-
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.util.Optional;
@@ -12,6 +9,9 @@ import se.sundsvall.invoicecache.api.model.InvoiceStatus;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;
 import se.sundsvall.invoicecache.util.OCR;
+
+import static org.apache.commons.lang3.StringUtils.trim;
+import static se.sundsvall.invoicecache.util.OCR.IN_PATTERN;
 
 @Component
 public class RaindanceToInvoiceMapper {

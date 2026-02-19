@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.api.validation;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import jakarta.validation.ConstraintValidatorContext;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,6 +13,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.core.io.ClassPathResource;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(MockitoExtension.class)
 class ValidPdfConstraintValidatorTest {

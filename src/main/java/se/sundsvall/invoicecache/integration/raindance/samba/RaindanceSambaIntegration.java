@@ -1,8 +1,5 @@
 package se.sundsvall.invoicecache.integration.raindance.samba;
 
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
-import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
-
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.Instant;
@@ -27,6 +24,9 @@ import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
+
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 @Component
 @EnableScheduling

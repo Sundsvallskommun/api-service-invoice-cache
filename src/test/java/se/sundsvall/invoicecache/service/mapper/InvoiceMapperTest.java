@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.service.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -11,6 +9,8 @@ import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceStatus;
 import se.sundsvall.invoicecache.api.model.InvoiceType;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class InvoiceMapperTest {
 

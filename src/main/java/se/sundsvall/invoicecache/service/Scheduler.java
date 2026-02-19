@@ -1,9 +1,5 @@
 package se.sundsvall.invoicecache.service;
 
-import static se.sundsvall.invoicecache.service.batch.backup.BackupBatchConfig.BACKUP_JOB_NAME;
-import static se.sundsvall.invoicecache.service.batch.backup.BackupBatchConfig.RESTORE_BACKUP_JOB_NAME;
-import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
-
 import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,6 +18,10 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import se.sundsvall.dept44.scheduling.Dept44Scheduled;
 import se.sundsvall.invoicecache.service.batch.JobHelper;
+
+import static se.sundsvall.invoicecache.service.batch.backup.BackupBatchConfig.BACKUP_JOB_NAME;
+import static se.sundsvall.invoicecache.service.batch.backup.BackupBatchConfig.RESTORE_BACKUP_JOB_NAME;
+import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 @Configuration
 @EnableScheduling

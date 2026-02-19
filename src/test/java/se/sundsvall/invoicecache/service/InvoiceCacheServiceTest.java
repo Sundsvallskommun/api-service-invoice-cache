@@ -1,15 +1,5 @@
 package se.sundsvall.invoicecache.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.TestObjectFactory.generateMinimalInvoiceEntity;
-import static se.sundsvall.invoicecache.TestObjectFactory.generateMinimalInvoiceFilterRequest;
-
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +20,16 @@ import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.db.specifications.InvoiceSpecifications;
 import se.sundsvall.invoicecache.integration.party.PartyClient;
 import se.sundsvall.invoicecache.service.mapper.InvoiceMapper;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.TestObjectFactory.generateMinimalInvoiceEntity;
+import static se.sundsvall.invoicecache.TestObjectFactory.generateMinimalInvoiceFilterRequest;
 
 @ExtendWith(MockitoExtension.class)
 class InvoiceCacheServiceTest {

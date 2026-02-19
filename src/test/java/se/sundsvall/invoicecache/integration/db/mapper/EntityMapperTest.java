@@ -1,12 +1,12 @@
 package se.sundsvall.invoicecache.integration.db.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import org.junit.jupiter.api.Test;
 import se.sundsvall.invoicecache.TestObjectFactory;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class EntityMapperTest {
 

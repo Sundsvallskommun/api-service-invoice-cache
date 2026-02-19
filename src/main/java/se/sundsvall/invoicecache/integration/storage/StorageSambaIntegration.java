@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.integration.storage;
 
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
-
 import java.io.IOException;
 import java.sql.Blob;
 import jcifs.smb.SmbFile;
@@ -13,6 +11,8 @@ import org.zalando.problem.Problem;
 import se.sundsvall.invoicecache.integration.storage.util.HashUtil;
 import se.sundsvall.invoicecache.util.exception.BlobIntegrityException;
 import se.sundsvall.invoicecache.util.exception.BlobWriteException;
+
+import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
 
 @Component
 public class StorageSambaIntegration {

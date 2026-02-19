@@ -1,8 +1,8 @@
 package se.sundsvall.invoicecache.util.exception;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class InvoiceCacheExceptionTest {
 

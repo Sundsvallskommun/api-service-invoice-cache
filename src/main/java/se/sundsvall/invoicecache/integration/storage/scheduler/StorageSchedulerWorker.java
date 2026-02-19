@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.integration.storage.scheduler;
 
-import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
-
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.function.Consumer;
@@ -12,6 +10,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
+
+import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 @Component
 public class StorageSchedulerWorker {

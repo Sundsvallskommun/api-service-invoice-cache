@@ -1,5 +1,11 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.boot.actuate.health.Health;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.verify;
@@ -9,12 +15,6 @@ import static se.sundsvall.invoicecache.service.batch.BatchHealthIndicator.DESCR
 import static se.sundsvall.invoicecache.service.batch.BatchHealthIndicator.STATUS_DOWN_MESSAGE;
 import static se.sundsvall.invoicecache.service.batch.BatchHealthIndicator.STATUS_UNKNOWN_MESSAGE;
 import static se.sundsvall.invoicecache.service.batch.BatchHealthIndicator.STATUS_UP_MESSAGE;
-
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.boot.actuate.health.Health;
 
 @ExtendWith(MockitoExtension.class)
 class RestoreBackupJobHealthIndicatorTest {

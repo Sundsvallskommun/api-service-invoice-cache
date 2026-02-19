@@ -1,10 +1,5 @@
 package se.sundsvall.invoicecache.service.batch;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.when;
-import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
-
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,6 +17,11 @@ import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.explore.JobExplorer;
 import org.springframework.batch.core.launch.NoSuchJobException;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.when;
+import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 @ExtendWith(MockitoExtension.class)
 class JobHelperTest {

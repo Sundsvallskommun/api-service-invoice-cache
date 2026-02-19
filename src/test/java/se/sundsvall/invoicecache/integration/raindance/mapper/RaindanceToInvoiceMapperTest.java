@@ -1,7 +1,5 @@
 package se.sundsvall.invoicecache.integration.raindance.mapper;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -10,6 +8,8 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import se.sundsvall.invoicecache.TestObjectFactory;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class RaindanceToInvoiceMapperTest {
 
