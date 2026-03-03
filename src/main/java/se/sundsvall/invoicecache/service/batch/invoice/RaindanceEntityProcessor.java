@@ -1,7 +1,7 @@
 package se.sundsvall.invoicecache.service.batch.invoice;
 
 import jakarta.validation.constraints.NotNull;
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.integration.db.entity.InvoiceEntity;
 import se.sundsvall.invoicecache.integration.raindance.RaindanceQueryResultDto;

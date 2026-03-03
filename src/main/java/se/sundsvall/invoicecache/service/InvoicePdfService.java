@@ -10,7 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.ContentDisposition;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.zalando.problem.Problem;
+import se.sundsvall.dept44.problem.Problem;
 import se.sundsvall.invoicecache.api.model.InvoicePdf;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfRequest;
@@ -23,8 +23,8 @@ import se.sundsvall.invoicecache.integration.raindance.samba.RaindanceSambaInteg
 import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
 import se.sundsvall.invoicecache.service.mapper.PdfMapper;
 
-import static org.zalando.problem.Status.INTERNAL_SERVER_ERROR;
-import static org.zalando.problem.Status.NOT_FOUND;
+import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
+import static org.springframework.http.HttpStatus.NOT_FOUND;
 import static se.sundsvall.invoicecache.Constant.RAINDANCE_ISSUER_LEGAL_ID;
 
 @Service

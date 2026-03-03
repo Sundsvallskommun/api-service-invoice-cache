@@ -11,11 +11,11 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobInstance;
-import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
 import org.springframework.batch.core.launch.NoSuchJobException;
+import org.springframework.batch.core.repository.JobRepository;
+import org.springframework.batch.core.step.StepExecution;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,7 +27,7 @@ import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDA
 class JobHelperTest {
 
 	@Mock
-	private JobExplorer mockJobExplorer;
+	private JobRepository mockJobRepository;
 
 	@Mock
 	private InvoiceRepository mockInvoiceRepository;
@@ -36,7 +36,7 @@ class JobHelperTest {
 
 	@BeforeEach
 	void setup() {
-		this.jobHelper = new JobHelper(mockJobExplorer, mockInvoiceRepository, Duration.ofMinutes(1L));
+		this.jobHelper = new JobHelper(mockJobRepository, mockInvoiceRepository, Duration.ofMinutes(1L));
 	}
 
 	@Test
@@ -79,19 +79,19 @@ class JobHelperTest {
 	@Test
 	void testGetSuccessfulJobWithinTimePeriod_shouldThrowException_whenNoJobExists() throws NoSuchJobException {
 		final var jobName = setupGetSuccessfulJobMethod(LocalDateTime.now(), ExitStatus.FAILED);// Ignore job name, we want to get a job that doesn't exist.
-		when(mockJobExplorer.getJobInstanceCount(jobName)).thenThrow(new NoSuchJobException("missing job"));
+		when(mockJobRepository.getJobInstanceCount(jobName)).thenThrow(new NoSuchJobException("missing job"));
 		final var successfulJobWithinTimePeriod = jobHelper.getSuccessfulJobWithinTimePeriod(jobName);
 		assertThat(successfulJobWithinTimePeriod).isEmpty();
 	}
 
 	@Test
 	void testGetJobsShouldReturnListOfLatestJobStatuses() throws NoSuchJobException {
-		when(mockJobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME)).thenReturn(100L);
+		when(mockJobRepository.getJobInstanceCount(RAINDANCE_JOB_NAME)).thenReturn(100L);
 
 		final var jobInstance = new JobInstance(1L, RAINDANCE_JOB_NAME);
 		final var jobList = List.of(jobInstance);
 
-		final var jobExecution = new JobExecution(jobInstance, null);
+		final var jobExecution = new JobExecution(1L, jobInstance, null);
 		jobExecution.setStatus(BatchStatus.COMPLETED);
 		jobExecution.setStartTime(LocalDateTime.of(2022, 8, 10, 1, 10, 0));
 		jobExecution.setEndTime(LocalDateTime.of(2022, 8, 10, 1, 10, 10));
@@ -103,8 +103,8 @@ class JobHelperTest {
 
 		jobExecution.addStepExecutions(List.of(step));
 
-		when(mockJobExplorer.getJobInstances(RAINDANCE_JOB_NAME, 0, 50)).thenReturn(jobList);
-		when(mockJobExplorer.getJobExecutions(jobInstance)).thenReturn(List.of(jobExecution));
+		when(mockJobRepository.getJobInstances(RAINDANCE_JOB_NAME, 0, 50)).thenReturn(jobList);
+		when(mockJobRepository.getJobExecutions(jobInstance)).thenReturn(List.of(jobExecution));
 
 		final var jobs = jobHelper.getJobs();
 		assertThat(jobs).isNotNull().hasSize(1);
@@ -143,16 +143,16 @@ class JobHelperTest {
 		final var jobInstance = new JobInstance(1L, RAINDANCE_JOB_NAME);
 		final var jobList = List.of(jobInstance);
 
-		final var jobExecution = new JobExecution(jobInstance, null);
+		final var jobExecution = new JobExecution(1L, jobInstance, null);
 		jobExecution.setExitStatus(exitStatus);
 
 		jobExecution.setEndTime(endTime);    // Last successful job is now, which means we should get a successful job.
 		final var executionList = List.of(jobExecution);
 
 		// Lenient since we want to reuse this method.
-		Mockito.lenient().when(mockJobExplorer.getJobInstanceCount(eq(RAINDANCE_JOB_NAME))).thenReturn(1L);
-		Mockito.lenient().when(mockJobExplorer.getJobInstances(eq(RAINDANCE_JOB_NAME), eq(0), eq(1))).thenReturn(jobList);
-		Mockito.lenient().when(mockJobExplorer.getJobExecutions(jobInstance)).thenReturn(executionList);
+		Mockito.lenient().when(mockJobRepository.getJobInstanceCount(eq(RAINDANCE_JOB_NAME))).thenReturn(1L);
+		Mockito.lenient().when(mockJobRepository.getJobInstances(eq(RAINDANCE_JOB_NAME), eq(0), eq(1))).thenReturn(jobList);
+		Mockito.lenient().when(mockJobRepository.getJobExecutions(jobInstance)).thenReturn(executionList);
 		return RAINDANCE_JOB_NAME;
 	}
 }

@@ -9,9 +9,9 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.explore.JobExplorer;
+import org.springframework.batch.core.job.JobExecution;
 import org.springframework.batch.core.launch.NoSuchJobException;
+import org.springframework.batch.core.repository.JobRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
@@ -29,12 +29,12 @@ public class JobHelper {
 
 	private final Duration successfulWithin;  // Check for successful jobs withing this Duration
 
-	private final JobExplorer jobExplorer;
+	private final JobRepository jobRepository;
 	private final InvoiceRepository invoiceRepository;
 
-	public JobHelper(final JobExplorer jobExplorer, final InvoiceRepository invoiceRepository,
+	public JobHelper(final JobRepository jobRepository, final InvoiceRepository invoiceRepository,
 		@Value("${raindance.invoice.outdated}") final Duration timeToWait) {
-		this.jobExplorer = jobExplorer;
+		this.jobRepository = jobRepository;
 		this.invoiceRepository = invoiceRepository;
 		this.successfulWithin = timeToWait;
 	}
@@ -72,11 +72,11 @@ public class JobHelper {
 	 */
 	Optional<JobExecution> getSuccessfulJobWithinTimePeriod(final String jobName) {
 		try {
-			final int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(jobName);
+			final int jobInstanceCount = (int) jobRepository.getJobInstanceCount(jobName);
 
 			// See of there are any successful jobs done within the last 24 hours.
-			return jobExplorer.getJobInstances(jobName, 0, jobInstanceCount).stream()
-				.map(jobExplorer::getJobExecutions)
+			return jobRepository.getJobInstances(jobName, 0, jobInstanceCount).stream()
+				.map(jobRepository::getJobExecutions)
 				.flatMap(List<JobExecution>::stream)
 				.filter(jobExecution -> jobExecution.getExitStatus().equals(ExitStatus.COMPLETED))
 				.filter(jobExecution -> Objects.requireNonNull(jobExecution.getEndTime())
@@ -99,7 +99,7 @@ public class JobHelper {
 		final List<JobStatus> listOfJobs = new ArrayList<>();
 		final int jobsToFetch = 50;
 		try {
-			final int jobInstanceCount = (int) jobExplorer.getJobInstanceCount(RAINDANCE_JOB_NAME);
+			final int jobInstanceCount = (int) jobRepository.getJobInstanceCount(RAINDANCE_JOB_NAME);
 			int mostRecentInstances = jobInstanceCount;
 			// Only get the latest 50
 			if (jobInstanceCount > jobsToFetch) {
@@ -108,9 +108,9 @@ public class JobHelper {
 
 			// The latest job has index 0. If there are a total of 20 execution, fetching #20 will get the first, which is why we
 			// get from 0.
-			return jobExplorer.getJobInstances(RAINDANCE_JOB_NAME, 0, mostRecentInstances)
+			return jobRepository.getJobInstances(RAINDANCE_JOB_NAME, 0, mostRecentInstances)
 				.stream()
-				.map(jobExplorer::getJobExecutions)
+				.map(jobRepository::getJobExecutions)
 				.flatMap(List<JobExecution>::stream)
 				.map(this::mapJobExecutionToJobStatus)
 				.toList();

@@ -1,7 +1,7 @@
 package se.sundsvall.invoicecache.service.batch;
 
-import org.springframework.boot.actuate.health.Health;
-import org.springframework.boot.actuate.health.HealthIndicator;
+import org.springframework.boot.health.contributor.Health;
+import org.springframework.boot.health.contributor.HealthIndicator;
 
 public abstract class BatchHealthIndicator implements HealthIndicator {
 
@@ -39,8 +39,4 @@ public abstract class BatchHealthIndicator implements HealthIndicator {
 		return health;
 	}
 
-	@Override
-	public final Health getHealth(boolean includeDetails) {
-		return HealthIndicator.super.getHealth(includeDetails);
-	}
 }

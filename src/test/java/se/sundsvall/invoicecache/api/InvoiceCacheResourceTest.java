@@ -9,7 +9,7 @@ import org.springframework.http.ContentDisposition;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.zalando.problem.ThrowableProblem;
+import se.sundsvall.dept44.problem.ThrowableProblem;
 import se.sundsvall.invoicecache.api.model.Invoice;
 import se.sundsvall.invoicecache.api.model.InvoiceFilterRequest;
 import se.sundsvall.invoicecache.api.model.InvoicePdfFilterRequest;
@@ -96,7 +96,7 @@ class InvoiceCacheResourceTest {
 		// Assert
 		assertThat(response).isNotNull();
 		assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-		assertThat(response.getHeaders()).containsKey(HttpHeaders.LOCATION);
+		assertThat(response.getHeaders().getFirst(HttpHeaders.LOCATION)).isNotNull();
 
 		verify(mockPdfService, times(1)).createOrUpdateInvoice(request, municipalityId);
 	}

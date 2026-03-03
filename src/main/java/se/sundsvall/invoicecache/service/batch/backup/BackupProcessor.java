@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.service.batch.backup;
 
-import org.springframework.batch.item.ItemProcessor;
+import org.springframework.batch.infrastructure.item.ItemProcessor;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.integration.db.entity.BackupInvoiceEntity;
