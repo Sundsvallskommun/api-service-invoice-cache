@@ -4,9 +4,9 @@
 	<parent>
 		<groupId>se.sundsvall.dept44</groupId>
 		<artifactId>dept44-service-parent</artifactId>
-		<version>7.0.1</version>
+		<version>8.0.3</version>
 		<relativePath />
-		<!-- lookup parent from repository -->
+		<!-- lookup parent from the repository -->
 	</parent>
 	<groupId>se.sundsvall</groupId>
 	<artifactId>api-service-invoice-cache</artifactId>
@@ -67,13 +67,17 @@
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate.orm</groupId>
-			<artifactId>hibernate-jpamodelgen</artifactId>
+			<artifactId>hibernate-processor</artifactId>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>com.microsoft.sqlserver</groupId>
 			<artifactId>mssql-jdbc</artifactId>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-flyway</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.flywaydb</groupId>
@@ -105,7 +109,7 @@
 		<!-- Test-->
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>junit-jupiter</artifactId>
+			<artifactId>testcontainers-junit-jupiter</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>
@@ -115,7 +119,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.testcontainers</groupId>
-			<artifactId>mssqlserver</artifactId>
+			<artifactId>testcontainers-mssqlserver</artifactId>
 			<scope>test</scope>
 		</dependency>
 		<dependency>

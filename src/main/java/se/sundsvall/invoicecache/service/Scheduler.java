@@ -4,14 +4,14 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.JobParametersInvalidException;
+import org.springframework.batch.core.job.Job;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
+import org.springframework.batch.core.job.parameters.JobParametersBuilder;
+import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
 import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.core.launch.JobRestartException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
@@ -55,7 +55,7 @@ public class Scheduler {
 	 *
 	 * @throws JobInstanceAlreadyCompleteException
 	 * @throws JobExecutionAlreadyRunningException
-	 * @throws JobParametersInvalidException
+	 * @throws InvalidJobParametersException
 	 * @throws JobRestartException
 	 */
 	@Dept44Scheduled(
@@ -63,7 +63,7 @@ public class Scheduler {
 		name = "${invoice.scheduled.name}",
 		lockAtMostFor = "${invoice.scheduled.shedlock-lock-at-most-for}",
 		maximumExecutionTime = "${invoice.scheduled.maximum-execution-time}")
-	public void launchJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+	public void launchJob() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
 		// Only run if scheduling is enabled
 		if (schedulingIsEnabled) {
 			if (jobHelper.areInvoicesOutdated()) {
@@ -77,7 +77,7 @@ public class Scheduler {
 		}
 	}
 
-	private void startFetchingInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+	private void startFetchingInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
 		final JobExecution executionResult = fetchInvoices();
 
 		// If the invoice job ended with a successful exitstatus, and we actually have any invoices, backup the fetched
@@ -98,10 +98,10 @@ public class Scheduler {
 	 * @return
 	 * @throws JobInstanceAlreadyCompleteException
 	 * @throws JobExecutionAlreadyRunningException
-	 * @throws JobParametersInvalidException
+	 * @throws InvalidJobParametersException
 	 * @throws JobRestartException
 	 */
-	public JobExecution fetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+	public JobExecution fetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
 		final JobExecution executionResult = jobLauncher.run(this.invoiceJob, new JobParametersBuilder().addDate(RAINDANCE_JOB_NAME + "_key", new Date()).toJobParameters());
 		LOG.info("Invoice job ended with status: {} at: {}", executionResult.getExitStatus(), executionResult.getEndTime());
 		return executionResult;
@@ -112,10 +112,10 @@ public class Scheduler {
 	 *
 	 * @throws JobInstanceAlreadyCompleteException
 	 * @throws JobExecutionAlreadyRunningException
-	 * @throws JobParametersInvalidException
+	 * @throws InvalidJobParametersException
 	 * @throws JobRestartException
 	 */
-	public void runBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+	public void runBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
 		final JobExecution executionResult = jobLauncher.run(this.backupJob, new JobParametersBuilder().addDate(BACKUP_JOB_NAME + "_key", new Date()).toJobParameters());
 		LOG.info("Backup job ended with status: {} at: {}", executionResult.getExitStatus(), executionResult.getEndTime());
 	}
@@ -126,10 +126,10 @@ public class Scheduler {
 	 *
 	 * @throws JobInstanceAlreadyCompleteException
 	 * @throws JobExecutionAlreadyRunningException
-	 * @throws JobParametersInvalidException
+	 * @throws InvalidJobParametersException
 	 * @throws JobRestartException
 	 */
-	public void restoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+	public void restoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
 		final JobExecution executionResult = jobLauncher.run(this.restoreBackupJob, new JobParametersBuilder().addDate(RESTORE_BACKUP_JOB_NAME + "_key", new Date()).toJobParameters());
 		LOG.info("RestoreBackup job ended with status: {} at: {}", executionResult.getExitStatus(), executionResult.getEndTime());
 	}

@@ -5,11 +5,12 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParametersInvalidException;
-import org.springframework.batch.core.repository.JobExecutionAlreadyRunningException;
-import org.springframework.batch.core.repository.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.repository.JobRestartException;
+import org.springframework.batch.core.job.JobExecution;
+import org.springframework.batch.core.job.JobInstance;
+import org.springframework.batch.core.job.parameters.InvalidJobParametersException;
+import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
+import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
+import org.springframework.batch.core.launch.JobRestartException;
 import se.sundsvall.invoicecache.service.Scheduler;
 
 import static org.mockito.Mockito.doNothing;
@@ -27,21 +28,21 @@ class ActuatorServiceTest {
 	private ActuatorService service;
 
 	@Test
-	void testForceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
-		when(mockScheduler.fetchInvoices()).thenReturn(new JobExecution(1L));
+	void testForceFetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
+		when(mockScheduler.fetchInvoices()).thenReturn(new JobExecution(1L, new JobInstance(1L, "testJob"), null));
 		service.forceFetchInvoices();
 		verify(mockScheduler, times(1)).fetchInvoices();
 	}
 
 	@Test
-	void testForceRunBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+	void testForceRunBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
 		doNothing().when(mockScheduler).runBackup();
 		service.forceCreateBackup();
 		verify(mockScheduler, times(1)).runBackup();
 	}
 
 	@Test
-	void testForceRestoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, JobParametersInvalidException, JobRestartException {
+	void testForceRestoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
 		doNothing().when(mockScheduler).restoreBackup();
 		service.forceRestoreBackup();
 		verify(mockScheduler, times(1)).restoreBackup();

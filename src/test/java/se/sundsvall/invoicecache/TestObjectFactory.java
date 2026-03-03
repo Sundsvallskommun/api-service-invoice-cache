@@ -7,9 +7,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import org.hibernate.engine.jdbc.BlobProxy;
+import org.hibernate.engine.jdbc.proxy.BlobProxy;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.job.JobExecution;
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
 import se.sundsvall.invoicecache.api.model.Address;
 import se.sundsvall.invoicecache.api.model.Invoice;
@@ -195,7 +195,7 @@ public class TestObjectFactory {
 	}
 
 	public static JobExecution createJobExecution(final ExitStatus exitStatus) {
-		final JobExecution jobExecution = new JobExecution(1L);
+		final JobExecution jobExecution = new JobExecution(1L, new org.springframework.batch.core.job.JobInstance(1L, "testJob"), null);
 		jobExecution.setExitStatus(exitStatus);
 		jobExecution.setEndTime(LocalDateTime.now());
 
