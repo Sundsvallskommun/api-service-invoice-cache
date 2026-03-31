@@ -1,13 +1,5 @@
 package apptest;
 
-import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
-import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
-import static java.time.OffsetDateTime.now;
-import static java.time.ZoneId.systemDefault;
-import static java.time.temporal.ChronoUnit.SECONDS;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
-
 import java.io.IOException;
 import java.util.Map;
 import jcifs.smb.SmbFile;
@@ -32,6 +24,14 @@ import se.sundsvall.invoicecache.Application;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaProperties;
 
+import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
+import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
+import static java.time.OffsetDateTime.now;
+import static java.time.ZoneId.systemDefault;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
+
 @WireMockAppTestSuite(files = "classpath:/SambaStorageIT", classes = Application.class)
 @Sql({
 	"/db/scripts/truncate.sql",
@@ -41,20 +41,11 @@ import se.sundsvall.invoicecache.integration.storage.StorageSambaProperties;
 class SambaStorageIT extends AbstractAppTest {
 
 	private static final String SAMBA_FILE_PATH = "smb://localhost:%d/%s/%s/%s/%s/%s.pdf";
-
-	private static int port;
-
-	@Autowired
-	private PdfRepository pdfRepository;
-
-	@Autowired
-	private StorageSambaProperties storageSambaProperties;
-
 	/**
 	 * The SMB container for storing transferred invoice PDFs. This is used by the StorageScheduler to transfer files from the database to the SMB share.
 	 */
 	@Container
-	public static GenericContainer<?> smbContainer = new GenericContainer<>("dockurr/samba")
+	public static GenericContainer<?> smbContainer = new GenericContainer<>("dockurr/samba:4.22.6")
 		.withExposedPorts(445)
 		.withEnv(Map.of(
 			"NAME", "ocp",
@@ -64,20 +55,23 @@ class SambaStorageIT extends AbstractAppTest {
 			MountableFile.forClasspathResource("test-directory"),
 			"/storage"
 		);
-
 	/**
 	 * The MariaDB container for InvoiceCache. This is used for storing invoice PDFs.
 	 */
 	@Container
 	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
 		.withDatabaseName("ms-invoicecache");
-
 	/**
 	 * The MSSQL container with Raindance initialization script. This is not used directly in the tests but is required to start the application context successfully.
 	 */
 	@Container
 	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
 		.withInitScript("InvoiceCache/sql/init-raindance.sql");
+	private static int port;
+	@Autowired
+	private PdfRepository pdfRepository;
+	@Autowired
+	private StorageSambaProperties storageSambaProperties;
 
 	/**
 	 * Get the url, user and password from the container and set them in the context.
@@ -106,7 +100,7 @@ class SambaStorageIT extends AbstractAppTest {
 	void test01_transferFile() throws Exception {
 
 		// Fetches an existing entity from the repository that has not been moved or truncated
-		var entity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("1", "1", "2281").orElseThrow();
+		final var entity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("1", "1", "2281").orElseThrow();
 		assertThat(entity.getMovedAt()).isNull();
 		assertThat(entity.getTruncatedAt()).isNull();
 		assertThat(entity.getDocument()).isNotNull();
@@ -118,14 +112,14 @@ class SambaStorageIT extends AbstractAppTest {
 			.withExpectedResponseBodyIsNull()
 			.sendRequestAndVerifyResponse();
 
-		var transferredEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("1", "1", "2281").orElseThrow();
+		final var transferredEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("1", "1", "2281").orElseThrow();
 		assertThat(transferredEntity.getMovedAt()).isCloseTo(now(systemDefault()), within(5L, SECONDS));
 		assertThat(transferredEntity.getTruncatedAt()).isNull();
 		assertThat(transferredEntity.getDocument()).isNotNull();
 
-		var fileDirectory = transferredEntity.getFileHash().substring(0, 2);
+		final var fileDirectory = transferredEntity.getFileHash().substring(0, 2);
 
-		try (var transferredFile = new SmbFile(SAMBA_FILE_PATH.formatted(
+		try (final var transferredFile = new SmbFile(SAMBA_FILE_PATH.formatted(
 			port, storageSambaProperties.share(),
 			storageSambaProperties.serviceDirectory(),
 			storageSambaProperties.environment(), fileDirectory,
@@ -141,7 +135,7 @@ class SambaStorageIT extends AbstractAppTest {
 	@Test
 	void test02_truncateFile() {
 		// Fetches an existing entity from the repository that has been moved but not truncated
-		var entity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("2", "2", "2281").orElseThrow();
+		final var entity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("2", "2", "2281").orElseThrow();
 		assertThat(entity.getMovedAt()).isNotNull();
 		assertThat(entity.getTruncatedAt()).isNull();
 		assertThat(entity.getDocument()).isNotNull();
@@ -153,7 +147,7 @@ class SambaStorageIT extends AbstractAppTest {
 			.withExpectedResponseBodyIsNull()
 			.sendRequestAndVerifyResponse();
 
-		var truncatedEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("2", "2", "2281").orElseThrow();
+		final var truncatedEntity = pdfRepository.findByInvoiceNumberAndInvoiceIdAndMunicipalityId("2", "2", "2281").orElseThrow();
 		assertThat(truncatedEntity.getMovedAt()).isNotNull();
 		assertThat(truncatedEntity.getTruncatedAt()).isCloseTo(now(systemDefault()), within(5L, SECONDS));
 		assertThat(truncatedEntity.getDocument()).isNull(); // Verify that the document has been truncated
