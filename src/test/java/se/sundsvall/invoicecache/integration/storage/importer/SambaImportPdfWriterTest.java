@@ -76,8 +76,9 @@ class SambaImportPdfWriterTest {
 	@Test
 	void writeOnePdf_missingPdfMagic_refusesAndDoesNotTouchSamba() {
 		final var entry = new InvoiceIndexEntry("not-a-pdf.pdf", "INV-2", null, null, null);
+		final var bytes = "not a pdf at all".getBytes(StandardCharsets.UTF_8);
 
-		assertThatThrownBy(() -> writer.writeOnePdf("not a pdf at all".getBytes(StandardCharsets.UTF_8), entry, MUNICIPALITY_ID))
+		assertThatThrownBy(() -> writer.writeOnePdf(bytes, entry, MUNICIPALITY_ID))
 			.isInstanceOf(BlobIntegrityException.class)
 			.hasMessageContaining("does not start with %PDF-");
 
@@ -119,8 +120,6 @@ class SambaImportPdfWriterTest {
 	}
 
 	private static byte[] pdfBytes(final String suffix) {
-		final var prefix = "%PDF-1.4\n";
-		final var combined = (prefix + suffix).getBytes(StandardCharsets.UTF_8);
-		return combined;
+		return ("%PDF-1.4\n" + suffix).getBytes(StandardCharsets.UTF_8);
 	}
 }
