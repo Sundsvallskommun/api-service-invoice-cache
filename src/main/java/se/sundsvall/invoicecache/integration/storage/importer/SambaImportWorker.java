@@ -223,7 +223,7 @@ public class SambaImportWorker {
 			final var bytes = readEntryWithLimit(zip, MAX_PDF_BYTES, MAX_TOTAL_BYTES - totalSoFar, name, zipName);
 			pdfWriter.writeOnePdf(bytes, meta, municipalityId);
 			return new EntryResult(EntryOutcome.IMPORTED, bytes.length);
-		} catch (final IOException | SQLException | BlobWriteException | DataAccessException e) {
+		} catch (final IOException | SQLException | BlobWriteException | BlobIntegrityException | DataAccessException e) {
 			LOG.error("Failed to import pdf '{}' from zip '{}'", cleanedName, cleanedZipName, e);
 			return new EntryResult(EntryOutcome.FAILED, 0L);
 		}
