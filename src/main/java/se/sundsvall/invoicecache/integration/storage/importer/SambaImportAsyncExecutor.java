@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import se.sundsvall.dept44.util.LogUtils;
 
 @Component
 public class SambaImportAsyncExecutor {
@@ -45,8 +46,9 @@ public class SambaImportAsyncExecutor {
 		acquisition.complete(true);
 
 		final var lock = lockOptional.get();
+		final var cleanedMunicipalityId = LogUtils.sanitizeForLogging(municipalityId);
 		try {
-			LOG.info("Samba import lock acquired, starting import for municipalityId='{}'", municipalityId);
+			LOG.info("Samba import lock acquired, starting import for municipalityId='{}'", cleanedMunicipalityId);
 			worker.importAll(municipalityId);
 		} catch (final Exception e) {
 			LOG.error("Samba import failed", e);

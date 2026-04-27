@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import se.sundsvall.dept44.util.LogUtils;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.db.entity.PdfEntity;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaIntegration;
@@ -48,7 +49,9 @@ public class SambaImportPdfWriter {
 			.withInvoiceType(null)
 			.build();
 		pdfRepository.save(pdfEntity);
+		final var cleanedSource = LogUtils.sanitizeForLogging(entry.source());
+		final var cleanedInvoiceNumber = LogUtils.sanitizeForLogging(entry.invoiceNumber());
 		LOG.info("Imported pdf '{}' (hash={}) for invoiceNumber={}, archiveDate={}",
-			entry.source(), hash, entry.invoiceNumber(), entry.archiveDate());
+			cleanedSource, hash, cleanedInvoiceNumber, entry.archiveDate());
 	}
 }

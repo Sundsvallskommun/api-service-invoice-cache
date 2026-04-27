@@ -9,6 +9,7 @@ import jcifs.smb.SmbFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import se.sundsvall.dept44.util.LogUtils;
 import se.sundsvall.invoicecache.integration.storage.StorageSambaProperties;
 import se.sundsvall.invoicecache.util.exception.BlobIntegrityException;
 import se.sundsvall.invoicecache.util.exception.BlobWriteException;
@@ -32,7 +33,8 @@ public class SambaImportFileSystem {
 		try {
 			return file.isFile();
 		} catch (final IOException e) {
-			LOG.warn("Could not determine if '{}' is a file, skipping", file.getName(), e);
+			final var cleanedName = LogUtils.sanitizeForLogging(file.getName());
+			LOG.warn("Could not determine if '{}' is a file, skipping", cleanedName, e);
 			return false;
 		}
 	}
@@ -63,7 +65,8 @@ public class SambaImportFileSystem {
 	}
 
 	public InputStream openInputStream(final String name) {
-		LOG.info("Opening input stream for '{}'", name);
+		final var cleanedName = LogUtils.sanitizeForLogging(name);
+		LOG.info("Opening input stream for '{}'", cleanedName);
 		final var sourceUrl = sourceUrl();
 		SmbFile smbFile = null;
 		try {
@@ -74,7 +77,7 @@ public class SambaImportFileSystem {
 			smbFile = null;
 			return new ClosingInputStream(inputStream, owned);
 		} catch (final IOException e) {
-			LOG.error("Failed to open input stream for '{}'", name, e);
+			LOG.error("Failed to open input stream for '{}'", cleanedName, e);
 			throw new BlobIntegrityException("Could not open input stream for " + name, e);
 		} finally {
 			closeQuietly(smbFile);
@@ -93,12 +96,13 @@ public class SambaImportFileSystem {
 	}
 
 	public void delete(final String name) {
-		LOG.info("Deleting '{}'", name);
+		final var cleanedName = LogUtils.sanitizeForLogging(name);
+		LOG.info("Deleting '{}'", cleanedName);
 		final var sourceUrl = sourceUrl();
 		try (final var smbFile = new SmbFile(sourceUrl + "/" + name, storageProperties.cifsContext())) {
 			smbFile.delete();
 		} catch (final IOException e) {
-			LOG.error("Failed to delete '{}'", name, e);
+			LOG.error("Failed to delete '{}'", cleanedName, e);
 			throw new BlobWriteException("Could not delete " + name, e);
 		}
 	}

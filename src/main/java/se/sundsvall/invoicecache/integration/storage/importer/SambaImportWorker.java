@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Component;
 import org.xml.sax.SAXException;
+import se.sundsvall.dept44.util.LogUtils;
 import se.sundsvall.invoicecache.integration.db.PdfRepository;
 import se.sundsvall.invoicecache.integration.storage.importer.model.InvoiceIndex;
 import se.sundsvall.invoicecache.integration.storage.importer.model.InvoiceIndexEntry;
@@ -125,22 +126,24 @@ public class SambaImportWorker {
 		final var zipNames = fileSystem.listZipFiles();
 		LOG.info("Found {} zip(s) to import", zipNames.size());
 		for (final var zipName : zipNames) {
+			final var cleanedZipName = LogUtils.sanitizeForLogging(zipName);
 			try {
 				importOneZip(zipName, municipalityId);
 			} catch (final BlobIntegrityException | BlobWriteException | DataAccessException e) {
-				LOG.error("Failed to import zip '{}', leaving it in place and continuing", zipName, e);
+				LOG.error("Failed to import zip '{}', leaving it in place and continuing", cleanedZipName, e);
 			}
 		}
 		LOG.info("Import pass complete");
 	}
 
 	void importOneZip(final String zipName, final String municipalityId) {
+		final var cleanedZipName = LogUtils.sanitizeForLogging(zipName);
 		final var indexName = expectedIndexName(zipName);
-		LOG.info("Processing zip '{}', expecting index '{}'", zipName, indexName);
+		LOG.info("Processing zip '{}', expecting index '{}'", cleanedZipName, indexName);
 
 		final var index = readIndexQuietly(zipName, indexName);
 		if (index == null || index.documents().isEmpty()) {
-			LOG.warn("No usable index entries in zip '{}', leaving it in place", zipName);
+			LOG.warn("No usable index entries in zip '{}', leaving it in place", cleanedZipName);
 			return;
 		}
 
@@ -148,7 +151,7 @@ public class SambaImportWorker {
 		final var counts = streamAndImportPdfs(zipName, byFilename, municipalityId);
 
 		LOG.info("Zip '{}' done: imported={}, skipped={}, failed={}",
-			zipName, counts.imported(), counts.skipped(), counts.failed());
+			cleanedZipName, counts.imported(), counts.skipped(), counts.failed());
 		finalizeZip(zipName, counts);
 	}
 
@@ -156,12 +159,14 @@ public class SambaImportWorker {
 		try {
 			return readIndex(zipName, indexName);
 		} catch (final IOException | SAXException | ParserConfigurationException | BlobIntegrityException e) {
-			LOG.warn("Could not read or parse index for zip '{}', leaving it in place", zipName, e);
+			final var cleanedZipName = LogUtils.sanitizeForLogging(zipName);
+			LOG.warn("Could not read or parse index for zip '{}', leaving it in place", cleanedZipName, e);
 			return null;
 		}
 	}
 
 	private ImportCounts streamAndImportPdfs(final String zipName, final Map<String, InvoiceIndexEntry> byFilename, final String municipalityId) {
+		final var cleanedZipName = LogUtils.sanitizeForLogging(zipName);
 		var imported = 0;
 		var skipped = 0;
 		var failed = byFilename.size();
@@ -200,37 +205,40 @@ public class SambaImportWorker {
 				}
 			}
 		} catch (final IOException | BlobIntegrityException e) {
-			LOG.error("Failed while streaming zip '{}', leaving it in place", zipName, e);
+			LOG.error("Failed while streaming zip '{}', leaving it in place", cleanedZipName, e);
 		}
 		return new ImportCounts(imported, skipped, failed);
 	}
 
 	private EntryResult processEntry(final ZipInputStream zip, final InvoiceIndexEntry meta, final String municipalityId, final String zipName, final long totalSoFar) {
 		final var name = meta.source();
+		final var cleanedName = LogUtils.sanitizeForLogging(name);
+		final var cleanedZipName = LogUtils.sanitizeForLogging(zipName);
 		try {
 			if (pdfRepository.existsByFilename(name)) {
-				LOG.info("Skipping duplicate filename '{}' from zip '{}'", name, zipName);
+				LOG.info("Skipping duplicate filename '{}' from zip '{}'", cleanedName, cleanedZipName);
 				return new EntryResult(EntryOutcome.SKIPPED, 0L);
 			}
 			final var bytes = readEntryWithLimit(zip, MAX_PDF_BYTES, MAX_TOTAL_BYTES - totalSoFar, name, zipName);
 			pdfWriter.writeOnePdf(bytes, meta, municipalityId);
 			return new EntryResult(EntryOutcome.IMPORTED, bytes.length);
 		} catch (final IOException | SQLException | BlobWriteException | DataAccessException e) {
-			LOG.error("Failed to import pdf '{}' from zip '{}'", name, zipName, e);
+			LOG.error("Failed to import pdf '{}' from zip '{}'", cleanedName, cleanedZipName, e);
 			return new EntryResult(EntryOutcome.FAILED, 0L);
 		}
 	}
 
 	private void finalizeZip(final String zipName, final ImportCounts counts) {
+		final var cleanedZipName = LogUtils.sanitizeForLogging(zipName);
 		if (counts.failed() != 0) {
-			LOG.warn("Leaving zip '{}' in place because failed={}", zipName, counts.failed());
+			LOG.warn("Leaving zip '{}' in place because failed={}", cleanedZipName, counts.failed());
 			return;
 		}
 		try {
 			fileSystem.delete(zipName);
-			LOG.info("Deleted source zip '{}' after successful import", zipName);
+			LOG.info("Deleted source zip '{}' after successful import", cleanedZipName);
 		} catch (final BlobWriteException e) {
-			LOG.error("Import succeeded but failed to delete zip '{}'", zipName, e);
+			LOG.error("Import succeeded but failed to delete zip '{}'", cleanedZipName, e);
 		}
 	}
 
