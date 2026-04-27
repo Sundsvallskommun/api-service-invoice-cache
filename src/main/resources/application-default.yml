@@ -34,6 +34,10 @@ integration:
             name: truncate
             shedlock-lock-at-most-for: PT4H
             maximum-execution-time: PT4H
+      import:
+        source-directory: ${env.INTEGRATION_STORAGE_SAMBA_IMPORT_SOURCE_DIRECTORY}
+        lock-at-most-for: PT4H
+        lock-at-least-for: PT30S
 scheduler:
   removal:
     cron: '-'

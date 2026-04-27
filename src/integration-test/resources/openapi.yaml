@@ -10,6 +10,44 @@ servers:
   - url: http://localhost:49304
     description: Generated server url
 paths:
+  /{municipalityId}/import/samba-zips:
+    post:
+      tags:
+        - Import Resource
+      summary: Triggers a one-shot background import of historical invoice zips from
+        the configured Samba sibling folder
+      operationId: importSambaZips
+      parameters:
+        - name: municipalityId
+          in: path
+          description: Municipality id
+          required: true
+          schema:
+            type: string
+          example: 2281
+      responses:
+        "202":
+          description: Accepted - import started
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/Problem"
+                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "409":
+          description: Conflict - another import is already running
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/scheduler/truncate:
     post:
       tags:

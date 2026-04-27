@@ -1,22 +1,22 @@
 package apptest;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpStatus.OK;
-
 import java.time.Duration;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mariadb.MariaDBContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.invoicecache.Application;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpStatus.OK;
 
 /**
  * Test for checking that backup invoices are read when we fail to read invoices from raindance. Only initializes the DB from raindance, no data is inserted which fakes that we couldn't fetch anything. The "local" DB only has the backup table populated,
@@ -30,15 +30,13 @@ import se.sundsvall.invoicecache.Application;
 })
 class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 
-	private static final String PATH = "/2281/invoices";
-
 	@Container
-	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
+	public static final MSSQLServerContainer raindanceDb = new MSSQLServerContainer(DockerImageName.parse(MSSQL_VERSION))
 		.withInitScript("InvoiceCacheBackup/sql/init-raindance.sql");
-
 	@Container
-	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
+	public static final MariaDBContainer invoiceDb = new MariaDBContainer(DockerImageName.parse(MARIADB_VERSION))
 		.withDatabaseName("ms-invoicecache");
+	private static final String PATH = "/2281/invoices";
 
 	static {
 		raindanceDb.start();
@@ -46,7 +44,7 @@ class InvoiceCacheBackupIT extends AbstractInvoiceCacheAppTest {
 	}
 
 	/**
-	 * Get the url, user and password from the container and set them in the context.
+	 * Get the url, user, and password from the container and set them in the context.
 	 */
 	@DynamicPropertySource
 	static void registerProperties(final DynamicPropertyRegistry registry) {

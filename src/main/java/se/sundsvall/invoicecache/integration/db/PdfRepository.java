@@ -16,6 +16,8 @@ public interface PdfRepository extends JpaRepository<PdfEntity, Integer>, JpaSpe
 
 	Optional<PdfEntity> findByFilenameAndMunicipalityId(String filename, String municipalityId);
 
+	boolean existsByFilename(String filename);
+
 	Optional<PdfEntity> findByInvoiceNumberAndInvoiceIdAndMunicipalityId(String invoiceNumber, String invoiceId, String municipalityId);
 
 	Optional<PdfEntity> findByInvoiceIdAndInvoiceIssuerLegalIdAndMunicipalityId(String invoiceId, String invoiceIssuerLegalId, String municipalityId);
