@@ -1,10 +1,5 @@
 package apptest;
 
-import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
-import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
-import static java.nio.file.Files.writeString;
-import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.List;
@@ -16,20 +11,25 @@ import org.springframework.boot.resttestclient.TestRestTemplate;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
-import tools.jackson.core.JacksonException;
-import tools.jackson.dataformat.yaml.YAMLMapper;
 import org.springframework.core.io.Resource;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.util.UriComponentsBuilder;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mariadb.MariaDBContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
 import se.sundsvall.dept44.util.ResourceUtils;
 import se.sundsvall.invoicecache.Application;
+import tools.jackson.core.JacksonException;
+import tools.jackson.dataformat.yaml.YAMLMapper;
+
+import static apptest.AbstractInvoiceCacheAppTest.MARIADB_VERSION;
+import static apptest.AbstractInvoiceCacheAppTest.MSSQL_VERSION;
+import static java.nio.file.Files.writeString;
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 
 @ActiveProfiles("it")
 @SpringBootTest(
@@ -44,15 +44,13 @@ import se.sundsvall.invoicecache.Application;
 @Testcontainers
 class OpenApiSpecificationIT {
 
-	private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
-
 	@Container
-	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
+	public static final MSSQLServerContainer raindanceDb = new MSSQLServerContainer(DockerImageName.parse(MSSQL_VERSION))
 		.withInitScript("InvoiceCache/sql/init-raindance.sql");
-
 	@Container
-	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
+	public static final MariaDBContainer invoiceDb = new MariaDBContainer(DockerImageName.parse(MARIADB_VERSION))
 		.withDatabaseName("ms-invoicecache");
+	private static final YAMLMapper YAML_MAPPER = new YAMLMapper();
 
 	static {
 		raindanceDb.start();
@@ -72,7 +70,7 @@ class OpenApiSpecificationIT {
 	private TestRestTemplate restTemplate;
 
 	/**
-	 * get the url, user and password from the container and set them in the context.
+	 * get the url, user, and password from the container and set them in the context.
 	 *
 	 * @param registry
 	 */
@@ -115,8 +113,8 @@ class OpenApiSpecificationIT {
 	/**
 	 * Attempts to convert the given YAML (no YAML-check...) to JSON.
 	 *
-	 * @param  yaml the YAML to convert
-	 * @return      a JSON string
+	 * @param yaml the YAML to convert
+	 * @return a JSON string
 	 */
 	private String toJson(final String yaml) {
 		try {

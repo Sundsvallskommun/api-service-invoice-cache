@@ -1,12 +1,5 @@
 package apptest;
 
-import static java.time.LocalDate.now;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpStatus.CREATED;
-import static org.springframework.http.HttpStatus.OK;
-
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
@@ -14,13 +7,20 @@ import org.junit.jupiter.api.Test;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
-import org.testcontainers.containers.MSSQLServerContainer;
-import org.testcontainers.containers.MariaDBContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.mariadb.MariaDBContainer;
+import org.testcontainers.mssqlserver.MSSQLServerContainer;
 import org.testcontainers.utility.DockerImageName;
 import se.sundsvall.dept44.test.annotation.wiremock.WireMockAppTestSuite;
 import se.sundsvall.invoicecache.Application;
+
+import static java.time.LocalDate.now;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpStatus.CREATED;
+import static org.springframework.http.HttpStatus.OK;
 
 @WireMockAppTestSuite(files = "classpath:/InvoiceCache/", classes = Application.class)
 @Sql({
@@ -30,17 +30,15 @@ import se.sundsvall.invoicecache.Application;
 @Testcontainers
 class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 
+	@Container
+	public static final MariaDBContainer invoiceDb = new MariaDBContainer(DockerImageName.parse(MARIADB_VERSION))
+		.withDatabaseName("ms-invoicecache");
+	@Container
+	public static final MSSQLServerContainer raindanceDb = new MSSQLServerContainer(DockerImageName.parse(MSSQL_VERSION))
+		.withInitScript("InvoiceCache/sql/init-raindance.sql");
 	private static final String PATH = "/2281/invoices";
 	private static final String REQUEST = "request.json";
 	private static final String EXPECTED = "expected.json";
-
-	@Container
-	public static MSSQLServerContainer<?> raindanceDb = new MSSQLServerContainer<>(DockerImageName.parse(MSSQL_VERSION))
-		.withInitScript("InvoiceCache/sql/init-raindance.sql");
-
-	@Container
-	public static MariaDBContainer<?> invoiceDb = new MariaDBContainer<>(DockerImageName.parse(MARIADB_VERSION))
-		.withDatabaseName("ms-invoicecache");
 
 	static {
 		raindanceDb.start();
@@ -48,7 +46,7 @@ class InvoiceCacheIT extends AbstractInvoiceCacheAppTest {
 	}
 
 	/**
-	 * Get the url, user and password from the container and set them in the context.
+	 * Get the url, user, and password from the container and set them in the context.
 	 */
 	@DynamicPropertySource
 	static void registerProperties(final DynamicPropertyRegistry registry) {

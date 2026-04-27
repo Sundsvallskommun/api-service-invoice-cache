@@ -9,4 +9,7 @@ VALUES (1, NULL, '2023-10-05 15:47:42.029', NULL, NULL, '1234', '1234', '1', '1'
         'INVOICE'),
        (3, '2025-10-15 15:47:42.029', '2023-10-05 15:47:42.029', '2025-10-05 15:47:42.029',
         '4db036ecdf5760f921523924e3f7dc7e100696af4b41dcd0a66ba0b74241e77d', 'my-invoice.pdf', '1234', '2',
-        'issuerLegalId', 'invoiceNumber', '2281', NULL, 'INVOICE');
+        'issuerLegalId', 'invoiceNumber', '2281', NULL, 'INVOICE'),
+       -- Pre-seeded row used by SambaImportIT to exercise the duplicate-filename skip path.
+       (4, '2025-10-15 15:47:42.029', '2023-10-05 15:47:42.029', '2025-10-05 15:47:42.029',
+        'preseeded-hash', 'dup.pdf', 'CUST-DUP', 'PRE-INV', '5565027223', 'PRE-INV', '2281', NULL, NULL);

@@ -39,6 +39,10 @@ integration:
             shedlock-lock-at-most-for: PT5M
             maximum-execution-time: PT5M
             limit: 1
+      import:
+        source-directory: import
+        lock-at-most-for: PT5S
+        lock-at-least-for: PT1S
 scheduler:
   removal:
     cron: '-'

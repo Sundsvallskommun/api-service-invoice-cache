@@ -123,6 +123,8 @@
 						<nonFilteredFileExtension>doc</nonFilteredFileExtension>
 						<nonFilteredFileExtension>docx</nonFilteredFileExtension>
 						<nonFilteredFileExtension>pdf</nonFilteredFileExtension>
+						<nonFilteredFileExtension>zip</nonFilteredFileExtension>
+						<nonFilteredFileExtension>xml</nonFilteredFileExtension>
 					</nonFilteredFileExtensions>
 				</configuration>
 			</plugin>
