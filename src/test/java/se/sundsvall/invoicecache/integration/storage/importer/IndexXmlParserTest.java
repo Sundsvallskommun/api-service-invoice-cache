@@ -88,6 +88,28 @@ class IndexXmlParserTest {
 	}
 
 	@Test
+	void parse_unparseableArchiveDate_returnsNullDateAndKeepsOtherFields() throws Exception {
+		final var xml = """
+			<?xml version="1.0" encoding="UTF-8"?>
+			<idataOrder orderNumber="555">
+				<document source="bad-date.pdf">
+					<invoiceNumber>INV-555</invoiceNumber>
+					<archiveDate>not-a-date</archiveDate>
+					<customerNumber>cust-555</customerNumber>
+				</document>
+			</idataOrder>
+			""";
+
+		final var index = parser.parse(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
+
+		assertThat(index.documents()).hasSize(1);
+		assertThat(index.documents().getFirst().archiveDate()).isNull();
+		assertThat(index.documents().getFirst().invoiceNumber()).isEqualTo("INV-555");
+		assertThat(index.documents().getFirst().customerNumber()).isEqualTo("cust-555");
+		assertThat(index.documents().getFirst().source()).isEqualTo("bad-date.pdf");
+	}
+
+	@Test
 	void parse_doctypeRejected() {
 		final var xml = """
 			<?xml version="1.0" encoding="UTF-8"?>

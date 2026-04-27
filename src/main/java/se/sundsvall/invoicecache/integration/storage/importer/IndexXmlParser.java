@@ -3,21 +3,27 @@ package se.sundsvall.invoicecache.integration.storage.importer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import se.sundsvall.dept44.util.LogUtils;
 import se.sundsvall.invoicecache.integration.storage.importer.model.InvoiceIndex;
 import se.sundsvall.invoicecache.integration.storage.importer.model.InvoiceIndexEntry;
 
 @Component
 public class IndexXmlParser {
+
+	private static final Logger LOG = LoggerFactory.getLogger(IndexXmlParser.class);
 
 	public InvoiceIndex parse(final InputStream xml) throws IOException, SAXException, ParserConfigurationException {
 		final var factory = DocumentBuilderFactory.newInstance();
@@ -70,9 +76,20 @@ public class IndexXmlParser {
 			.orElse(null);
 	}
 
+	/**
+	 * Best-effort date parsing. Returns {@code null} (and logs) instead of propagating a
+	 * {@link DateTimeParseException}, so an unparseable {@code <archiveDate>} doesn't kill the
+	 * import of an otherwise-valid entry — let alone abort the whole zip pass.
+	 */
 	private static OffsetDateTime parseDate(final String value) {
-		return Optional.ofNullable(value)
-			.map(OffsetDateTime::parse)
-			.orElse(null);
+		if (value == null) {
+			return null;
+		}
+		try {
+			return OffsetDateTime.parse(value);
+		} catch (final DateTimeParseException e) {
+			LOG.warn("Could not parse archiveDate '{}', falling back to null", LogUtils.sanitizeForLogging(value));
+			return null;
+		}
 	}
 }

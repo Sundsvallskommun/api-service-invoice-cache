@@ -129,7 +129,8 @@ public class SambaImportWorker {
 			final var cleanedZipName = LogUtils.sanitizeForLogging(zipName);
 			try {
 				importOneZip(zipName, municipalityId);
-			} catch (final BlobIntegrityException | BlobWriteException | DataAccessException e) {
+			} catch (final RuntimeException e) {
+				// Broad catch on purpose: one bad zip must never abort the rest of the pass.
 				LOG.error("Failed to import zip '{}', leaving it in place and continuing", cleanedZipName, e);
 			}
 		}
