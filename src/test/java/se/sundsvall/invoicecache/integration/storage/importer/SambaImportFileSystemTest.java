@@ -44,6 +44,7 @@ class SambaImportFileSystemTest {
 		when(storageSambaProperties.host()).thenReturn("samba-host");
 		when(storageSambaProperties.port()).thenReturn(445);
 		when(storageSambaProperties.share()).thenReturn("share");
+		when(storageSambaProperties.serviceDirectory()).thenReturn("invoice-cache");
 		when(sambaImportProperties.sourceDirectory()).thenReturn("import");
 	}
 
@@ -76,6 +77,57 @@ class SambaImportFileSystemTest {
 			assertThatThrownBy(() -> fileSystem.listZipFiles())
 				.isInstanceOf(BlobIntegrityException.class)
 				.hasMessageContaining("Could not list zip files");
+		}
+
+		verify(storageSambaProperties).cifsContext();
+	}
+
+	@Test
+	void listZipFiles_skipsEntryWhenIsFileThrows() throws IOException {
+		wireSourceUrl();
+
+		final var good = mockSmbFileEntry("good.zip");
+		final var bad = mock(SmbFile.class);
+		when(bad.getName()).thenReturn("broken.zip");
+		when(bad.isFile()).thenThrow(new SmbException("isFile boom"));
+
+		try (final var _ = mockConstruction(SmbFile.class, (mock, context) -> when(mock.listFiles()).thenReturn(new SmbFile[] {
+			good, bad
+		}))) {
+			final var result = fileSystem.listZipFiles();
+
+			// Only the good entry survives; the throwing one is logged and skipped.
+			assertThat(result).containsExactly("good.zip");
+		}
+
+		verify(storageSambaProperties).cifsContext();
+	}
+
+	@Test
+	void sourceUrl_buildsImportPath() {
+		wireSourceUrl();
+
+		assertThat(fileSystem.sourceUrl()).isEqualTo("smb://samba-host:445/share/invoice-cache/import");
+
+		verify(storageSambaProperties).host();
+		verify(storageSambaProperties).port();
+		verify(storageSambaProperties).share();
+		verify(storageSambaProperties).serviceDirectory();
+		verify(sambaImportProperties).sourceDirectory();
+	}
+
+	@Test
+	void openInputStream_swallowsCloseRuntimeExceptionWhenGetInputStreamThrows() {
+		wireSourceUrl();
+
+		try (final var _ = mockConstruction(SmbFile.class, (mock, context) -> {
+			when(mock.getInputStream()).thenThrow(new SmbException("nope"));
+			doThrow(new RuntimeException("close failed")).when(mock).close();
+		})) {
+			// Original IOException must surface; close() RuntimeException is swallowed by closeQuietly.
+			assertThatThrownBy(() -> fileSystem.openInputStream("foo.zip"))
+				.isInstanceOf(BlobIntegrityException.class)
+				.hasMessageContaining("Could not open input stream for foo.zip");
 		}
 
 		verify(storageSambaProperties).cifsContext();

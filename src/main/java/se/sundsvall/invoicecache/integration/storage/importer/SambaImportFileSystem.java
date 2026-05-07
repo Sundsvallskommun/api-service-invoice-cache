@@ -40,10 +40,13 @@ public class SambaImportFileSystem {
 	}
 
 	String sourceUrl() {
-		return "smb://%s:%d/%s/%s".formatted(
+		// jcifs-ng does not URL-decode the path it receives, so non-ASCII characters (å, ä, ö, ...) must be passed
+		// as-is — percent-encoding here would make jcifs send literal '%C3%A4' to the SMB server.
+		return "smb://%s:%d/%s/%s/%s".formatted(
 			storageProperties.host(),
 			storageProperties.port(),
 			storageProperties.share(),
+			storageProperties.serviceDirectory(),
 			importProperties.sourceDirectory());
 	}
 
@@ -98,8 +101,7 @@ public class SambaImportFileSystem {
 	public void delete(final String name) {
 		final var cleanedName = LogUtils.sanitizeForLogging(name);
 		LOG.info("Deleting '{}'", cleanedName);
-		final var sourceUrl = sourceUrl();
-		try (final var smbFile = new SmbFile(sourceUrl + "/" + name, storageProperties.cifsContext())) {
+		try (final var smbFile = new SmbFile(sourceUrl() + "/" + name, storageProperties.cifsContext())) {
 			smbFile.delete();
 		} catch (final IOException e) {
 			LOG.error("Failed to delete '{}'", cleanedName, e);

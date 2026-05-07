@@ -41,7 +41,6 @@ public class StorageSambaIntegration {
 		}
 
 		var directory = extractDirectory(blobKey);
-		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
 
 		try (final var file = new SmbFile(filePath, properties.cifsContext())) {
@@ -106,7 +105,6 @@ public class StorageSambaIntegration {
 		}
 
 		var directory = extractDirectory(blobKey);
-		// Takes the targetUrl and appends the directory and blobKey to form the full file path.
 		var filePath = properties.targetUrl() + "/" + directory + "/" + blobKey + ".pdf";
 
 		try (var smbFile = new SmbFile(filePath, properties.cifsContext());
