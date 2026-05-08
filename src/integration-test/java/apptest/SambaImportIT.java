@@ -55,7 +55,7 @@ class SambaImportIT extends AbstractAppTest {
 			MountableFile.forClasspathResource("test-directory"),
 			"/storage");
 	private static final String MUNICIPALITY_ID = "2281";
-	private static final String IMPORT_URL = "smb://localhost:%d/%s/import/%s";
+	private static final String IMPORT_URL = "smb://localhost:%d/%s/%s/import/%s";
 	private static final String SAMBA_FILE_PATH = "smb://localhost:%d/%s/%s/%s/%s/%s.pdf";
 	private static int port;
 
@@ -133,21 +133,25 @@ class SambaImportIT extends AbstractAppTest {
 	}
 
 	private boolean happyZipDeleted() throws IOException {
-		try (final var file = new SmbFile(IMPORT_URL.formatted(port, storageSambaProperties.share(), "123.zip"), storageSambaProperties.cifsContext())) {
+		try (final var file = new SmbFile(importUrl("123.zip"), storageSambaProperties.cifsContext())) {
 			return !file.exists();
 		}
 	}
 
 	private boolean malformedZipStillPresent() throws IOException {
-		try (final var file = new SmbFile(IMPORT_URL.formatted(port, storageSambaProperties.share(), "456.zip"), storageSambaProperties.cifsContext())) {
+		try (final var file = new SmbFile(importUrl("456.zip"), storageSambaProperties.cifsContext())) {
 			return file.exists();
 		}
 	}
 
 	private boolean duplicateZipDeleted() throws IOException {
-		try (final var file = new SmbFile(IMPORT_URL.formatted(port, storageSambaProperties.share(), "789.zip"), storageSambaProperties.cifsContext())) {
+		try (final var file = new SmbFile(importUrl("789.zip"), storageSambaProperties.cifsContext())) {
 			return !file.exists();
 		}
+	}
+
+	private String importUrl(final String name) {
+		return IMPORT_URL.formatted(port, storageSambaProperties.share(), storageSambaProperties.serviceDirectory(), name);
 	}
 
 	private void assertSambaFileExists(final String fileHash) throws IOException {
