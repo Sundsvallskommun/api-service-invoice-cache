@@ -1,68 +1,30 @@
 openapi: 3.1.0
 info:
   title: api-invoicecache
-  contact: { }
+  contact: {}
   license:
     name: MIT License
     url: https://opensource.org/licenses/MIT
   version: "4.1"
 servers:
-  - url: http://localhost:49304
-    description: Generated server url
+- url: http://localhost:64760
+  description: Generated server url
 paths:
-  /{municipalityId}/import/samba-zips:
-    post:
-      tags:
-        - Import Resource
-      summary: Triggers a one-shot background import of historical invoice zips from
-        the configured Samba sibling folder
-      operationId: importSambaZips
-      parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-      responses:
-        "202":
-          description: Accepted - import started
-        "400":
-          description: Bad Request
-          content:
-            application/problem+json:
-              schema:
-                oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
-        "409":
-          description: Conflict - another import is already running
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
-        "500":
-          description: Internal Server Error
-          content:
-            application/problem+json:
-              schema:
-                $ref: "#/components/schemas/Problem"
   /{municipalityId}/scheduler/truncate:
     post:
       tags:
-        - Scheduler Resource
+      - Scheduler Resource
       summary: Triggers scheduled job that verifies a file is eligible for truncation
         and truncates the file from database storage
       operationId: truncateFile
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
       responses:
         "200":
           description: Successful Operation
@@ -72,8 +34,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -83,17 +45,17 @@ paths:
   /{municipalityId}/scheduler/transfer:
     post:
       tags:
-        - Scheduler Resource
+      - Scheduler Resource
       summary: Triggers scheduled job that transfers a single file to Samba storage
       operationId: transferFile
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
       responses:
         "200":
           description: Successful Operation
@@ -103,8 +65,8 @@ paths:
             application/problem+json:
               schema:
                 oneOf:
-                  - $ref: "#/components/schemas/Problem"
-                  - $ref: "#/components/schemas/ConstraintViolationProblem"
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
         "500":
           description: Internal Server Error
           content:
@@ -114,22 +76,22 @@ paths:
   /{municipalityId}/invoices:
     get:
       tags:
-        - Invoice Cache
+      - Invoice Cache
       summary: Search for and fetch invoices
       operationId: getInvoices
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: request
-          in: query
-          required: true
-          schema:
-            $ref: "#/components/schemas/InvoiceFilterRequest"
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: request
+        in: query
+        required: true
+        schema:
+          $ref: "#/components/schemas/InvoiceFilterRequest"
       responses:
         "200":
           description: Successful Operation
@@ -151,17 +113,17 @@ paths:
                 $ref: "#/components/schemas/Problem"
     post:
       tags:
-        - Invoice Cache
+      - Invoice Cache
       summary: Create/import an invoice
       operationId: importInvoice
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
       requestBody:
         content:
           application/json:
@@ -172,7 +134,7 @@ paths:
         "201":
           description: Created
           content:
-            '*/*': { }
+            '*/*': {}
         "400":
           description: Bad Request
           content:
@@ -185,66 +147,104 @@ paths:
             application/problem+json:
               schema:
                 $ref: "#/components/schemas/Problem"
+  /{municipalityId}/import/samba-zips:
+    post:
+      tags:
+      - Import Resource
+      summary: Triggers a one-shot background import of historical invoice zips from
+        the configured Samba sibling folder
+      operationId: importSambaZips
+      parameters:
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      responses:
+        "202":
+          description: Accepted - import started
+        "409":
+          description: Conflict - another import is already running
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+        "400":
+          description: Bad Request
+          content:
+            application/problem+json:
+              schema:
+                oneOf:
+                - $ref: "#/components/schemas/Problem"
+                - $ref: "#/components/schemas/ConstraintViolationProblem"
+        "500":
+          description: Internal Server Error
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
   /{municipalityId}/invoices/{issuerLegalId}/{invoiceNumber}/pdfs:
     get:
       tags:
-        - Invoice Cache
+      - Invoice Cache
       summary: Download invoice PDFs as stream (single PDF or ZIP if multiple)
       operationId: downloadInvoicePdfs
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: issuerLegalId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: invoiceNumber
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: debtorLegalId
-          in: query
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: issuerLegalId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: invoiceNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: debtorLegalId
+        in: query
+        description: Invoice debtor legal id
+        required: false
+        schema:
+          type: string
           description: Invoice debtor legal id
-          required: false
-          schema:
-            type: string
-            description: Invoice debtor legal id
-        - name: invoiceId
-          in: query
+      - name: invoiceId
+        in: query
+        description: Invoice id
+        required: false
+        schema:
+          type: string
           description: Invoice id
-          required: false
-          schema:
-            type: string
-            description: Invoice id
-        - name: invoiceFileName
-          in: query
+      - name: invoiceFileName
+        in: query
+        description: Invoice file name
+        required: false
+        schema:
+          type: string
           description: Invoice file name
-          required: false
-          schema:
-            type: string
-            description: Invoice file name
-        - name: invoiceType
-          in: query
+      - name: invoiceType
+        in: query
+        description: Invoice type
+        required: false
+        schema:
+          type: string
           description: Invoice type
-          required: false
-          schema:
-            type: string
-            description: Invoice type
-            enum:
-              - INVOICE
-              - CREDIT_INVOICE
-              - DIRECT_DEBIT
-              - SELF_INVOICE
-              - REMINDER
-              - FINAL_INVOICE
-              - CONSOLIDATED_INVOICE
+          enum:
+          - INVOICE
+          - CREDIT_INVOICE
+          - DIRECT_DEBIT
+          - SELF_INVOICE
+          - REMINDER
+          - FINAL_INVOICE
+          - CONSOLIDATED_INVOICE
       responses:
         "200":
           description: Successful Operation - Returns PDF or ZIP file
@@ -273,63 +273,63 @@ paths:
   /{municipalityId}/invoices/{issuerLegalId}/{invoiceNumber}/pdf:
     get:
       tags:
-        - Invoice Cache
+      - Invoice Cache
       summary: Fetch an invoice PDF via issuer legal id and invoice number
       operationId: getInvoicePdf
       parameters:
-        - name: municipalityId
-          in: path
-          description: Municipality id
-          required: true
-          schema:
-            type: string
-          example: 2281
-        - name: issuerLegalId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: invoiceNumber
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: debtorLegalId
-          in: query
+      - name: municipalityId
+        in: path
+        description: Municipality id
+        required: true
+        schema:
+          type: string
+        example: 2281
+      - name: issuerLegalId
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: invoiceNumber
+        in: path
+        required: true
+        schema:
+          type: string
+      - name: debtorLegalId
+        in: query
+        description: Invoice debtor legal id
+        required: false
+        schema:
+          type: string
           description: Invoice debtor legal id
-          required: false
-          schema:
-            type: string
-            description: Invoice debtor legal id
-        - name: invoiceId
-          in: query
+      - name: invoiceId
+        in: query
+        description: Invoice id
+        required: false
+        schema:
+          type: string
           description: Invoice id
-          required: false
-          schema:
-            type: string
-            description: Invoice id
-        - name: invoiceFileName
-          in: query
+      - name: invoiceFileName
+        in: query
+        description: Invoice file name
+        required: false
+        schema:
+          type: string
           description: Invoice file name
-          required: false
-          schema:
-            type: string
-            description: Invoice file name
-        - name: invoiceType
-          in: query
+      - name: invoiceType
+        in: query
+        description: Invoice type
+        required: false
+        schema:
+          type: string
           description: Invoice type
-          required: false
-          schema:
-            type: string
-            description: Invoice type
-            enum:
-              - INVOICE
-              - CREDIT_INVOICE
-              - DIRECT_DEBIT
-              - SELF_INVOICE
-              - REMINDER
-              - FINAL_INVOICE
-              - CONSOLIDATED_INVOICE
+          enum:
+          - INVOICE
+          - CREDIT_INVOICE
+          - DIRECT_DEBIT
+          - SELF_INVOICE
+          - REMINDER
+          - FINAL_INVOICE
+          - CONSOLIDATED_INVOICE
       responses:
         "200":
           description: "This endpoint is deprecated and will be removed in a future\
@@ -354,7 +354,7 @@ paths:
   /api-docs:
     get:
       tags:
-        - API
+      - API
       summary: OpenAPI
       operationId: getApiDocs
       responses:
@@ -423,7 +423,7 @@ components:
         instance:
           type: string
           format: uri
-        causeAsProblem: { }
+        causeAsProblem: {}
     Violation:
       type: object
       properties:
@@ -439,15 +439,15 @@ components:
           type: string
           description: The file content as a BASE64-encoded string
           examples:
-            - aGVsbG8gd29ybGQK
+          - aGVsbG8gd29ybGQK
         name:
           type: string
           description: The filename
           examples:
-            - test.pdf
+          - test.pdf
       required:
-        - content
-        - name
+      - content
+      - name
     InvoicePdfRequest:
       type: object
       properties:
@@ -467,18 +467,18 @@ components:
           type: string
           description: Invoice type
           enum:
-            - INVOICE
-            - CREDIT_INVOICE
-            - DIRECT_DEBIT
-            - SELF_INVOICE
-            - REMINDER
-            - FINAL_INVOICE
-            - CONSOLIDATED_INVOICE
+          - INVOICE
+          - CREDIT_INVOICE
+          - DIRECT_DEBIT
+          - SELF_INVOICE
+          - REMINDER
+          - FINAL_INVOICE
+          - CONSOLIDATED_INVOICE
         attachment:
           $ref: "#/components/schemas/InvoicePdf"
           description: Attachment
       required:
-        - attachment
+      - attachment
     InvoiceFilterRequest:
       type: object
       description: Invoice filter request model
@@ -489,7 +489,7 @@ components:
           default: 1
           description: Page number
           examples:
-            - "1"
+          - 1
           minimum: 1
         limit:
           type: integer
@@ -497,7 +497,7 @@ components:
           default: 100
           description: Result size per page
           examples:
-            - "100"
+          - 100
           maximum: 1000
           minimum: 1
         invoiceDateFrom:
@@ -505,44 +505,45 @@ components:
           format: date
           description: Fetch invoices from (and including) this date.
           examples:
-            - 2022-01-01
+          - 2022-01-01
         invoiceDateTo:
           type: string
           format: date
           description: "Fetch invoices up to (and including) this date, includes invoices\
             \ to this date"
           examples:
-            - 2022-12-31
+          - 2022-12-31
         dueDateFrom:
           type: string
           format: date
           description: Fetch invoices that are due from (and including) this date.
           examples:
-            - 2022-01-01
+          - 2022-01-01
         dueDateTo:
           type: string
           format: date
           description: Fetch invoices that are due up to (and including) this date
           examples:
-            - 2022-12-31
+          - 2022-12-31
         partyIds:
           type: array
           description: List of partyIds for organizations or private firms
           examples:
-            - "[\"fb2f0290-3820-11ed-a261-0242ac120002\", \"fb2f0290-3820-11ed-a261-0242ac120003\"\
-            ]"
+          - - fb2f0290-3820-11ed-a261-0242ac120002
+            - fb2f0290-3820-11ed-a261-0242ac120003
           items:
             type: string
         ocrNumber:
           type: string
           description: Ocr number for the invoice
           examples:
-            - "8907131234"
+          - "8907131234"
         invoiceNumbers:
           type: array
           description: Invoice numbers to fetch
           examples:
-            - "[\"1234567\", \"2345678\"]"
+          - - "1234567"
+            - "2345678"
           items:
             type: string
     Address:
@@ -553,22 +554,22 @@ components:
           type: string
           description: City
           examples:
-            - Sundsvall
+          - Sundsvall
         street:
           type: string
           description: Street address
           examples:
-            - Storgatan 10
+          - Storgatan 10
         postcode:
           type: string
           description: Postal code
           examples:
-            - "85740"
+          - "85740"
         careOf:
           type: string
           description: Care of
           examples:
-            - John Doe
+          - John Doe
     Invoice:
       type: object
       description: Model for the Invoice
@@ -577,103 +578,103 @@ components:
           type: string
           description: Customer name
           examples:
-            - Fritjofs Blommor
+          - Fritjofs Blommor
         customerType:
           type: string
           description: Customer type
           examples:
-            - XH
+          - XH
         invoiceNumber:
           type: string
           description: Invoice number
           examples:
-            - "53489546"
+          - "53489546"
         invoiceStatus:
           type: string
           description: Invoice status
           enum:
-            - PAID
-            - UNPAID
-            - PARTIALLY_PAID
-            - DEBT_COLLECTION
-            - PAID_TOO_MUCH
-            - REMINDER
-            - SENT
-            - VOID
-            - UNKNOWN
+          - PAID
+          - UNPAID
+          - PARTIALLY_PAID
+          - DEBT_COLLECTION
+          - PAID_TOO_MUCH
+          - REMINDER
+          - SENT
+          - VOID
+          - UNKNOWN
           examples:
-            - PAID
+          - PAID
         ocrNumber:
           type: string
           description: OCR Number
           examples:
-            - "8907136421"
+          - "8907136421"
         partyId:
           type: string
           description: PartyId for organization or private firm
           examples:
-            - fb2f0290-3820-11ed-a261-0242ac120002
+          - fb2f0290-3820-11ed-a261-0242ac120002
         invoiceDescription:
           type: string
           description: Invoice description
           examples:
-            - Barn och Utbildning
+          - Barn och Utbildning
         invoiceDueDate:
           type: string
           format: date
           description: When the invoice is due to be paid
           examples:
-            - 2022-05-05
+          - 2022-05-05
         invoiceDate:
           type: string
           format: date
           description: When the invoice was created
           examples:
-            - 2022-04-05
+          - 2022-04-05
         invoiceReminderDate:
           type: string
           format: date
           description: When a reminder was sent out
           examples:
-            - 2022-04-05
+          - 2022-04-05
         paidAmount:
           type: number
           description: Amount already paid on the invoice.
           examples:
-            - "4995.00"
+          - 4995.0
         totalAmount:
           type: number
           description: Amount to pay including VAT (SEK)
           examples:
-            - "4995.00"
+          - 4995.0
         invoiceFileName:
           type: string
           description: "Filename of the invoice, if it is present"
           examples:
-            - Faktura_5555555_to_9988776655.pdf
+          - Faktura_5555555_to_9988776655.pdf
         vat:
           type: number
           description: Vat amount in SEK
           examples:
-            - "999.00"
+          - 999.0
         amountVatExcluded:
           type: number
           description: Amount without vat
           examples:
-            - "3996.00"
+          - 3996.0
         invoiceType:
           type: string
           description: Invoice type
           enum:
-            - INVOICE
-            - CREDIT_INVOICE
-            - DIRECT_DEBIT
-            - SELF_INVOICE
-            - REMINDER
-            - FINAL_INVOICE
-            - CONSOLIDATED_INVOICE
+          - INVOICE
+          - CREDIT_INVOICE
+          - DIRECT_DEBIT
+          - SELF_INVOICE
+          - REMINDER
+          - FINAL_INVOICE
+          - CONSOLIDATED_INVOICE
           examples:
-            - NORMAL or CREDIT
+          - NORMAL or CREDIT
         invoiceAddress:
           $ref: "#/components/schemas/Address"
     InvoicesResponse:
@@ -696,35 +697,35 @@ components:
           format: int32
           description: Current page
           examples:
-            - "5"
+          - 5
           readOnly: true
         limit:
           type: integer
           format: int32
           description: Displayed objects per page
           examples:
-            - "20"
+          - 20
           readOnly: true
         count:
           type: integer
           format: int32
           description: Displayed objects on current page
           examples:
-            - "13"
+          - 13
           readOnly: true
         totalRecords:
           type: integer
           format: int64
           description: Total amount of hits based on provided search parameters
           examples:
-            - "98"
+          - 98
           readOnly: true
         totalPages:
           type: integer
           format: int32
           description: Total amount of pages based on provided search parameters
           examples:
-            - "23"
+          - 23
           readOnly: true
-    StreamingResponseBody: { }
-  securitySchemes: { }
+    StreamingResponseBody: {}
+  securitySchemes: {}
