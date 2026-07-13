@@ -10,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.context.jdbc.Sql;
@@ -36,6 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 	"/db/scripts/testdata-it.sql"
 })
 @Testcontainers
+@DirtiesContext(classMode = ClassMode.AFTER_CLASS)
 class SambaImportIT extends AbstractAppTest {
 
 	@Container
