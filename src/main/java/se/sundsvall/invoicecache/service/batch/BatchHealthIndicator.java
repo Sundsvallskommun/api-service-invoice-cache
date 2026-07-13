@@ -12,7 +12,7 @@ public abstract class BatchHealthIndicator implements HealthIndicator {
 	public static final String STATUS_DOWN_MESSAGE = "%s failed";
 
 	private final String name;
-	private Health health;
+	private volatile Health health;
 
 	protected BatchHealthIndicator(final String name) {
 		this.name = name;

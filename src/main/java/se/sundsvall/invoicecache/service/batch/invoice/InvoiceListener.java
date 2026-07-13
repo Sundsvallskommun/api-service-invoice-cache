@@ -28,7 +28,7 @@ public class InvoiceListener implements StepExecutionListener {
 
 	@Override
 	public void beforeStep(final @NonNull StepExecution stepExecution) {
-		LOG.info("Before job execution there are {} items in the backup table", invoiceRepository.count());
+		LOG.info("Before job execution there are {} items in the invoice table", invoiceRepository.count());
 		LOG.info("Starting to truncate invoice table.");
 		invoiceRepository.truncateTable();
 		LOG.info("Done truncating invoice table.");
@@ -39,7 +39,7 @@ public class InvoiceListener implements StepExecutionListener {
 	public ExitStatus afterStep(final StepExecution stepExecution) {
 		final long count = invoiceRepository.count();
 		if (stepExecution.getExitStatus().equals(ExitStatus.COMPLETED)) {
-			LOG.info("After backup job execution there are {} items in the db", count);
+			LOG.info("After invoice fetch job execution there are {} items in the invoice table", count);
 			healthIndicator.setHealthy();
 		} else {
 			LOG.info("Something went wrong while reading invoices{}", stepExecution.getSummary());

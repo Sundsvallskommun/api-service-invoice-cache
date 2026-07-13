@@ -100,6 +100,7 @@ public class BackupBatchConfig {
 		return new RepositoryItemReaderBuilder<BackupInvoiceEntity>()
 			.repository(backupRepository)
 			.name("backupToInvoiceReader")
+			.saveState(false)
 			.sorts(getSorting())
 			.methodName("findAll")
 			.pageSize(CHUNK_SIZE)

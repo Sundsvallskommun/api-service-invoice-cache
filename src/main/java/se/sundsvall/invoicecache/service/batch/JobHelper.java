@@ -2,7 +2,6 @@ package se.sundsvall.invoicecache.service.batch;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -26,8 +25,9 @@ import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDA
 public class JobHelper {
 
 	private static final Logger LOG = LoggerFactory.getLogger(JobHelper.class);
+	private static final int MAX_JOB_INSTANCES = 50;  // Upper bound on how many recent job instances we inspect
 
-	private final Duration successfulWithin;  // Check for successful jobs withing this Duration
+	private final Duration successfulWithin;  // Check for successful jobs within this Duration
 
 	private final JobRepository jobRepository;
 	private final InvoiceRepository invoiceRepository;
@@ -44,43 +44,43 @@ public class JobHelper {
 	}
 
 	/**
-	 * Check if there is a successful job within the last "minutesToCheck" minutes, if not, we should fetch invoices.
+	 * Check if there is a successful job within the configured {@code raindance.invoice.outdated} period, if not, we should
+	 * fetch invoices.
 	 *
 	 * @return true if we should update, false if not.
 	 */
 	public boolean areInvoicesOutdated() {
-		boolean isOutdated = getSuccessfulJobWithinTimePeriod(RAINDANCE_JOB_NAME).isEmpty();
+		final Optional<JobExecution> recentSuccess = getSuccessfulJobWithinTimePeriod(RAINDANCE_JOB_NAME);
 
-		if (isOutdated) {
-			LOG.info("No successful job within the last {} minutes were found.", successfulWithin.toMinutes());
-		} else if (invoiceRepository.count() == 0) {
-			LOG.info("No invoices found in local DB, get them.");
-			isOutdated = true;
-		} else {
-			if (getSuccessfulJobWithinTimePeriod(RAINDANCE_JOB_NAME).isPresent()) {
-				LOG.debug("Found a completed successful job from: {}, not running a new one.", getSuccessfulJobWithinTimePeriod(RAINDANCE_JOB_NAME).orElseThrow().getEndTime());
-			}
+		if (recentSuccess.isEmpty()) {
+			LOG.info("No successful job found within the configured period of {}.", successfulWithin);
+			return true;
 		}
-
-		return isOutdated;
+		if (invoiceRepository.count() == 0) {
+			LOG.info("No invoices found in local DB, get them.");
+			return true;
+		}
+		LOG.debug("Found a completed successful job from: {}, not running a new one.", recentSuccess.get().getEndTime());
+		return false;
 	}
 
 	/**
-	 * Check if there are any successful job within the last 24 hrs.
+	 * Look for a successful execution that ended within the configured {@code successfulWithin} period, inspecting at most
+	 * the {@value #MAX_JOB_INSTANCES} most recent job instances.
 	 *
 	 * @param jobName name of the job to check
 	 */
 	Optional<JobExecution> getSuccessfulJobWithinTimePeriod(final String jobName) {
 		try {
-			final int jobInstanceCount = (int) jobRepository.getJobInstanceCount(jobName);
+			// Probe existence (throws NoSuchJobException if the job was never run) and cap how many instances we load.
+			final int instanceCount = (int) Math.min(jobRepository.getJobInstanceCount(jobName), MAX_JOB_INSTANCES);
+			final LocalDateTime threshold = LocalDateTime.now().minus(successfulWithin);
 
-			// See of there are any successful jobs done within the last 24 hours.
-			return jobRepository.getJobInstances(jobName, 0, jobInstanceCount).stream()
+			return jobRepository.getJobInstances(jobName, 0, instanceCount).stream()
 				.map(jobRepository::getJobExecutions)
 				.flatMap(List<JobExecution>::stream)
 				.filter(jobExecution -> jobExecution.getExitStatus().equals(ExitStatus.COMPLETED))
-				.filter(jobExecution -> Objects.requireNonNull(jobExecution.getEndTime())
-					.isAfter(LocalDateTime.now().minusMinutes(successfulWithin.toMinutes())))
+				.filter(jobExecution -> Objects.requireNonNull(jobExecution.getEndTime()).isAfter(threshold))
 				.findFirst();
 
 		} catch (final NoSuchJobException _) {
@@ -96,19 +96,11 @@ public class JobHelper {
 	 * @return list of the 50 latest jobs
 	 */
 	public List<JobStatus> getJobs() {
-		final List<JobStatus> listOfJobs = new ArrayList<>();
-		final int jobsToFetch = 50;
 		try {
-			final int jobInstanceCount = (int) jobRepository.getJobInstanceCount(RAINDANCE_JOB_NAME);
-			int mostRecentInstances = jobInstanceCount;
-			// Only get the latest 50
-			if (jobInstanceCount > jobsToFetch) {
-				mostRecentInstances = jobInstanceCount - (jobInstanceCount - jobsToFetch);
-			}
+			// Instances are returned most-recent-first; cap the number we inspect.
+			final int instanceCount = (int) Math.min(jobRepository.getJobInstanceCount(RAINDANCE_JOB_NAME), MAX_JOB_INSTANCES);
 
-			// The latest job has index 0. If there are a total of 20 execution, fetching #20 will get the first, which is why we
-			// get from 0.
-			return jobRepository.getJobInstances(RAINDANCE_JOB_NAME, 0, mostRecentInstances)
+			return jobRepository.getJobInstances(RAINDANCE_JOB_NAME, 0, instanceCount)
 				.stream()
 				.map(jobRepository::getJobExecutions)
 				.flatMap(List<JobExecution>::stream)
@@ -118,9 +110,8 @@ public class JobHelper {
 		} catch (final NoSuchJobException _) {
 			// If we can't find any job, we don't care, run a new one.
 			LOG.info("Couldn't find any job with name: {}", RAINDANCE_JOB_NAME);
+			return List.of();
 		}
-
-		return listOfJobs;
 	}
 
 	private JobStatus mapJobExecutionToJobStatus(final JobExecution jobExecution) {
