@@ -76,7 +76,8 @@ public class BackupBatchConfig {
 
 	public Step backupStep(final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		return new StepBuilder("backupStep", jobRepository)
-			.<InvoiceEntity, BackupInvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
+			.<InvoiceEntity, BackupInvoiceEntity>chunk(CHUNK_SIZE)
+			.transactionManager(transactionManager)
 			.reader(invoiceReader())
 			.processor(backupProcessor)
 			.writer(invoiceBackupWriter())
@@ -113,7 +114,8 @@ public class BackupBatchConfig {
 
 	public Step restoreBackupStep(final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		return new StepBuilder("restoreBackupStep", jobRepository)
-			.<BackupInvoiceEntity, InvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
+			.<BackupInvoiceEntity, InvoiceEntity>chunk(CHUNK_SIZE)
+			.transactionManager(transactionManager)
 			.reader(invoiceBackupReader())
 			.processor(restoreBackupProcessor)
 			.writer(backupToInvoiceEntityWriter())
