@@ -1,0 +1,4 @@
+# WireMock stub mappings for SambaImportIT.
+# The import flow makes no external HTTP calls, so there are no stubs — but this
+# directory must exist so dept44 can resolve `classpath:/SambaImportIT` to a
+# filesystem path (otherwise WireMockAppTestSuiteContextCustomizerFactory warns).

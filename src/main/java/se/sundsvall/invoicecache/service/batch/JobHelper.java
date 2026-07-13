@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.api.batchactuator.JobStatus;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
+import static java.time.Clock.systemDefaultZone;
 import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
 /**
@@ -74,7 +75,7 @@ public class JobHelper {
 		try {
 			// Probe existence (throws NoSuchJobException if the job was never run) and cap how many instances we load.
 			final int instanceCount = (int) Math.min(jobRepository.getJobInstanceCount(jobName), MAX_JOB_INSTANCES);
-			final LocalDateTime threshold = LocalDateTime.now().minus(successfulWithin);
+			final LocalDateTime threshold = LocalDateTime.now(systemDefaultZone()).minus(successfulWithin);
 
 			return jobRepository.getJobInstances(jobName, 0, instanceCount).stream()
 				.map(jobRepository::getJobExecutions)
