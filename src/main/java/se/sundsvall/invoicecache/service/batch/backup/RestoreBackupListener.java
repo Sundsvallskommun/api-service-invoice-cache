@@ -7,7 +7,6 @@ import org.springframework.batch.core.listener.StepExecutionListener;
 import org.springframework.batch.core.step.StepExecution;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import se.sundsvall.invoicecache.integration.db.BackupInvoiceRepository;
 import se.sundsvall.invoicecache.integration.db.InvoiceRepository;
 
@@ -33,7 +32,6 @@ public class RestoreBackupListener implements StepExecutionListener {
 	}
 
 	@Override
-	@Transactional
 	public void beforeStep(final @NonNull StepExecution stepExecution) {
 		LOG.info("Starting to restore backup, truncating invoices table");
 		// Clean the invoiceRepository before restoring the backup

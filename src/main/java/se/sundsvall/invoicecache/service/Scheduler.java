@@ -1,6 +1,6 @@
 package se.sundsvall.invoicecache.service;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.batch.core.ExitStatus;
@@ -10,39 +10,40 @@ import org.springframework.batch.core.job.parameters.InvalidJobParametersExcepti
 import org.springframework.batch.core.job.parameters.JobParametersBuilder;
 import org.springframework.batch.core.launch.JobExecutionAlreadyRunningException;
 import org.springframework.batch.core.launch.JobInstanceAlreadyCompleteException;
-import org.springframework.batch.core.launch.JobLauncher;
+import org.springframework.batch.core.launch.JobOperator;
 import org.springframework.batch.core.launch.JobRestartException;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.stereotype.Component;
 import se.sundsvall.dept44.scheduling.Dept44Scheduled;
 import se.sundsvall.invoicecache.service.batch.JobHelper;
 
+import static java.time.ZoneId.systemDefault;
 import static se.sundsvall.invoicecache.service.batch.backup.BackupBatchConfig.BACKUP_JOB_NAME;
 import static se.sundsvall.invoicecache.service.batch.backup.BackupBatchConfig.RESTORE_BACKUP_JOB_NAME;
 import static se.sundsvall.invoicecache.service.batch.invoice.BatchConfig.RAINDANCE_JOB_NAME;
 
-@Configuration
+@Component
 @EnableScheduling
 public class Scheduler {
 
 	private static final Logger LOG = LoggerFactory.getLogger(Scheduler.class);
 
-	private final JobLauncher jobLauncher;
+	private final JobOperator jobOperator;
 	private final Job backupJob;
 	private final Job invoiceJob;
 	private final Job restoreBackupJob;
 	private final JobHelper jobHelper;
 	private final boolean schedulingIsEnabled;
 
-	public Scheduler(final JobLauncher jobLauncher,
+	public Scheduler(final JobOperator jobOperator,
 		@Qualifier(RAINDANCE_JOB_NAME) final Job invoiceJob,
 		@Qualifier(BACKUP_JOB_NAME) final Job backupJob,
 		@Qualifier(RESTORE_BACKUP_JOB_NAME) final Job restoreBackupJob,
 		final JobHelper jobHelper,
 		@Value("${invoices.scheduling.enabled:true}") final boolean schedulingIsEnabled) {
-		this.jobLauncher = jobLauncher;
+		this.jobOperator = jobOperator;
 		this.backupJob = backupJob;
 		this.invoiceJob = invoiceJob;
 		this.jobHelper = jobHelper;
@@ -102,7 +103,7 @@ public class Scheduler {
 	 * @throws JobRestartException
 	 */
 	public JobExecution fetchInvoices() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
-		final JobExecution executionResult = jobLauncher.run(this.invoiceJob, new JobParametersBuilder().addDate(RAINDANCE_JOB_NAME + "_key", new Date()).toJobParameters());
+		final JobExecution executionResult = jobOperator.start(this.invoiceJob, new JobParametersBuilder().addLocalDateTime(RAINDANCE_JOB_NAME + "_key", LocalDateTime.now(systemDefault())).toJobParameters());
 		LOG.info("Invoice job ended with status: {} at: {}", executionResult.getExitStatus(), executionResult.getEndTime());
 		return executionResult;
 	}
@@ -116,7 +117,7 @@ public class Scheduler {
 	 * @throws JobRestartException
 	 */
 	public void runBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
-		final JobExecution executionResult = jobLauncher.run(this.backupJob, new JobParametersBuilder().addDate(BACKUP_JOB_NAME + "_key", new Date()).toJobParameters());
+		final JobExecution executionResult = jobOperator.start(this.backupJob, new JobParametersBuilder().addLocalDateTime(BACKUP_JOB_NAME + "_key", LocalDateTime.now(systemDefault())).toJobParameters());
 		LOG.info("Backup job ended with status: {} at: {}", executionResult.getExitStatus(), executionResult.getEndTime());
 	}
 
@@ -130,7 +131,7 @@ public class Scheduler {
 	 * @throws JobRestartException
 	 */
 	public void restoreBackup() throws JobInstanceAlreadyCompleteException, JobExecutionAlreadyRunningException, InvalidJobParametersException, JobRestartException {
-		final JobExecution executionResult = jobLauncher.run(this.restoreBackupJob, new JobParametersBuilder().addDate(RESTORE_BACKUP_JOB_NAME + "_key", new Date()).toJobParameters());
+		final JobExecution executionResult = jobOperator.start(this.restoreBackupJob, new JobParametersBuilder().addLocalDateTime(RESTORE_BACKUP_JOB_NAME + "_key", LocalDateTime.now(systemDefault())).toJobParameters());
 		LOG.info("RestoreBackup job ended with status: {} at: {}", executionResult.getExitStatus(), executionResult.getEndTime());
 	}
 }

@@ -74,7 +74,8 @@ public class BatchConfig {
 	public Step step1(final DataSource dataSource, final JobRepository jobRepository, final PlatformTransactionManager transactionManager) {
 		LOG.info("Creating step1 for reading, processing and writing invoices.");
 		return new StepBuilder("invoiceStep", jobRepository)
-			.<RaindanceQueryResultDto, InvoiceEntity>chunk(CHUNK_SIZE, transactionManager)
+			.<RaindanceQueryResultDto, InvoiceEntity>chunk(CHUNK_SIZE)
+			.transactionManager(transactionManager)
 			.faultTolerant()
 			.reader(raindanceReader(dataSource))
 			.processor(raindanceEntityProcessor)
