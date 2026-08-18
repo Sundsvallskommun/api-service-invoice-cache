@@ -2,6 +2,7 @@ package se.sundsvall.invoicecache.integration.storage.importer;
 
 import java.sql.SQLException;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import javax.sql.rowset.serial.SerialBlob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,7 +59,7 @@ public class SambaImportPdfWriter {
 		}
 
 		// 4) Persist the row only after Samba confirms integrity.
-		final var now = OffsetDateTime.now();
+		final var now = OffsetDateTime.now(ZoneId.systemDefault());
 		final var pdfEntity = PdfEntity.builder()
 			.withMunicipalityId(municipalityId)
 			.withFilename(entry.source())

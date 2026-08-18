@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.Objects;
@@ -53,7 +54,7 @@ public class RaindanceSambaIntegration {
 	}
 
 	static boolean isAfterYesterday(final long lastModified) {
-		return LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), TimeZone.getDefault().toZoneId()).isAfter(LocalDateTime.now().minusDays(1));
+		return LocalDateTime.ofInstant(Instant.ofEpochMilli(lastModified), TimeZone.getDefault().toZoneId()).isAfter(LocalDateTime.now(ZoneId.systemDefault()).minusDays(1));
 	}
 
 	public InvoicePdf fetchInvoiceByFilename(final String filename) {

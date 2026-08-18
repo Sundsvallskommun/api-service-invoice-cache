@@ -1,6 +1,7 @@
 package se.sundsvall.invoicecache.integration.storage.scheduler;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
@@ -56,7 +57,7 @@ public class StorageSchedulerWorker {
 
 				// Writes the file to Samba storage and returns a SHA256 hash of the file content
 				final var fileHash = storageSambaIntegration.writeFile(file.getDocument());
-				final var movedAt = OffsetDateTime.now();
+				final var movedAt = OffsetDateTime.now(ZoneId.systemDefault());
 				file.setFileHash(fileHash);
 				file.setMovedAt(movedAt);
 				pdfRepository.save(file);
@@ -106,7 +107,7 @@ public class StorageSchedulerWorker {
 		final var calculatedHash = storageSambaIntegration.verifyBlobIntegrity(fileHash);
 		if (calculatedHash.equals(file.getFileHash())) {
 			file.setDocument(null);
-			file.setTruncatedAt(OffsetDateTime.now());
+			file.setTruncatedAt(OffsetDateTime.now(ZoneId.systemDefault()));
 			pdfRepository.save(file);
 			LOG.info("File truncation completed successfully. ID='{}', truncatedAt='{}'.", file.getId(), file.getTruncatedAt());
 		} else {
@@ -122,7 +123,7 @@ public class StorageSchedulerWorker {
 	 * @return list of PDF entity IDs
 	 */
 	private List<Integer> findPdfIdsToTransfer() {
-		return pdfRepository.findPdfIdsToTransfer(OffsetDateTime.now().minusMonths(transferThresholdMonths), RAINDANCE_ISSUER_LEGAL_ID);
+		return pdfRepository.findPdfIdsToTransfer(OffsetDateTime.now(ZoneId.systemDefault()).minusMonths(transferThresholdMonths), RAINDANCE_ISSUER_LEGAL_ID);
 	}
 
 	/**

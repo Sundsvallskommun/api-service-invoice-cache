@@ -1,6 +1,7 @@
 package se.sundsvall.invoicecache.service.scheduler;
 
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,7 +24,7 @@ public class RemovalWorker {
 
 	@Transactional
 	public void removeOldRaindanceInvoices() {
-		var cutoff = OffsetDateTime.now().minusMonths(18L);
+		var cutoff = OffsetDateTime.now(ZoneId.systemDefault()).minusMonths(18L);
 		var numberOfOldRaindancePdfs = pdfRepository.countAllByInvoiceIssuerLegalIdAndCreatedIsBefore(RAINDANCE_ISSUER_LEGAL_ID, cutoff);
 		LOG.info("Found {} old Raindance PDFs to be removed.", numberOfOldRaindancePdfs);
 
