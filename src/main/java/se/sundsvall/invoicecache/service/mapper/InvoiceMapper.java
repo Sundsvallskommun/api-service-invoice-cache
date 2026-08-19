@@ -1,6 +1,7 @@
 package se.sundsvall.invoicecache.service.mapper;
 
 import java.math.RoundingMode;
+import java.time.ZoneId;
 import org.springframework.stereotype.Component;
 import se.sundsvall.invoicecache.api.model.Address;
 import se.sundsvall.invoicecache.api.model.Invoice;
@@ -124,7 +125,7 @@ public class InvoiceMapper {
 	 */
 	void determineIfSent(final Invoice invoice, final InvoiceEntity entity) {
 		// Check if today's date is between the invoice date and print date.
-		if (nonNull(entity.getInvoiceCreatedDate()) && now().isBefore(invoice.getInvoiceDate()) && now().isAfter(entity.getInvoiceCreatedDate())) {
+		if (nonNull(entity.getInvoiceCreatedDate()) && now(ZoneId.systemDefault()).isBefore(invoice.getInvoiceDate()) && now(ZoneId.systemDefault()).isAfter(entity.getInvoiceCreatedDate())) {
 			invoice.setInvoiceStatus(InvoiceStatus.SENT);
 		}
 	}
