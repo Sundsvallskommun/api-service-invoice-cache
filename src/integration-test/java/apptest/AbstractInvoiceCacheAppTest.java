@@ -1,7 +1,5 @@
 package apptest;
 
-import static org.awaitility.Awaitility.await;
-
 import java.time.Duration;
 import java.util.Optional;
 import org.slf4j.Logger;
@@ -10,8 +8,11 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.annotation.DirtiesContext.ClassMode;
 import se.sundsvall.dept44.test.AbstractAppTest;
 
+import static org.awaitility.Awaitility.await;
+
 /**
- * Each concrete app test binds its Spring context to its own Testcontainers databases via {@code @DynamicPropertySource},
+ * Each concrete app test binds its Spring context to its own Testcontainers databases via
+ * {@code @DynamicPropertySource},
  * so contexts are never reusable across classes. Closing the context when the class finishes shuts down its Hikari pool
  * and every-second {@code @Dept44Scheduled} invoice job at that point; otherwise the cached context lingers and keeps
  * hitting a container Testcontainers has already stopped, spamming "Connection refused". Capping the context-cache size
