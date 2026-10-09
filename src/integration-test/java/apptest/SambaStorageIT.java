@@ -44,7 +44,8 @@ import static org.assertj.core.api.Assertions.within;
 class SambaStorageIT extends AbstractAppTest {
 
 	/**
-	 * The SMB container for storing transferred invoice PDFs. This is used by the StorageScheduler to transfer files from the database to the SMB share.
+	 * The SMB container for storing transferred invoice PDFs. This is used by the StorageScheduler to transfer files from
+	 * the database to the SMB share.
 	 */
 	@Container
 	public static final GenericContainer<?> smbContainer = new GenericContainer<>("dockurr/samba:4.22.6")
@@ -63,7 +64,8 @@ class SambaStorageIT extends AbstractAppTest {
 	public static final MariaDBContainer invoiceDb = new MariaDBContainer(DockerImageName.parse(MARIADB_VERSION))
 		.withDatabaseName("ms-invoicecache");
 	/**
-	 * The MSSQL container with a Raindance initialization script. This is not used directly in the tests but is required to start the application context successfully.
+	 * The MSSQL container with a Raindance initialization script. This is not used directly in the tests but is required to
+	 * start the application context successfully.
 	 */
 	@Container
 	public static final MSSQLServerContainer raindanceDb = new MSSQLServerContainer(DockerImageName.parse(MSSQL_VERSION))
