@@ -19,7 +19,9 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpStatus.OK;
 
 /**
- * Test for checking that backup invoices are read when we fail to read invoices from raindance. Only initializes the DB from raindance, no data is inserted which fakes that we couldn't fetch anything. The "local" DB only has the backup table populated,
+ * Test for checking that backup invoices are read when we fail to read invoices from raindance. Only initializes the DB
+ * from raindance, no data is inserted which fakes that we couldn't fetch anything. The "local" DB only has the backup
+ * table populated,
  * which should be transferred to the invoice table and then read by the test.
  */
 @WireMockAppTestSuite(files = "classpath:/InvoiceCacheBackup/",
